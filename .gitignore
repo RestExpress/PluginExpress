@@ -1,3 +1,7 @@
+out/
+build/
+bin/
+.DS_Store
 *.class
 
 # Package Files #
