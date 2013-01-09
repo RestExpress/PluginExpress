@@ -1,6 +1,7 @@
 out/
 build/
 bin/
+target/
 .DS_Store
 *.class
 
