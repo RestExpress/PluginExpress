@@ -3,11 +3,9 @@
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/domain-eventing-0.4.0-22.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.5.10.Final.jar"/>
 	<classpathentry kind="lib" path="lib/DateAdapterJ-1.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/domain-eventing-0.4.0-22-hazelcast.jar"/>
-	<classpathentry kind="lib" path="lib/RestExpress-0.8.0-build-112.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/RestExpress-0.8.0-build-117.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

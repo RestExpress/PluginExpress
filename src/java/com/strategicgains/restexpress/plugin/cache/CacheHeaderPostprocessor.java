@@ -82,7 +82,6 @@ implements Postprocessor
 
 	/**
      * @param maxAge
-     * @return
      */
     private Date computeExpiresDate(Integer maxAge)
     {

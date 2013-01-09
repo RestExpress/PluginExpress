@@ -32,7 +32,6 @@ import org.junit.Test;
 import com.strategicgains.restexpress.Request;
 import com.strategicgains.restexpress.Response;
 import com.strategicgains.restexpress.pipeline.Postprocessor;
-import com.strategicgains.restexpress.postprocessor.DateHeaderPostprocessor;
 import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
 
 /**
