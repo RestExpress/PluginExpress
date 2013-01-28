@@ -1,3 +1,5 @@
+[![Build Status](https://buildhive.cloudbees.com/job/RestExpress/job/PluginExpress/badge/icon)](https://buildhive.cloudbees.com/job/RestExpress/job/PluginExpress/)
+
 Plugin-Registry
 ===============
 
