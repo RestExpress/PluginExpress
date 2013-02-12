@@ -62,7 +62,7 @@ implements Plugin, Preprocessor, Postprocessor
 {
     private static final Counter ACTIVE_REQUESTS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "activeRequests");
     private static final Counter ALL_EXCEPTIONS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "all-exceptions");
-    private static final Timer ALL_TIMES_TIMER = Metrics.newTimer(MetricsPlugin.class, "all-times", TimeUnit.MICROSECONDS, TimeUnit.HOURS);
+    private static final Timer ALL_TIMES_TIMER = Metrics.newTimer(MetricsPlugin.class, "all-times", TimeUnit.MILLISECONDS, TimeUnit.HOURS);
     
 	private static final ConcurrentHashMap<String, Timer> ROUTE_TIMERS = new ConcurrentHashMap<String, Timer>();
 	private static final ConcurrentHashMap<String, Long> START_TIMES_BY_CORRELATION_ID = new ConcurrentHashMap<String, Long>();
@@ -98,6 +98,7 @@ implements Plugin, Preprocessor, Postprocessor
 
 		server
 			.addMessageObserver(this)
+			.addPreprocessor(this)
 			.addPostprocessor(this);
 
 		return this;
@@ -158,11 +159,8 @@ implements Plugin, Preprocessor, Postprocessor
 	    Response response)
 	{
 		ALL_EXCEPTIONS_COUNTER.inc();
-		Route route = request.getResolvedRoute();
 
-		if (route == null) return;
-
-		String name = route.getName();
+		String name = getRouteName(request);
 		if (name == null || name.isEmpty()) return;
 
 		Counter exceptionCounter = EXCEPTION_COUNTERS_BY_ROUTE.get(name);
@@ -181,7 +179,7 @@ implements Plugin, Preprocessor, Postprocessor
 		{
 			ALL_TIMES_TIMER.update(duration, TimeUnit.MILLISECONDS);
 
-			String name = request.getResolvedRoute().getName();
+			String name = getRouteName(request);
 			if (name == null || name.isEmpty()) return;
 
 			ROUTE_TIMERS.get(name).update(duration, TimeUnit.MILLISECONDS);
