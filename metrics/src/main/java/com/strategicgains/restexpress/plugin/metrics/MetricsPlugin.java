@@ -33,7 +33,6 @@ import com.strategicgains.restexpress.pipeline.MessageObserver;
 import com.strategicgains.restexpress.pipeline.Postprocessor;
 import com.strategicgains.restexpress.pipeline.Preprocessor;
 import com.strategicgains.restexpress.plugin.Plugin;
-import com.strategicgains.restexpress.route.Route;
 import com.strategicgains.util.date.DateAdapterConstants;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Counter;
