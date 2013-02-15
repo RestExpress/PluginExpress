@@ -15,16 +15,12 @@
  */
 package com.strategicgains.restexpress.plugin.metrics;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.strategicgains.restexpress.Request;
 import com.strategicgains.restexpress.Response;
@@ -33,7 +29,6 @@ import com.strategicgains.restexpress.pipeline.MessageObserver;
 import com.strategicgains.restexpress.pipeline.Postprocessor;
 import com.strategicgains.restexpress.pipeline.Preprocessor;
 import com.strategicgains.restexpress.plugin.Plugin;
-import com.strategicgains.util.date.DateAdapterConstants;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Timer;
@@ -59,7 +54,7 @@ public class MetricsPlugin
 extends MessageObserver
 implements Plugin, Preprocessor, Postprocessor
 {
-    private static final Counter ACTIVE_REQUESTS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "activeRequests");
+    private static final Counter ACTIVE_REQUESTS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "active-requests");
     private static final Counter ALL_EXCEPTIONS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "all-exceptions");
     private static final Timer ALL_TIMES_TIMER = Metrics.newTimer(MetricsPlugin.class, "all-times", TimeUnit.MILLISECONDS, TimeUnit.HOURS);
     
@@ -67,25 +62,25 @@ implements Plugin, Preprocessor, Postprocessor
 	private static final ConcurrentHashMap<String, Long> START_TIMES_BY_CORRELATION_ID = new ConcurrentHashMap<String, Long>();
 	private static final ConcurrentHashMap<String, Counter> EXCEPTION_COUNTERS_BY_ROUTE = new ConcurrentHashMap<String, Counter>();
 	private static final ConcurrentHashMap<Integer, Counter> COUNTERS_BY_RESPONSE = new ConcurrentHashMap<Integer, Counter>();
-	
-	private final DateFormat DATE_FORMAT = new SimpleDateFormat(DateAdapterConstants.TIMESTAMP_OUTPUT_FORMAT);
 
 	private boolean isRegistered = false;
-	private List<Logger> loggers = null;
-	private String machineName = null;
+	private LogOutputFactory factory = null;
+	private String machineName = String.valueOf(new Object().hashCode());
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public MetricsPlugin()
 	{
 		super();
 	}
 
+
 	// SECTION: PLUGIN
 
 	/**
 	 * Register the MetricsPlugin with the RestExpress server.
 	 * 
-	 * @param server
-	 * @return
+	 * @param server a RestExpress server instance.
+	 * @return MetricsPlugin
 	 */
 	@Override
 	public MetricsPlugin register(RestExpress server)
@@ -102,42 +97,57 @@ implements Plugin, Preprocessor, Postprocessor
 
 		return this;
 	}
-	
-	/**
-	 * Add a SLF4J Logger to the MetricsPlugin to log INFO message.
-	 * 
-	 * @param logger an SLF4J logger.
-	 * @return
-	 */
-	public MetricsPlugin logger(Logger logger)
-	{
-		if (loggers == null)
-		{
-			loggers = new ArrayList<Logger>();
-		}
 
-		loggers.add(logger);
-		return this;
-	}
-	
 	/**
-	 * Set the machine name for use only if there is a SLF4J logger added to the MetricsPlugin.
+	 * Useful for aggregated logging, this arbitrary string identifies log entries as coming from a specific machine or JVM.
 	 * 
-	 * @param name a unique machine name, used for logging only.
-	 * @return
+	 * @param name an arbitrary string that uniquely identifies this machine or JVM.
+	 * @return MetricsPlugin
 	 */
-	public MetricsPlugin machine(String name)
+	public MetricsPlugin virtualMachineId(String name)
 	{
 		this.machineName = name;
 		return this;
 	}
 
+	/**
+	 * Tells the plugin to not output metrics to a log file
+	 * 
+	 * @return MetricsPlugin
+	 */
+	public MetricsPlugin noLogging()
+	{
+		this.logger = null;
+		return this;
+	}
+
+	/**
+	 * Set your own LogOutputFactory implementation on the plugin.
+	 * 
+	 * @param factory your own LogOutputFactory sub-class.
+	 * @return MetricsPlugin
+	 */
+	public MetricsPlugin logOutputFactory(LogOutputFactory factory)
+	{
+		this.factory = factory;
+		return this;
+	}
+
+	/**
+	 * This is called by RestExpress during it's bind() operation--right before it starts listening.
+	 */
 	@Override
 	public void bind(RestExpress server)
 	{
-		// Do nothing (did it in register).
+		if (logger != null && factory == null)
+		{
+			factory = new LogOutputFactory(machineName);
+		}
 	}
 
+	/**
+	 * Called on RestExpress shutdown.
+	 */
 	@Override
 	public void shutdown(RestExpress server)
 	{
@@ -154,8 +164,7 @@ implements Plugin, Preprocessor, Postprocessor
 	}
 
 	@Override
-	protected void onException(Throwable exception, Request request,
-	    Response response)
+	protected void onException(Throwable exception, Request request, Response response)
 	{
 		ALL_EXCEPTIONS_COUNTER.inc();
 
@@ -172,7 +181,7 @@ implements Plugin, Preprocessor, Postprocessor
 	protected void onComplete(Request request, Response response)
 	{
 		ACTIVE_REQUESTS_COUNTER.dec();
-		Long duration = getDurationMillis(START_TIMES_BY_CORRELATION_ID.remove(request.getCorrelationId()));
+		Long duration = computeDurationMillis(START_TIMES_BY_CORRELATION_ID.remove(request.getCorrelationId()));
 
 		if (duration != null && duration.longValue() > 0)
 		{
@@ -193,42 +202,28 @@ implements Plugin, Preprocessor, Postprocessor
 		}
 
 		responseCounter.inc();
-		log(request, response, duration);
+		
+		if (logger != null)
+		{
+			logger.info(factory.create(request, response, duration));
+		}
+
+		publish(request, response, duration);
 	}
 
-	private void log(Request request, Response response, Long duration)
+	/**
+	 * Do some additional processing to publish the metrics, if necessary.  This is a TemplateMethod,
+	 * called at the end of onComplete() for sub-classes to do additional processing or publishing.
+	 * <p/>
+	 * Default behavior is to do nothing.  Override if you need additional functionality.
+	 * 
+	 * @param request
+	 * @param response
+	 * @param duration
+	 */
+	protected void publish(Request request, Response response, Long duration)
     {
-		if (loggers == null) return;
-
-	    StringBuilder builder = new StringBuilder();
-		builder.append("Time=" + ((DateFormat) DATE_FORMAT.clone()).format(new Date()));
-		builder.append(" RequestTime=" + duration);
-		builder.append(" Url=" + request.getUrl());
-		builder.append(" RequestType=" + request.getHttpMethod().getName());
-		builder.append(" RequestFormat=" + request.getFormat());
-		builder.append(" Resource=" + getRouteName(request));
-		
-		if (hasMachineName())
-		{
-			builder.append(" Machine=" + machineName);
-		}
-
-		builder.append(" Status=" + response.getResponseStatus().getCode());
-
-		if (request.getRawHeader("User-Agent") != null)
-		{
-			builder.append(" UserAgent=" + request.getRawHeader("User-Agent"));
-		}
-
-		if (request.getRawHeader("Referer") != null)
-		{
-			builder.append(" UrlReferer=" + request.getRawHeader("Referer"));
-		}
-
-		for (Logger logger : loggers)
-		{
-			logger.info(builder.toString());
-		}
+		// Default is to do nothing.  Sub-classes can override.
     }
 
 
@@ -263,7 +258,7 @@ implements Plugin, Preprocessor, Postprocessor
 	@Override
 	public void process(Request request, Response response)
 	{
-		Long duration = getDurationMillis(START_TIMES_BY_CORRELATION_ID.get(request.getCorrelationId()));
+		Long duration = computeDurationMillis(START_TIMES_BY_CORRELATION_ID.get(request.getCorrelationId()));
 		
 		if (duration != null && duration.longValue() > 0)
 		{
@@ -271,15 +266,10 @@ implements Plugin, Preprocessor, Postprocessor
 		}
 	}
 
-
+	
 	// SECTION: UTILITY - PRIVATE
 
-	private boolean hasMachineName()
-	{
-		return (machineName != null);
-	}
-
-	private Long getDurationMillis(Long started)
+	private Long computeDurationMillis(Long started)
 	{
 		Long duration = 0L;
 
@@ -293,6 +283,8 @@ implements Plugin, Preprocessor, Postprocessor
 
 	private String getRouteName(Request request)
 	{
+		if (request.getResolvedRoute() == null) return null;
+
 		String name = request.getResolvedRoute().getName();
 		
 		if (name == null || name.trim().isEmpty())
@@ -302,6 +294,7 @@ implements Plugin, Preprocessor, Postprocessor
 
 		return name;
 	}
+
 	private String getTimerName(String routeName)
 	{
 		return routeName + "-times";
