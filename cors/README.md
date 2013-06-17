@@ -49,7 +49,8 @@ Usage of the CORS Plugin is basically the same as the other plugins in this regi
 Simply create a new plugin and register it with the RestExpress server, setting options
 as necessary, using method chaining if desired.
 
-'''java
+To support the CORS OPTIONS Preflight request:
+```java
 RestExpress server = new RestExpress()...
 
 new CorsHeaderPlugin("*")							// Array of domain strings.
@@ -60,5 +61,14 @@ new CorsHeaderPlugin("*")							// Array of domain strings.
 	.parameter("string", object)					// Just like parameter() on Routes.
 	.noPreflightSupport()							// 
 	.register(server);
+```
 
-'''
+Or to NOT support the CORS OPTIONS Preflight request:
+```java
+RestExpress server = new RestExpress()...
+
+new CorsHeaderPlugin("*")							// Array of domain strings.
+	.exposeHeaders("Location")						// Array of header names (Optional).
+	.noPreflightSupport()							// Turn off OPTIONS request support.
+	.register(server);
+```
