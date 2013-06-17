@@ -21,6 +21,7 @@ import com.strategicgains.restexpress.domain.metadata.RouteMetadata;
 import com.strategicgains.restexpress.pipeline.Postprocessor;
 import com.strategicgains.restexpress.plugin.AbstractPlugin;
 import com.strategicgains.restexpress.route.RouteBuilder;
+import com.strategicgains.restexpress.util.Callback;
 import com.strategicgains.restexpress.util.StringUtils;
 
 /**
@@ -72,35 +73,38 @@ extends AbstractPlugin
 	public CorsHeaderPlugin(String... origins)
 	{
 		super();
-		allowOriginHeader = StringUtils.join(" ", (Object[]) origins);
+		allowOriginHeader = StringUtils.join(",", (Object[]) origins);
 	}
 	
 	/**
-	 * Sets the maxAge
+	 * Sets the maxAge for caching on the preflight OPTIONS request.
+	 * 
 	 * @param seconds
 	 * @return
 	 */
 	public CorsHeaderPlugin maxAge(long seconds)
 	{
+		if (isRegistered()) throw new UnsupportedOperationException("CorsHeaderPlugin.maxAge(long) must be called before register()");
+
 		this.maxAge = seconds;
 		return this;
 	}
 
 	/** 
-	 * Set the value of the Access-Control-Expose-Headers header on responses.
+	 * Set the value of the 'Access-Control-Expose-Headers' header on responses.
 	 * 
 	 * @param exposeHeaders
 	 * @return
 	 */
 	public CorsHeaderPlugin exposeHeaders(String... exposeHeaders)
 	{
-		exposeHeadersHeader = StringUtils.join(" ", (Object[])exposeHeaders);
+		exposeHeadersHeader = StringUtils.join(",", (Object[])exposeHeaders);
 		return this;
 	}
 	
 	public CorsHeaderPlugin allowHeaders(String... allowHeaders)
 	{
-		allowHeadersHeader = StringUtils.join(" ", (Object[])allowHeaders);
+		allowHeadersHeader = StringUtils.join(",", (Object[])allowHeaders);
 		return this;
 	}
 
@@ -151,18 +155,31 @@ extends AbstractPlugin
 		CorsHeaderPostprocessor proc = new CorsHeaderPostprocessor(allowOriginHeader, exposeHeadersHeader);
 		server.addFinallyProcessor(proc);
 
-		for (RouteMetadata d : server.getRouteMetadata().getRoutes())
+		server.iterateRouteBuilders(new Callback<RouteBuilder>()
 		{
-			String pattern = d.getUri().getPattern();
-			Set<HttpMethod> methods = new HashSet<HttpMethod>();
-			
-			for (String method : d.getMethods())
+			@Override
+			public void process(RouteBuilder builder)
 			{
-				methods.add(HttpMethod.valueOf(method));
+				RouteMetadata d = builder.asMetadata();
+				String pattern = d.getUri().getPattern();
+				Set<HttpMethod> methods = new HashSet<HttpMethod>();
+				
+				for (String method : d.getMethods())
+				{
+					methods.add(HttpMethod.valueOf(method));
+				}
+				
+				if (isPreflightSupported)
+				{
+					if (!methods.contains(HttpMethod.OPTIONS))
+					{
+						methods.add(HttpMethod.OPTIONS);
+					}
+				}
+				
+				methodsByPattern.put(pattern, methods);
 			}
-			
-			methodsByPattern.put(pattern, methods);
-		}
+		});
 
 		if (isPreflightSupported)
 		{
@@ -193,7 +210,7 @@ extends AbstractPlugin
 	    	rb = server.uri(pattern, corsOptionsController)
 	    	.action("options", HttpMethod.OPTIONS)
 	    	.noSerialization();
-	    	
+
 	    	for (String flag : flags)
 	    	{
 	    		rb.flag(flag);
@@ -245,7 +262,7 @@ extends AbstractPlugin
 		private static final String CORS_ALLOW_HEADERS_HEADER = "Access-Control-Allow-Headers";
 
 		private String allowOriginsHeader;
-		private Map<String, String> allowedMethodsByPattern;
+		private Map<String, String> allowedMethodsByPattern = new HashMap<String, String>();
 		private Long maxAge;
 		private String allowHeadersHeader;
 
@@ -258,7 +275,7 @@ extends AbstractPlugin
 			
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())
 			{
-				allowedMethodsByPattern.put(entry.getKey(), StringUtils.join(" ", entry.getValue()));
+				allowedMethodsByPattern.put(entry.getKey(), StringUtils.join(",", entry.getValue()));
 			}
 		}
 
