@@ -63,7 +63,7 @@ extends AbstractPlugin
 	private String allowOriginHeader;
 	private String exposeHeadersHeader;
 	private String allowHeadersHeader;
-	private long maxAge;
+	private Long maxAge;
 	private Map<String, Set<HttpMethod>> methodsByPattern = new HashMap<String, Set<HttpMethod>>();
 	private List<RouteBuilder> routeBuilders = new ArrayList<RouteBuilder>();
 	private boolean isPreflightSupported = true;
@@ -86,7 +86,7 @@ extends AbstractPlugin
 	{
 		if (isRegistered()) throw new UnsupportedOperationException("CorsHeaderPlugin.maxAge(long) must be called before register()");
 
-		this.maxAge = seconds;
+		this.maxAge = Long.valueOf(seconds);
 		return this;
 	}
 
@@ -266,11 +266,11 @@ extends AbstractPlugin
 		private Long maxAge;
 		private String allowHeadersHeader;
 
-		public CorsOptionsController(String allowOriginsHeader, long maxAge, Map<String, Set<HttpMethod>> methodsByPattern, String allowHeadersHeader)
+		public CorsOptionsController(String allowOriginsHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern, String allowHeadersHeader)
 		{
 			super();
 			this.allowOriginsHeader = allowOriginsHeader;
-			this.maxAge = Long.valueOf(maxAge);
+			this.maxAge = (maxAge == null ? null : Long.valueOf(maxAge));
 			this.allowHeadersHeader = allowHeadersHeader;
 			
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())

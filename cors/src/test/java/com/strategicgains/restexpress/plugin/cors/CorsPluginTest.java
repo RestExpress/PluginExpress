@@ -67,6 +67,8 @@ public class CorsPluginTest
 		assertTrue(methods.contains("GET"));
 		assertTrue(methods.contains("POST"));
 		assertTrue(methods.contains("OPTIONS"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
 		request.releaseConnection();
 
 		request = new HttpOptions(URL1);
@@ -75,6 +77,43 @@ public class CorsPluginTest
 		assertEquals("Location", response.getHeaders("Access-Control-Allow-Headers")[0].getValue());
 		assertEquals("42", response.getHeaders("Access-Control-Max-Age")[0].getValue());
 		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		assertTrue(methods.contains("GET"));
+		assertTrue(methods.contains("POST"));
+		assertTrue(methods.contains("PUT"));
+		assertTrue(methods.contains("DELETE"));
+		assertTrue(methods.contains("OPTIONS"));
+		request.releaseConnection();
+	}
+
+	@Test
+	public void shouldReturnDefaultOptions()
+	throws ClientProtocolException, IOException
+	{
+		new CorsHeaderPlugin("*")
+			.register(server);
+		server.bind(SERVER_PORT);
+
+		HttpOptions request = new HttpOptions(URL2);
+		HttpResponse response = (HttpResponse) http.execute(request);
+		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
+		String methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		assertTrue(methods.contains("GET"));
+		assertTrue(methods.contains("POST"));
+		assertTrue(methods.contains("OPTIONS"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
+		request.releaseConnection();
+
+		request = new HttpOptions(URL1);
+		response = (HttpResponse) http.execute(request);
+		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
 		methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
 		assertTrue(methods.contains("GET"));
 		assertTrue(methods.contains("POST"));
@@ -101,6 +140,17 @@ public class CorsPluginTest
 		assertTrue(methods.contains("PUT"));
 		assertTrue(methods.contains("POST"));
 		assertTrue(methods.contains("DELETE"));
+		assertFalse(methods.contains("OPTIONS"));
+		request.releaseConnection();
+
+		request = new HttpOptions(URL2);
+		response = (HttpResponse) http.execute(request);
+		assertEquals(405, response.getStatusLine().getStatusCode());
+		methods = response.getHeaders("Allow")[0].getValue();
+		assertTrue(methods.contains("GET"));
+		assertTrue(methods.contains("POST"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
 		assertFalse(methods.contains("OPTIONS"));
 		request.releaseConnection();
 	}
