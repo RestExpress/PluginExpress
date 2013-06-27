@@ -17,9 +17,9 @@ import com.strategicgains.restexpress.ContentType;
 import com.strategicgains.restexpress.Request;
 import com.strategicgains.restexpress.Response;
 import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.domain.metadata.RouteMetadata;
 import com.strategicgains.restexpress.pipeline.Postprocessor;
 import com.strategicgains.restexpress.plugin.AbstractPlugin;
+import com.strategicgains.restexpress.route.Route;
 import com.strategicgains.restexpress.route.RouteBuilder;
 import com.strategicgains.restexpress.util.Callback;
 import com.strategicgains.restexpress.util.StringUtils;
@@ -160,13 +160,13 @@ extends AbstractPlugin
 			@Override
 			public void process(RouteBuilder builder)
 			{
-				RouteMetadata d = builder.asMetadata();
-				String pattern = d.getUri().getPattern();
+				List<Route> routes = builder.build();
+				String pathPattern = routes.get(0).getPattern();
 				Set<HttpMethod> methods = new HashSet<HttpMethod>();
-				
-				for (String method : d.getMethods())
+
+				for (Route route : routes)
 				{
-					methods.add(HttpMethod.valueOf(method));
+					methods.add(route.getMethod());
 				}
 				
 				if (isPreflightSupported)
@@ -177,7 +177,7 @@ extends AbstractPlugin
 					}
 				}
 				
-				methodsByPattern.put(pattern, methods);
+				methodsByPattern.put(pathPattern, methods);
 			}
 		});
 
@@ -208,8 +208,8 @@ extends AbstractPlugin
 	    for (String pattern : methodsByPattern.keySet())
 	    {
 	    	rb = server.uri(pattern, corsOptionsController)
-	    	.action("options", HttpMethod.OPTIONS)
-	    	.noSerialization();
+		    	.action("options", HttpMethod.OPTIONS)
+		    	.noSerialization();
 
 	    	for (String flag : flags)
 	    	{
@@ -283,6 +283,7 @@ extends AbstractPlugin
         public void options(Request request, Response response)
 		{
 			response.addHeader(CORS_ALLOW_ORIGIN_HEADER, allowOriginsHeader);
+			String pat = request.getResolvedRoute().getPattern();
 			response.addHeader(CORS_ALLOW_METHODS_HEADER, allowedMethodsByPattern.get(request.getResolvedRoute().getPattern()));
 			response.addHeader("Content-Length","0");
 			response.setContentType(ContentType.TEXT_PLAIN);
