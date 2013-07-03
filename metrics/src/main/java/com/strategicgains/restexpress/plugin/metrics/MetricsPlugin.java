@@ -35,7 +35,7 @@ import com.yammer.metrics.core.Timer;
 
 /**
  * Enables full metrics on all routes in the service suite via the Yammer (Coda Hale) Metrics library.  Metrics are available
- * via JMX, but can be published to statsd by configuring the Yammer (Coda Hale) Metrics publisher as follows:
+ * via JMX, but can be published to Graphite by configuring the Yammer (Coda Hale) Metrics publisher as follows:
  * <p/>
  * GraphiteReporter.enable(1, TimeUnit.MINUTES, "graphite.example.com", 2003);
  * <p/>

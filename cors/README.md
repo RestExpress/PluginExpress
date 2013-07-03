@@ -10,7 +10,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CORSPlugin</artifactId>
-			<version>0.1.2</version>
+			<version>0.1.3</version>
 		</dependency>
 ```
 Development:
@@ -18,13 +18,13 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CORSPlugin</artifactId>
-			<version>0.1.3-SNAPSHOT</version>
+			<version>0.1.4-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
 http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22CORSPlugin%22
 
-Note that to use the SNAPSHOT version, you must enable snapshots and a repository in your pom file as follows:
+Note that to use the SNAPSHOT version, you must enable snapshots and a repository in your pom (or settings.xml) file as follows:
 ```xml
   <profiles>
     <profile>
@@ -48,6 +48,9 @@ Usage
 Usage of the CORS Plugin is basically the same as the other plugins in this registry.
 Simply create a new plugin and register it with the RestExpress server, setting options
 as necessary, using method chaining if desired.
+
+*NOTE* It's recommended to make this the LAST plugin registered as it iterates all routes defined in your service suite and 
+adds an OPTIONS route, if configured to support the CORS OPTIONS pre-flight request.
 
 To support the CORS OPTIONS Preflight request:
 ```java

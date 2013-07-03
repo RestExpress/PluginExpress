@@ -4,29 +4,30 @@ Plugin-Registry
 ===============
 
 RestExpress-specific plugins.  Plus a registry of third-party (externally written) plugins for enhancing RestExpress functionality.
+Please see the README for each individual plugin for additional details.  Or the PluginExpress wiki page.
 
-Maven Usage
-===========
+General Maven Usage
+===================
 Stable:
 ```xml
 		<dependency>
-			<groupId>com.strategicgains</groupId>
-			<artifactId>PluginExpress</artifactId>
-			<version>0.1.1</version>
+			<groupId>com.strategicgains.plugin-express</groupId>
+			<artifactId>* plugin name here *</artifactId>
+			<version>0.1.3</version>
 		</dependency>
 ```
 Development:
 ```xml
 		<dependency>
-			<groupId>com.strategicgains</groupId>
+			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>PluginExpress</artifactId>
-			<version>0.1.2-SNAPSHOT</version>
+			<version>0.1.4-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
-http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22PluginExpress%22
+http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22plugin-express%22
 
-Note that to use the SNAPSHOT version, you must enable snapshots and a repository in your pom file as follows:
+Note that to use the SNAPSHOT versions, you must enable snapshots and a repository in your pom file as follows:
 ```xml
   <profiles>
     <profile>
