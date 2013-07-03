@@ -91,14 +91,14 @@ public class LogOutputFactory
 		builder.append(" CorrelationId=" + request.getCorrelationId());
 		builder.append(" Status=" + response.getResponseStatus().getCode());
 
-		if (request.getRawHeader("User-Agent") != null)
+		if (request.getHeader("User-Agent") != null)
 		{
-			builder.append(" UserAgent=" + request.getRawHeader("User-Agent"));
+			builder.append(" UserAgent=" + request.getHeader("User-Agent"));
 		}
 
-		if (request.getRawHeader("Referer") != null)
+		if (request.getHeader("Referer") != null)
 		{
-			builder.append(" UrlReferer=" + request.getRawHeader("Referer"));
+			builder.append(" UrlReferer=" + request.getHeader("Referer"));
 		}
 		
 		return builder;
