@@ -60,10 +60,10 @@ Usage
 =====
 
 Usage of the Metrics Plugin is basically the same as the other plugins in this registry.
-Simply create a new plugin and register it with the RestExpress server, setting options
-as necessary, using method chaining if desired.  However, to publish the gathered metrics
-to JMX or Graphite (or any of the other Coda Hale Metrics library-supported endpoints),
-you must create a MetricRegistry instance and pass it in to the plugin constructor.
+Simply create a new plugin and register it with the RestExpress server, using method
+chaining if desired.  However, to publish the gathered metrics to JMX or Graphite (or any
+of the other Coda Hale Metrics library-supported endpoints), you must create a
+MetricRegistry instance and pass it in to the plugin constructor.
 
 For example, to make metrics available via JMX:
 ```java
@@ -71,9 +71,6 @@ RestExpress server = new RestExpress()...
 
 MetricRegistry registry = new MetricRegistry();
 new MetricsPlugin(registry)
-	.virtualMachineId("us-east-1a-beta1")	// optional. Unique name metrics are published under.
-	.noLogging()							// optional. Turn off output logging.
-	.logOutputFactory(logOutputFactory)		// optional. Set your own LogOutputFactory (SLF4J).
 	.register(server);
 
 final JmxReporter reporter = JmxReporter.forRegistry(registry).build();

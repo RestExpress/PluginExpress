@@ -19,8 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -35,7 +33,7 @@ import com.strategicgains.restexpress.plugin.Plugin;
 import com.strategicgains.restexpress.util.StringUtils;
 
 /**
- * Enables full metrics on all routes in the service suite via the Yammer (Coda Hale) Metrics library.  Metrics are can be
+ * Enables full metrics on all routes in the service suite via the Coda Hale Metrics library.  Metrics are be
  * made available via JMX using the Yammer (Coda Hale) JmxPublisher as follows (not recommended for production):
  * <p/>
  * <code>
@@ -82,11 +80,7 @@ implements Plugin, Preprocessor, Postprocessor
     private Counter activeRequestsCounter;
     private Counter allExceptionsCounter;
     private Timer allTimesTimer;
-    
-	private boolean isRegistered = false;
-	private LogOutputFactory factory = null;
-	private String machineName = String.valueOf(new Object().hashCode());
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private boolean isRegistered = false;
 
 	public MetricsPlugin(MetricRegistry registry)
 	{
@@ -120,53 +114,11 @@ implements Plugin, Preprocessor, Postprocessor
 	}
 
 	/**
-	 * Useful for aggregated logging, this arbitrary string identifies log entries as coming from a specific machine or JVM.
-	 * This is only used for logging output, not JMX or other published metrics.  If the noLogging() method is called, this
-	 * virtual machine ID is not used.
-	 * 
-	 * @param name an arbitrary string that uniquely identifies this machine or JVM.
-	 * @return MetricsPlugin to facilitate method chaining.
-	 */
-	public MetricsPlugin virtualMachineId(String name)
-	{
-		this.machineName = name;
-		return this;
-	}
-
-	/**
-	 * Tells the plugin to not output metrics to a log file
-	 * 
-	 * @return MetricsPlugin
-	 */
-	public MetricsPlugin noLogging()
-	{
-		this.logger = null;
-		return this;
-	}
-
-	/**
-	 * Set your own LogOutputFactory implementation on the plugin.
-	 * 
-	 * @param factory your own LogOutputFactory sub-class.
-	 * @return MetricsPlugin
-	 */
-	public MetricsPlugin logOutputFactory(LogOutputFactory factory)
-	{
-		this.factory = factory;
-		return this;
-	}
-
-	/**
 	 * This is called by RestExpress during it's bind() operation--right before it starts listening.
 	 */
 	@Override
 	public void bind(RestExpress server)
 	{
-		if (logger != null && factory == null)
-		{
-			factory = new LogOutputFactory(machineName);
-		}
-
 		this.activeRequestsCounter = metrics.counter("active-requests");
 	    this.allExceptionsCounter = metrics.counter("all-exceptions");
 	    this.allTimesTimer = metrics.timer("all-times");
@@ -230,12 +182,6 @@ implements Plugin, Preprocessor, Postprocessor
 		}
 
 		responseCounter.inc();
-		
-		if (logger != null)
-		{
-			logger.info(factory.create(request, response, duration));
-		}
-
 		publish(request, response, duration);
 	}
 
@@ -245,9 +191,9 @@ implements Plugin, Preprocessor, Postprocessor
 	 * <p/>
 	 * Default behavior is to do nothing.  Override if you need additional functionality.
 	 * 
-	 * @param request
-	 * @param response
-	 * @param duration
+	 * @param request the Request being processed/measured.
+	 * @param response the Response being sent back to the client.
+	 * @param duration the duration of the request in milliseconds (the time between onReceived() and onComplete() begin called).
 	 */
 	protected void publish(Request request, Response response, Long duration)
     {
