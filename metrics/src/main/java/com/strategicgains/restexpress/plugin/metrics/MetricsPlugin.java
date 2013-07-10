@@ -22,6 +22,9 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.strategicgains.restexpress.Request;
 import com.strategicgains.restexpress.Response;
 import com.strategicgains.restexpress.RestExpress;
@@ -29,15 +32,31 @@ import com.strategicgains.restexpress.pipeline.MessageObserver;
 import com.strategicgains.restexpress.pipeline.Postprocessor;
 import com.strategicgains.restexpress.pipeline.Preprocessor;
 import com.strategicgains.restexpress.plugin.Plugin;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Timer;
+import com.strategicgains.restexpress.util.StringUtils;
 
 /**
- * Enables full metrics on all routes in the service suite via the Yammer (Coda Hale) Metrics library.  Metrics are available
- * via JMX, but can be published to Graphite by configuring the Yammer (Coda Hale) Metrics publisher as follows:
+ * Enables full metrics on all routes in the service suite via the Yammer (Coda Hale) Metrics library.  Metrics are can be
+ * made available via JMX using the Yammer (Coda Hale) JmxPublisher as follows (not recommended for production):
  * <p/>
- * GraphiteReporter.enable(1, TimeUnit.MINUTES, "graphite.example.com", 2003);
+ * <code>
+ * final JmxReporter reporter = JmxReporter.forRegistry(registry).build();
+ * reporter.start();
+ * </code>
+ * And can also be published to Graphite by configuring the Yammer (Coda Hale) Metrics publisher as follows:
+ * <p/>
+ * <code>
+ * MetricRegistry registry = new MetricRegistry();
+ * MetricsPlugin metricsPlugin = new MetricsPlugin(registry)...
+ * 
+ * final Graphite graphite = new Graphite(new InetSocketAddress("graphite.example.com", 2003));
+ * final GraphiteReporter reporter = GraphiteReporter.forRegistry(metricsPlugin.getMetricRegistry())
+ * 	.prefixedWith(server.getName())
+ * 	.convertRatesTo(TimeUnit.SECONDS)
+ * 	.convertDurationsTo(TimeUnit.MILLISECONDS)
+ * 	.filter(MetricFilter.ALL)
+ * 	.build(graphite);
+ * reporter.start(10, TimeUnit.SECONDS);
+ * </code>
  * <p/>
  * This plugin maintains metrics for the following:
  * currently active requests (counter), all exceptions occurred (counter), all times (timer, milliseconds/hours),
@@ -54,23 +73,25 @@ public class MetricsPlugin
 extends MessageObserver
 implements Plugin, Preprocessor, Postprocessor
 {
-    private static final Counter ACTIVE_REQUESTS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "active-requests");
-    private static final Counter ALL_EXCEPTIONS_COUNTER = Metrics.newCounter(MetricsPlugin.class, "all-exceptions");
-    private static final Timer ALL_TIMES_TIMER = Metrics.newTimer(MetricsPlugin.class, "all-times", TimeUnit.MILLISECONDS, TimeUnit.HOURS);
-    
-	private static final ConcurrentHashMap<String, Timer> ROUTE_TIMERS = new ConcurrentHashMap<String, Timer>();
+    private static final ConcurrentHashMap<String, Timer> ROUTE_TIMERS = new ConcurrentHashMap<String, Timer>();
 	private static final ConcurrentHashMap<String, Long> START_TIMES_BY_CORRELATION_ID = new ConcurrentHashMap<String, Long>();
 	private static final ConcurrentHashMap<String, Counter> EXCEPTION_COUNTERS_BY_ROUTE = new ConcurrentHashMap<String, Counter>();
 	private static final ConcurrentHashMap<Integer, Counter> COUNTERS_BY_RESPONSE = new ConcurrentHashMap<Integer, Counter>();
 
+	private MetricRegistry metrics;
+    private Counter activeRequestsCounter;
+    private Counter allExceptionsCounter;
+    private Timer allTimesTimer;
+    
 	private boolean isRegistered = false;
 	private LogOutputFactory factory = null;
 	private String machineName = String.valueOf(new Object().hashCode());
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public MetricsPlugin()
+	public MetricsPlugin(MetricRegistry registry)
 	{
 		super();
+		this.metrics = registry;
 	}
 
 
@@ -100,9 +121,11 @@ implements Plugin, Preprocessor, Postprocessor
 
 	/**
 	 * Useful for aggregated logging, this arbitrary string identifies log entries as coming from a specific machine or JVM.
+	 * This is only used for logging output, not JMX or other published metrics.  If the noLogging() method is called, this
+	 * virtual machine ID is not used.
 	 * 
 	 * @param name an arbitrary string that uniquely identifies this machine or JVM.
-	 * @return MetricsPlugin
+	 * @return MetricsPlugin to facilitate method chaining.
 	 */
 	public MetricsPlugin virtualMachineId(String name)
 	{
@@ -143,6 +166,10 @@ implements Plugin, Preprocessor, Postprocessor
 		{
 			factory = new LogOutputFactory(machineName);
 		}
+
+		this.activeRequestsCounter = metrics.counter("active-requests");
+	    this.allExceptionsCounter = metrics.counter("all-exceptions");
+	    this.allTimesTimer = metrics.timer("all-times");
 	}
 
 	/**
@@ -154,19 +181,20 @@ implements Plugin, Preprocessor, Postprocessor
 		// Do nothing (no resources allocated that need releasing).
 	}
 
+
 	// SECTION: MESSAGE OBSERVER
 
 	@Override
 	protected void onReceived(Request request, Response response)
 	{
-		ACTIVE_REQUESTS_COUNTER.inc();
+		activeRequestsCounter.inc();
 		START_TIMES_BY_CORRELATION_ID.put(request.getCorrelationId(), System.nanoTime());
 	}
 
 	@Override
 	protected void onException(Throwable exception, Request request, Response response)
 	{
-		ALL_EXCEPTIONS_COUNTER.inc();
+		allExceptionsCounter.inc();
 
 		String name = getRouteName(request);
 		if (name == null || name.isEmpty()) return;
@@ -180,12 +208,12 @@ implements Plugin, Preprocessor, Postprocessor
 	@Override
 	protected void onComplete(Request request, Response response)
 	{
-		ACTIVE_REQUESTS_COUNTER.dec();
+		activeRequestsCounter.dec();
 		Long duration = computeDurationMillis(START_TIMES_BY_CORRELATION_ID.remove(request.getCorrelationId()));
 
 		if (duration != null && duration.longValue() > 0)
 		{
-			ALL_TIMES_TIMER.update(duration, TimeUnit.MILLISECONDS);
+			allTimesTimer.update(duration, TimeUnit.MILLISECONDS);
 
 			String name = getRouteName(request);
 			if (name == null || name.isEmpty()) return;
@@ -197,7 +225,7 @@ implements Plugin, Preprocessor, Postprocessor
 		
 		if (responseCounter == null)
 		{
-			responseCounter = Metrics.newCounter(MetricsPlugin.class, getResponseCounterName(response.getResponseStatus()));
+			responseCounter = metrics.counter(getResponseCounterName(response.getResponseStatus()));
 			COUNTERS_BY_RESPONSE.putIfAbsent(response.getResponseStatus().getCode(), responseCounter);
 		}
 
@@ -238,14 +266,12 @@ implements Plugin, Preprocessor, Postprocessor
 
 		if (!ROUTE_TIMERS.containsKey(name))
 		{
-			ROUTE_TIMERS.putIfAbsent(name, Metrics.newTimer(MetricsPlugin.class,
-				getTimerName(name), TimeUnit.MILLISECONDS, TimeUnit.HOURS));
+			ROUTE_TIMERS.putIfAbsent(name, metrics.timer(getTimerName(name)));
 		}
 
 		if (!EXCEPTION_COUNTERS_BY_ROUTE.containsKey(name))
 		{
-			EXCEPTION_COUNTERS_BY_ROUTE.putIfAbsent(name, Metrics.newCounter(
-				MetricsPlugin.class, getExceptionCounterName(name)));
+			EXCEPTION_COUNTERS_BY_ROUTE.putIfAbsent(name, metrics.counter(getExceptionCounterName(name)));
 		}
 	}
 
@@ -283,13 +309,13 @@ implements Plugin, Preprocessor, Postprocessor
 
 	private String getRouteName(Request request)
 	{
-		if (request.getResolvedRoute() == null) return null;
+		if (request.getResolvedRoute() == null) return StringUtils.EMPTY_STRING;
 
 		String name = request.getResolvedRoute().getName();
 		
 		if (name == null || name.trim().isEmpty())
 		{
-			name = request.getResolvedRoute().getFullPattern();
+			name = request.getResolvedRoute().getPattern();
 		}
 
 		return name;

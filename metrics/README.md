@@ -2,7 +2,8 @@ Metrics Plugin
 ==============
 
 Enables metrics on all routes in the service suite via the Yammer (Coda Hale) Metrics library.  Metrics are available
-via JMX, but can be published to Graphite simply by configuring the Yammer (Coda Hale) Metrics publisher.
+via JMX (not recommended for production) by configuring the Coda Hale JMX Metrics publisher and can be published to
+Graphite simply by configuring the Coda Hale Graphite publisher (see 'Usage' below).
 
 This plugin maintains metrics for the following:
 * currently active requests (counter)
@@ -60,25 +61,48 @@ Usage
 
 Usage of the Metrics Plugin is basically the same as the other plugins in this registry.
 Simply create a new plugin and register it with the RestExpress server, setting options
-as necessary, using method chaining if desired.
+as necessary, using method chaining if desired.  However, to publish the gathered metrics
+to JMX or Graphite (or any of the other Coda Hale Metrics library-supported endpoints),
+you must create a MetricRegistry instance and pass it in to the plugin constructor.
 
 For example, to make metrics available via JMX:
 ```java
 RestExpress server = new RestExpress()...
 
-new MetricsPlugin()
+MetricRegistry registry = new MetricRegistry();
+new MetricsPlugin(registry)
 	.virtualMachineId("us-east-1a-beta1")	// optional. Unique name metrics are published under.
 	.noLogging()							// optional. Turn off output logging.
 	.logOutputFactory(logOutputFactory)		// optional. Set your own LogOutputFactory (SLF4J).
 	.register(server);
-```
 
-Or to additionally publish metrics to Graphite:
+final JmxReporter reporter = JmxReporter.forRegistry(registry).build();
+reporter.start();
+```
+Or to publish metrics to the Console:
+```java
+final ConsoleReporter reporter = ConsoleReporter.forRegistry(registry)
+                                                .convertRatesTo(TimeUnit.SECONDS)
+                                                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                                                .build();
+reporter.start(1, TimeUnit.MINUTES);
+```
+Or to publish metrics to Graphite:
 ```java
 RestExpress server = new RestExpress()...
 
-new MetricsPlugin().register(server);
+MetricRegistry registry = new MetricRegistry();
+new MetricsPlugin(registry).register(server);
 
 // Publish to graphite.example.com every minute...
-GraphiteReporter.enable(1, TimeUnit.MINUTES, "graphite.example.com", 2003);
+final Graphite graphite = new Graphite(new InetSocketAddress("graphite.example.com", 2003));
+final GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
+                                                  .prefixedWith("web1.example.com")
+                                                  .convertRatesTo(TimeUnit.SECONDS)
+                                                  .convertDurationsTo(TimeUnit.MILLISECONDS)
+                                                  .filter(MetricFilter.ALL)
+                                                  .build(graphite);
+reporter.start(1, TimeUnit.MINUTES);
 ```
+
+For more information on supported publishers see also: http://metrics.codahale.com/manual/
