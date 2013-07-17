@@ -6,12 +6,12 @@
 	<url>https://github.com/RestExpress/PluginExpress</url>
 	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>RoutesMetadataPlugin</artifactId>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.4</version>
 	<packaging>jar</packaging>
 
 	<parent>
 		<groupId>com.strategicgains.plugin-express</groupId>
 		<artifactId>PluginExpress-Parent</artifactId>
-		<version>0.1.4-SNAPSHOT</version>
+		<version>0.1.4</version>
 	</parent>
 </project>
