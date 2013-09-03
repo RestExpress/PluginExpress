@@ -57,7 +57,7 @@ public class CorsPluginTest
 	public void shouldReturnOptionsWithoutFormat()
 	throws ClientProtocolException, IOException
 	{
-		new CorsHeaderPlugin("*")
+		new CorsHeaderPlugin("http://localhost:8888", "http://www.strategicgains.com")
 			.allowHeaders("Location")
 			.exposeHeaders("Accept", "Content-Type")
 			.maxAge(42)
@@ -69,7 +69,7 @@ public class CorsPluginTest
 		assertEquals("Accept,Content-Type", response.getHeaders("Access-Control-Expose-Headers")[0].getValue());
 		assertEquals("Location", response.getHeaders("Access-Control-Allow-Headers")[0].getValue());
 		assertEquals("42", response.getHeaders("Access-Control-Max-Age")[0].getValue());
-		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals("http://localhost:8888 http://www.strategicgains.com", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
 		String methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
 		assertTrue(methods.contains("GET"));
 		assertTrue(methods.contains("POST"));

@@ -73,7 +73,7 @@ extends AbstractPlugin
 	public CorsHeaderPlugin(String... origins)
 	{
 		super();
-		allowOriginHeader = StringUtils.join(",", (Object[]) origins);
+		allowOriginHeader = StringUtils.join(" ", (Object[]) origins);
 	}
 	
 	/**
