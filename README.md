@@ -1,4 +1,6 @@
-[![Build Status](https://buildhive.cloudbees.com/job/RestExpress/job/PluginExpress/badge/icon)](https://buildhive.cloudbees.com/job/RestExpress/job/PluginExpress/)
+**Build Status** [![Build Status](https://buildhive.cloudbees.com/job/RestExpress/job/PluginExpress/badge/icon)](https://buildhive.cloudbees.com/job/RestExpress/job/PluginExpress/)
+
+**waffle.io** [![Stories in Ready](https://badge.waffle.io/RestExpress/PluginExpress.png?label=ready)](https://waffle.io/RestExpress/PluginExpress)
 
 Plugin-Registry
 ===============
