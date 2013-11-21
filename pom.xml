@@ -20,13 +20,14 @@
 		<module>routes</module>
 		<module>cache-control</module>
 		<module>metrics</module>
+		<module>swagger</module>
 	</modules>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.strategicgains</groupId>
 			<artifactId>RestExpress</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.4</version>
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
