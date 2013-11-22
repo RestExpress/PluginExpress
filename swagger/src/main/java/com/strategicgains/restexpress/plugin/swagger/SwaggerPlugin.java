@@ -15,17 +15,11 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.netty.handler.codec.http.HttpMethod;
 
 import com.strategicgains.restexpress.Format;
 import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.domain.metadata.RouteMetadata;
-import com.strategicgains.restexpress.domain.metadata.ServerMetadata;
 import com.strategicgains.restexpress.plugin.AbstractPlugin;
-import com.strategicgains.restexpress.route.RouteBuilder;
 
 /**
  * @author toddf
@@ -34,13 +28,14 @@ import com.strategicgains.restexpress.route.RouteBuilder;
 public class SwaggerPlugin
 extends AbstractPlugin
 {
-	private SwaggerController controller = new SwaggerController();
-	private List<RouteBuilder> routeBuilders = new ArrayList<RouteBuilder>();
+	private SwaggerController controller;
 	private String urlPath;
+	private String apiVersion;
+	private String swaggerVersion = "1.2";
 
 	public SwaggerPlugin()
 	{
-		this("/routes/swagger");
+		this("/api-docs");
 	}
 
 	public SwaggerPlugin(String urlPath)
@@ -49,50 +44,65 @@ extends AbstractPlugin
 		this.urlPath = urlPath;
 	}
 
+	public SwaggerPlugin apiVersion(String version)
+	{
+		this.apiVersion = version;
+		return this;
+	}
+
+	public SwaggerPlugin swaggerVersion(String version)
+	{
+		this.swaggerVersion = version;
+		return this;
+	}
+
 	@Override
 	public SwaggerPlugin register(RestExpress server)
 	{
 		if (isRegistered()) return this;
 
 		super.register(server);
-		RouteBuilder builder;
+		controller = new SwaggerController(server, apiVersion, swaggerVersion);
 
-		builder = server
-		    .uri(urlPath, controller)
-		    .method(HttpMethod.GET)
-		    .name("swagger.metadata")
+		server.uri(urlPath, controller)
+			.action("readAll", HttpMethod.GET)
+			.name("swagger.resources")
 		    .format(Format.JSON);
-		routeBuilders.add(builder);
 
-		server.alias("service", ServerMetadata.class);
-		server.alias("route", RouteMetadata.class);
+		server.uri(urlPath + "/{path}", controller)
+			.method(HttpMethod.GET)
+			.name("swagger.apis")
+			.format(Format.JSON);
+		
+		// TODO: add flags and parameters to route builders here...
+
 		return this;
 	}
 
 	@Override
 	public void bind(RestExpress server)
 	{
-		controller.setMetadata(server.getRouteMetadata());
+		controller.initialize(urlPath, server.getRouteMetadata());
 	}
 
 	// RouteBuilder route augmentation delegates.
 
 	public SwaggerPlugin flag(String flagValue)
 	{
-		for (RouteBuilder routeBuilder : routeBuilders)
-		{
-			routeBuilder.flag(flagValue);
-		}
+//		for (RouteBuilder routeBuilder : routeBuilders)
+//		{
+//			routeBuilder.flag(flagValue);
+//		}
 
 		return this;
 	}
 
 	public SwaggerPlugin parameter(String name, Object value)
 	{
-		for (RouteBuilder routeBuilder : routeBuilders)
-		{
-			routeBuilder.parameter(name, value);
-		}
+//		for (RouteBuilder routeBuilder : routeBuilders)
+//		{
+//			routeBuilder.parameter(name, value);
+//		}
 
 		return this;
 	}
