@@ -23,7 +23,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>PluginExpress</artifactId>
-			<version>0.1.5-SNAPSHOT</version>
+			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
