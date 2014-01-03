@@ -21,11 +21,12 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.PRAGMA;
 
 import java.util.Date;
 
-import com.strategicgains.restexpress.Flags;
-import com.strategicgains.restexpress.Parameters;
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.pipeline.Postprocessor;
+import org.restexpress.Flags;
+import org.restexpress.Parameters;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.pipeline.Postprocessor;
+
 import com.strategicgains.util.date.DateAdapter;
 import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
 

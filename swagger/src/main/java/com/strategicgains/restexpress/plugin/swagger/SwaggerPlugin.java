@@ -16,10 +16,9 @@
 package com.strategicgains.restexpress.plugin.swagger;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
-
-import com.strategicgains.restexpress.Format;
-import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.plugin.AbstractPlugin;
+import org.restexpress.Format;
+import org.restexpress.RestExpress;
+import org.restexpress.plugin.AbstractPlugin;
 
 /**
  * @author toddf

@@ -15,7 +15,8 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -30,8 +31,7 @@ import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.strategicgains.restexpress.RestExpress;
+import org.restexpress.RestExpress;
 
 /**
  * @author toddf
@@ -45,6 +45,8 @@ public class SwaggerPluginTest
 	@BeforeClass
 	public static void intialize()
 	{
+		RestExpress.getSerializationProvider();
+
 		DummyController controller = new DummyController();
 		SERVER.setBaseUrl("http://localhost:9001");
 		SERVER.uri("/users.{format}", controller)

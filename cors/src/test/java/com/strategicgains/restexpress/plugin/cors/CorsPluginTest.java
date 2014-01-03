@@ -15,10 +15,10 @@ import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.RestExpress;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.RestExpress;
+import org.restexpress.pipeline.SimpleConsoleLogMessageObserver;
 
 public class CorsPluginTest
 {
@@ -38,13 +38,16 @@ public class CorsPluginTest
 	@Before
 	public void createServer()
 	{
+		RestExpress.getSerializationProvider();
+
 		server.uri(URL_PATH1, new TestController());
 		server.uri(URL_PATH2, new TestController())
 			.method(HttpMethod.GET, HttpMethod.POST);
 		server.uri(URL_PATTERN3, new TestController())
 			.action("readAll", HttpMethod.GET)
 			.method(HttpMethod.POST);
-//		server.addMessageObserver(new SimpleConsoleLogMessageObserver());
+		server.addMessageObserver(new SimpleConsoleLogMessageObserver());
+		server.enforceHttpSpec();
 	}
 
 	@After
@@ -55,7 +58,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnOptionsWithoutFormat()
-	throws ClientProtocolException, IOException
+	throws Exception
 	{
 		new CorsHeaderPlugin("http://localhost:8888", "http://www.strategicgains.com")
 			.allowHeaders("Location")
@@ -170,12 +173,12 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldNotSupportPreflight()
-	throws ClientProtocolException, IOException
+	throws Exception
 	{
 		new CorsHeaderPlugin("*")
 			.noPreflightSupport()
 			.register(server);
-		server.bind(8888);
+		server.bind(SERVER_PORT);
 
 		HttpOptions request = new HttpOptions(URL1);
 		HttpResponse response = (HttpResponse) http.execute(request);

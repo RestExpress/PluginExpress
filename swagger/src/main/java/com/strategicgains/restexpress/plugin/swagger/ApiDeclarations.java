@@ -18,7 +18,7 @@ package com.strategicgains.restexpress.plugin.swagger;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.strategicgains.restexpress.RestExpress;
+import org.restexpress.RestExpress;
 
 /**
  * @author toddf

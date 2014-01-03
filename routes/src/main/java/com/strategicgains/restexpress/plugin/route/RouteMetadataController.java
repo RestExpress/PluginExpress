@@ -18,12 +18,12 @@ package com.strategicgains.restexpress.plugin.route;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.strategicgains.restexpress.ContentType;
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.domain.metadata.RouteMetadata;
-import com.strategicgains.restexpress.domain.metadata.ServerMetadata;
-import com.strategicgains.restexpress.exception.NotFoundException;
+import org.restexpress.ContentType;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.domain.metadata.ServerMetadata;
+import org.restexpress.exception.NotFoundException;
 
 /**
  * @author toddf
@@ -62,7 +62,7 @@ public class RouteMetadataController
 
 	public ServerMetadata getSingleRoute(Request request, Response response)
 	{
-		String routeName = request.getUrlDecodedHeader("routeName", "Route name must be provided");
+		String routeName = request.getHeader("routeName", "Route name must be provided");
 		RouteMetadata routeInfo = routeMetadata.get(routeName.toLowerCase());
 		
 		if (routeInfo == null)

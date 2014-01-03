@@ -19,18 +19,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.RestExpress;
+import org.restexpress.common.util.StringUtils;
+import org.restexpress.pipeline.MessageObserver;
+import org.restexpress.pipeline.Postprocessor;
+import org.restexpress.pipeline.Preprocessor;
+import org.restexpress.plugin.Plugin;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.pipeline.MessageObserver;
-import com.strategicgains.restexpress.pipeline.Postprocessor;
-import com.strategicgains.restexpress.pipeline.Preprocessor;
-import com.strategicgains.restexpress.plugin.Plugin;
-import com.strategicgains.restexpress.util.StringUtils;
 
 /**
  * Enables full metrics on all routes in the service suite via the Coda Hale Metrics library.  Metrics are be

@@ -12,17 +12,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
-
-import com.strategicgains.restexpress.ContentType;
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.pipeline.Postprocessor;
-import com.strategicgains.restexpress.plugin.AbstractPlugin;
-import com.strategicgains.restexpress.route.Route;
-import com.strategicgains.restexpress.route.RouteBuilder;
-import com.strategicgains.restexpress.util.Callback;
-import com.strategicgains.restexpress.util.StringUtils;
+import org.restexpress.ContentType;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.RestExpress;
+import org.restexpress.common.util.StringUtils;
+import org.restexpress.pipeline.Postprocessor;
+import org.restexpress.plugin.AbstractPlugin;
+import org.restexpress.route.Route;
+import org.restexpress.route.RouteBuilder;
+import org.restexpress.util.Callback;
 
 /**
  * This RestExpress plugin supports CORS behavior by setting the

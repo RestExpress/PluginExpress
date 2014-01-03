@@ -17,9 +17,9 @@ package com.strategicgains.restexpress.plugin.cache;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.ETAG;
 
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.pipeline.Postprocessor;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.pipeline.Postprocessor;
 
 /**
  * If the response body is non-null, adds an ETag header.  ETag is

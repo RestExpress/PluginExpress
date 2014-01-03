@@ -17,15 +17,13 @@ package com.strategicgains.restexpress.plugin.swagger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.domain.metadata.RouteMetadata;
-import com.strategicgains.restexpress.domain.metadata.ServerMetadata;
-import com.strategicgains.restexpress.exception.NotFoundException;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.RestExpress;
+import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.domain.metadata.ServerMetadata;
+import org.restexpress.exception.NotFoundException;
 
 /**
  * @author toddf

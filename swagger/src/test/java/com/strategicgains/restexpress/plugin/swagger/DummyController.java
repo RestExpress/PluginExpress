@@ -15,8 +15,8 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
+import org.restexpress.Request;
+import org.restexpress.Response;
 
 /**
  * @author toddf

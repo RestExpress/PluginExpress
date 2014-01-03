@@ -15,8 +15,8 @@
 */
 package com.strategicgains.restexpress.plugin.cache;
 
-import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.plugin.AbstractPlugin;
+import org.restexpress.RestExpress;
+import org.restexpress.plugin.AbstractPlugin;
 
 /**
  * @author toddf

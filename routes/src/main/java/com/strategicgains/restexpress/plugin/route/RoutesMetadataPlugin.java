@@ -19,13 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
-
-import com.strategicgains.restexpress.Format;
-import com.strategicgains.restexpress.RestExpress;
-import com.strategicgains.restexpress.domain.metadata.RouteMetadata;
-import com.strategicgains.restexpress.domain.metadata.ServerMetadata;
-import com.strategicgains.restexpress.plugin.AbstractPlugin;
-import com.strategicgains.restexpress.route.RouteBuilder;
+import org.restexpress.Format;
+import org.restexpress.RestExpress;
+import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.domain.metadata.ServerMetadata;
+import org.restexpress.plugin.AbstractPlugin;
+import org.restexpress.route.RouteBuilder;
 
 /**
  * @author toddf
