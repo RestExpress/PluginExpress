@@ -6,7 +6,7 @@
 	<url>https://github.com/RestExpress/PluginExpress</url>
 	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>PluginExpress-Parent</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
@@ -124,7 +124,7 @@
 		<url>git@github.com:RestExpress/PluginExpress.git</url>
 		<connection>scm:git:git@github.com:RestExpress/PluginExpress.git</connection>
 		<developerConnection>scm:git:git@github.com:RestExpress/PluginExpress.git</developerConnection>
-		<tag>PluginExpress-Parent-0.2.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<licenses>

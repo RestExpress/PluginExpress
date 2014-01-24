@@ -6,13 +6,13 @@
 	<url>https://github.com/RestExpress/PluginExpress</url>
 	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>MetricsPlugin</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<parent>
 		<groupId>com.strategicgains.plugin-express</groupId>
 		<artifactId>PluginExpress-Parent</artifactId>
-		<version>0.2.0</version>
+		<version>0.2.1-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
