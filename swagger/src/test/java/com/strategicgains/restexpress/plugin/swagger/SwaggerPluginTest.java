@@ -90,6 +90,11 @@ public class SwaggerPluginTest
 			.method(HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE)
 			.name("Individual Order");
 		
+		SERVER.uri("/health", controller)
+			.flag("somevalue")
+			.action("health", HttpMethod.GET)
+			.name("health");
+		
 		new SwaggerPlugin()
 			.apiVersion("1.0")
 			.swaggerVersion("1.2")

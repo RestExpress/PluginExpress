@@ -45,4 +45,8 @@ public class DummyController
 	{
 		response.setResponseNoContent();
 	}
+
+	public void health(Request request, Response response)
+	{
+	}
 }

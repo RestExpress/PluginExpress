@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.domain.metadata.UriMetadata;
 
 /**
  * @author toddf
@@ -38,7 +39,10 @@ public class ApiOperation
     {
 		this.method = method;
 //		this.nickname = route.getName();
+		UriMetadata metadata = route.getUri();
 		
+		if (metadata.getParameters() == null) return;
+
 		for (String param : route.getUri().getParameters())
 		{
 			if (parameters == null)
