@@ -16,6 +16,7 @@
 package com.strategicgains.restexpress.plugin.swagger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.restexpress.domain.metadata.RouteMetadata;
@@ -27,6 +28,8 @@ import org.restexpress.domain.metadata.RouteMetadata;
  */
 public class ApiDeclaration
 {
+	private static final List<String> VALID_METHODS = new ArrayList<String>(Arrays.asList(new String[] {"GET", "PUT","POST","DELETE"}));
+
 	private String path;
 	private String description;
 	private List<ApiOperation> operations = new ArrayList<ApiOperation>();
@@ -39,7 +42,10 @@ public class ApiDeclaration
 		
 		for (String method : route.getMethods())
 		{
-			operations.add(new ApiOperation(method, route));
+			if (VALID_METHODS.contains(method))
+			{
+				operations.add(new ApiOperation(method, route));
+			}
 		}
     }
 }
