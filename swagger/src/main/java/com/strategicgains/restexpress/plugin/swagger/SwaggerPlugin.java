@@ -15,6 +15,11 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
@@ -27,10 +32,14 @@ import org.restexpress.plugin.AbstractPlugin;
 public class SwaggerPlugin
 extends AbstractPlugin
 {
+	private static final String SWAGGER_VERSION = "1.2";
+
 	private SwaggerController controller;
 	private String urlPath;
 	private String apiVersion;
-	private String swaggerVersion = "1.2";
+	private String swaggerVersion = SWAGGER_VERSION;
+	private List<String> flags = new ArrayList<String>();
+	private Map<String, Object> parameters = new HashMap<String, Object>();
 
 	public SwaggerPlugin()
 	{
