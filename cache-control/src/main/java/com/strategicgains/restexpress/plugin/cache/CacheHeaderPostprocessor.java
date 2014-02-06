@@ -21,6 +21,8 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.PRAGMA;
 
 import java.util.Date;
 
+import org.jboss.netty.handler.codec.http.HttpMethod;
+
 import com.strategicgains.restexpress.Flags;
 import com.strategicgains.restexpress.Parameters;
 import com.strategicgains.restexpress.Request;
@@ -30,8 +32,8 @@ import com.strategicgains.util.date.DateAdapter;
 import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
 
 /**
- * For GET requests, adds caching control headers.  May be used in conjunction
- * with DateHeaderPostprocessor to add Date header for GET requests.
+ * For GET and HEAD requests, adds caching control headers.  May be used in conjunction
+ * with DateHeaderPostprocessor to add Date header for GET and HEAD requests.
  * <p/>
  * If the route has a Parameters.Cache.MAX_AGE parameter, whose value is the
  * max-age in seconds then the following are added:
@@ -61,7 +63,7 @@ implements Postprocessor
 	@Override
 	public void process(Request request, Response response)
 	{
-		if (!request.isMethodGet()) return;
+		if (!request.isMethodGet() && !HttpMethod.HEAD.equals(request.getHttpMethod())) return;
 
 		Object maxAge = request.getParameter(Parameters.Cache.MAX_AGE);
 
