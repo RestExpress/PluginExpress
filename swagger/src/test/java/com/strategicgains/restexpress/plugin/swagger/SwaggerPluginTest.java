@@ -51,11 +51,13 @@ public class SwaggerPluginTest
 		SERVER.setBaseUrl("http://localhost:9001");
 		SERVER.uri("/users.{format}", controller)
 			.action("readAll", HttpMethod.GET)
+			.action("options", HttpMethod.OPTIONS)
 			.method(HttpMethod.POST)
 			.name("Users Collection");
 
 		SERVER.uri("/users/{userId}.{format}", controller)
 			.method(HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE)
+			.action("options", HttpMethod.OPTIONS)
 			.name("Individual User");
 
 		SERVER.uri("/users/{userId}/orders.{format}", controller)
@@ -145,6 +147,14 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
 		assertTrue(json.contains("\"resourcePath\":\"/users\""));
+		assertTrue(json.contains("\"nickname\":\"getUsers Collection\""));
+		assertTrue(json.contains("\"nickname\":\"postUsers Collection\""));
+		assertFalse(json.contains("\"nickname\":\"optionsUsers Collection\""));
+		assertTrue(json.contains("\"nickname\":\"getIndividual User\""));
+		assertTrue(json.contains("\"nickname\":\"putIndividual User\""));
+		assertTrue(json.contains("\"nickname\":\"deleteIndividual User\""));
+		assertFalse(json.contains("\"nickname\":\"optionsIndividual User\""));
+		assertTrue(json.contains("\"summary\":\"\""));
 		request.releaseConnection();
 	}
 

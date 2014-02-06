@@ -49,4 +49,8 @@ public class DummyController
 	public void health(Request request, Response response)
 	{
 	}
+
+	public void options(Request request, Response response)
+	{
+	}
 }

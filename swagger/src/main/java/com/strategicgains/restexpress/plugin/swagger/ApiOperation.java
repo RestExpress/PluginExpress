@@ -28,17 +28,18 @@ import org.restexpress.domain.metadata.UriMetadata;
 public class ApiOperation
 {
 	private String method;
-	private String nickname;
+	private String nickname = "";
 	private String type;		// return type
 	private List<ApiParameters> parameters;
-	private String summary;
+	private String summary = "";
 	private String notes;
 	private String[] errorResponses;
 
 	public ApiOperation(String method, RouteMetadata route)
     {
 		this.method = method;
-//		this.nickname = route.getName();
+		String name = route.getName();
+		this.nickname = method.toLowerCase() + (name == null ? "" : name);
 		UriMetadata metadata = route.getUri();
 		
 		if (metadata.getParameters() == null) return;
