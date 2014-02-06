@@ -19,11 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
 import org.restexpress.plugin.AbstractPlugin;
+import org.restexpress.route.RouteBuilder;
 
 /**
  * @author toddf
@@ -72,17 +74,27 @@ extends AbstractPlugin
 		super.register(server);
 		controller = new SwaggerController(server, apiVersion, swaggerVersion);
 
-		server.uri(urlPath, controller)
+		RouteBuilder resources = server.uri(urlPath, controller)
 			.action("readAll", HttpMethod.GET)
 			.name("swagger.resources")
 		    .format(Format.JSON);
 
-		server.uri(urlPath + "/{path}", controller)
+		RouteBuilder apis = server.uri(urlPath + "/{path}", controller)
 			.method(HttpMethod.GET)
 			.name("swagger.apis")
 			.format(Format.JSON);
 		
-		// TODO: add flags and parameters to route builders here...
+		for (String flag : flags)
+		{
+			resources.flag(flag);
+			apis.flag(flag);
+		}
+
+		for (Entry<String, Object> entry : parameters.entrySet())
+		{
+			resources.parameter(entry.getKey(), entry.getValue());
+			apis.parameter(entry.getKey(), entry.getValue());
+		}
 
 		return this;
 	}
@@ -97,20 +109,20 @@ extends AbstractPlugin
 
 	public SwaggerPlugin flag(String flagValue)
 	{
-//		for (RouteBuilder routeBuilder : routeBuilders)
-//		{
-//			routeBuilder.flag(flagValue);
-//		}
+		if (!flags.contains(flagValue))
+		{
+			flags.add(flagValue);
+		}
 
 		return this;
 	}
 
 	public SwaggerPlugin parameter(String name, Object value)
 	{
-//		for (RouteBuilder routeBuilder : routeBuilders)
-//		{
-//			routeBuilder.parameter(name, value);
-//		}
+		if (!parameters.containsKey(name))
+		{
+			parameters.put(name, value);
+		}
 
 		return this;
 	}

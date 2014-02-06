@@ -98,6 +98,10 @@ public class SwaggerPluginTest
 		new SwaggerPlugin()
 			.apiVersion("1.0")
 			.swaggerVersion("1.2")
+			.flag("flag1")
+			.flag("flag2")
+			.parameter("parm1", "value1")
+			.parameter("parm2", "value2")
 			.register(SERVER);
 		
 		SERVER.bind(9001);
@@ -106,7 +110,6 @@ public class SwaggerPluginTest
 	@AfterClass
 	public static void shutdown()
 	{
-//		SERVER.awaitShutdown();
 		SERVER.shutdown();
 	}
 
@@ -124,6 +127,7 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"path\":\"/users\""));
 		assertTrue(json.contains("\"path\":\"/orders\""));
 		assertTrue(json.contains("\"path\":\"/products\""));
+		assertTrue(json.contains("\"path\":\"/health\""));
 		assertFalse(json.contains("\"path\":\"/api-docs\""));
 		request.releaseConnection();
 	}
@@ -173,6 +177,22 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
 		assertTrue(json.contains("\"resourcePath\":\"/products\""));
+		request.releaseConnection();
+	}
+
+	@Test
+	public void testApiHealthRoute()
+	throws ClientProtocolException, IOException
+	{
+		HttpGet request = new HttpGet("http://localhost:9001/api-docs/health");
+		HttpResponse response = (HttpResponse) http.execute(request);
+		HttpEntity entity = response.getEntity();
+		String json = EntityUtils.toString(entity);
+		System.out.println(json);
+		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
+		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
+		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
+		assertTrue(json.contains("\"resourcePath\":\"/health\""));
 		request.releaseConnection();
 	}
 }
