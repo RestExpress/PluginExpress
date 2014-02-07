@@ -1,7 +1,7 @@
 Cache-Control Plugin
 ====================
 
-Adds caching-related headers to GET responses.
+Adds caching-related headers to GET and HEAD responses.
 
 Maven Usage
 ===========
@@ -10,7 +10,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CacheControlPlugin</artifactId>
-			<version>0.1.4</version>
+			<version>0.2.0</version>
 		</dependency>
 ```
 Development:
@@ -18,7 +18,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CacheControlPlugin</artifactId>
-			<version>0.1.5-SNAPSHOT</version>
+			<version>0.2.1-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
@@ -44,9 +44,9 @@ Note that to use the SNAPSHOT version, you must enable snapshots and a repositor
 
 Usage
 ========
-For GET requests, adds a Date: \<timestamp\> header, if not already present. This enables clients to determine age of a representation for caching purposes.  Where \<timestamp\> is in RFC1123 full date format.
+For GET and HEAD requests, adds a Date: \<timestamp\> header, if not already present. This enables clients to determine age of a representation for caching purposes.  Where \<timestamp\> is in RFC1123 full date format.
 
-Note that HEAD requests are not provided with a Date header via this postprocessor. This is due to the fact that most external caches forward HEAD requests to the origin server as a GET request and cache the result.
+Note that while HEAD requests are provided with a Date header via this plugin. Most external caches forward HEAD requests to the origin server as a GET request and cache the result.
 
 If the route has a Parameters.Cache.MAX_AGE parameter, whose value is the max-age in seconds then the following are added:
 * Cache-Control: max-age=\<seconds\>
@@ -58,7 +58,7 @@ If the route has a Flags.Cache.NO_CACHE flag, then the following headers are set
 
 The MAX_AGE parameter takes precidence, in that, if present, the NO_CACHE flag is ignored.
 
-If the response body is non-null, adds an ETag header.  ETag is computed from the body object's hash code combined with the hash code of the resulting format.
+If the response body is non-null, adds an ETag header.  ETag is computed from the body object's hash code combined with the hash code of the resulting format (content-type).
 
 **NOTE:** To fully support basic caching capability, also implement a LastModifiedHeaderPostprocessor() that inspects the date on your domain or presentation model and sets the 'Last-Modified' header.
 
