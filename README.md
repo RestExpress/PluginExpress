@@ -13,7 +13,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>* plugin name here *</artifactId>
-			<version>0.1.4</version>
+			<version>0.1.5</version>
 		</dependency>
 ```
 Development:
@@ -21,7 +21,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>PluginExpress</artifactId>
-			<version>0.1.5-SNAPSHOT</version>
+			<version>0.1.6-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
