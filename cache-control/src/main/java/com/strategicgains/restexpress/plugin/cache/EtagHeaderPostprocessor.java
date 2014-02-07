@@ -17,6 +17,7 @@ package com.strategicgains.restexpress.plugin.cache;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.ETAG;
 
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
@@ -35,7 +36,7 @@ implements Postprocessor
 	@Override
 	public void process(Request request, Response response)
 	{
-		if (!request.isMethodGet()) return;
+		if (!request.isMethodGet() && !HttpMethod.HEAD.equals(request.getHttpMethod())) return;
 		if (!response.hasBody()) return;
 
 		Object body = response.getBody();

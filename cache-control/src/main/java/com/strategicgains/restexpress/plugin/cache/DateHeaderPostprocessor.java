@@ -19,6 +19,7 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.DATE;
 
 import java.util.Date;
 
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
@@ -27,7 +28,7 @@ import com.strategicgains.util.date.DateAdapter;
 import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
 
 /**
- * For GET requests, adds a Date: <timestamp> header, if not already present.
+ * For GET and HEAD requests, adds a Date: <timestamp> header, if not already present.
  * This enables clients to determine age of a representation for caching purposes.
  * <timestamp> is in RFC1123 full date format.
  * <p/>
@@ -48,7 +49,8 @@ implements Postprocessor
 	@Override
 	public void process(Request request, Response response)
 	{
-		if (request.isMethodGet() && !response.hasHeader(DATE))
+		if ((request.isMethodGet() || HttpMethod.HEAD.equals(request.getHttpMethod()))
+			&& !response.hasHeader(DATE))
 		{
 			Date date = new Date(System.currentTimeMillis());
 			response.addHeader(DATE, fmt.format(date));
