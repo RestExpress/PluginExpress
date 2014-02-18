@@ -21,6 +21,7 @@
 		<module>cache-control</module>
 		<module>metrics</module>
 		<module>swagger</module>
+		<module>state-change</module>
 	</modules>
 
 	<dependencies>
