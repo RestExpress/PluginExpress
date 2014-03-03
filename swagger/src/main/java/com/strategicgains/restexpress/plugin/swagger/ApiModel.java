@@ -28,7 +28,7 @@ public class ApiModel
 {
     private String id;
     private Set<String> required;
-    private Map<String, SchemaObject> properties;
+    private Map<String, SchemaNode> properties;
     private String description;
 
     public String getId() {
@@ -56,9 +56,9 @@ public class ApiModel
         required.add(property);
     }
 
-    public void addProperty(String name, SchemaObject property) {
+    public void addProperty(String name, SchemaNode property) {
         if (properties == null) {
-            properties = new HashMap<String, SchemaObject>();
+            properties = new HashMap<String, SchemaNode>();
         }
         if (!properties.containsKey(name)) {
             properties.put(name, property);

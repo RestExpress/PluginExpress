@@ -15,20 +15,6 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.strategicgains.util.date.DateAdapterConstants;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
@@ -38,6 +24,9 @@ import org.restexpress.exception.NotFoundException;
 import org.restexpress.route.Route;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author toddf
