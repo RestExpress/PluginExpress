@@ -15,15 +15,29 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.strategicgains.util.date.DateAdapterConstants;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.domain.metadata.RouteMetadata;
 import org.restexpress.domain.metadata.ServerMetadata;
 import org.restexpress.exception.NotFoundException;
+import org.restexpress.route.Route;
+import org.restexpress.route.RouteBuilder;
+import org.restexpress.util.Callback;
 
 /**
  * @author toddf
@@ -49,28 +63,31 @@ public class SwaggerController
 
 	public void initialize(String urlPath, ServerMetadata data)
 	{
-		String swaggerPath = getPath(urlPath);
+		final String swaggerPath = getPath(urlPath);
 
-		for (RouteMetadata route : data.getRoutes())
-		{
-			String path = getPath(route.getUri().getPattern());
-
-			if (swaggerPath.equals(path)) continue;
-
-			ApiDeclarations apis = apisByPath.get(path);
-
-			if (apis == null) // new path to document
-			{
-				apis = new ApiDeclarations(resources, server, path);
-				apisByPath.put(path, apis);
-				// TODO: pull the description from the route metadata (not
-				// currently available).
-				resources.addApi(path, null);
-			}
-
-			apis.addApi(new ApiDeclaration(route));
-			// apis.addModels();
-		}
+        server.iterateRouteBuilders(new Callback<RouteBuilder>()
+        {
+            @Override
+            public void process(RouteBuilder routeBuilder)
+            {
+                for (Route route : routeBuilder.build ())
+                {
+                    RouteMetadata routeMetadata = routeBuilder.asMetadata();
+                    String path = getPath(route.getPattern());
+                    if (!swaggerPath.equals(path))
+                    {
+                        ApiDeclarations apis = apisByPath.get(path);
+                        if (apis == null)
+                        {
+                            apis = new ApiDeclarations(resources, server, path);
+                            apisByPath.put(path, apis);
+                            resources.addApi(path, null);
+                        }
+                        apis.addApi(new ApiDeclaration(routeMetadata));
+                    }
+                }
+            }
+        });
 	}
 
 	private String getPath(String pattern)
