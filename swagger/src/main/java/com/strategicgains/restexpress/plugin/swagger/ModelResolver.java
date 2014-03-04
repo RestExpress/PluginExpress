@@ -16,8 +16,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// jackson 2.1.4 isn't generating $ref
-//
+/**
+ * This class implements a simplified least-common denominator reflection-based introspector
+ * in roughly the same behavior as the serializers supported in RestExpress (jackson/gson)
+ *
+ * Research notes:
+ * In developing this class, it was discovered that jackson has facilities to generate a variant of json-schema
+ * directly from an ObjectMapper.  However, as of this writing, it didn't support handling the swagger-annotations
+ * It also produced schema that while obviously syntactically correct, didn't leverage the "$ref" construct and produce
+ * the "flat" model structure that the Swagger spec prefers.
+ *
+ * Furthermore, the serializer is overridden with something non-jackson, I didn't want to tie the swagger model
+ * generation to APIs that get unhooked.
+ *
+ * So, with all that said, this class, much like gson and jackson:
+ * <ul>
+ *     <li>any top-level class that is to be interpreted as a swagger "complex" type, MUST be annotated with ApiModel</li>
+ *     <li>non-static, non-transient private fields with the ApiModelProperty annotation are considered for properties of
+ *     complex types, any accessors/getters methods are ignored</li>
+ *     <li>arrays and classes that implement java.util.Collection are treated as the "container" type.
+ *     Additionally, classes that implement java.util.Set have the "uniqueItems" property set to true.</li>
+ *     <li>Properties from the class and all it's ancestors are scanned.  If properties duplicate in the class
+ *     hierarchy, the "lowest" subclass takes precedence over ancestors.</li>
+ * </ul>
+ */
 public class ModelResolver {
     private Map<String, ApiModel> models;
 
@@ -25,7 +47,7 @@ public class ModelResolver {
         this.models = models;
     }
 
-    public SchemaNode resolve(Class<?> cls) {
+    public TypeNode resolve(Class<?> cls) {
         return createNode(cls);
     }
 
@@ -53,19 +75,20 @@ public class ModelResolver {
         model = new ApiModel().id(id);
         models.put(id, model);
 
-        Map<String, SchemaNode> properties = new HashMap<String, SchemaNode>();
+        Map<String, TypeNode> properties = new HashMap<String, TypeNode>();
         for (Class<?> cls = target; !Object.class.equals(cls); cls = cls.getSuperclass()) {
             processFields(properties, cls);
         }
-        List<SchemaNode> sorted = new ArrayList<SchemaNode>(properties.values());
-        Collections.sort(sorted, new Comparator<SchemaNode>() {
+        List<TypeNode> sorted = new ArrayList<TypeNode>(properties.values());
+        // sort the properties based on property "position" attribute of annotation
+        Collections.sort(sorted, new Comparator<TypeNode>() {
             @Override
-            public int compare(SchemaNode o1, SchemaNode o2) {
+            public int compare(TypeNode o1, TypeNode o2) {
                 return o1.getPosition() - o2.getPosition();
             }
         });
 
-        for (SchemaNode property : sorted) {
+        for (TypeNode property : sorted) {
             model.addProperty(property);
             if (property.isRequired()) {
                 model.addRequired(property.getProperty());
@@ -74,8 +97,8 @@ public class ModelResolver {
         return model;
     }
 
-    private SchemaNode createNode(Type target) {
-        SchemaNode node = new SchemaNode();
+    private TypeNode createNode(Type target) {
+        TypeNode node = new TypeNode();
         if (target instanceof Class) {
             Class targetClass = (Class) target;
             if (String.class.equals(target)) {
@@ -96,7 +119,7 @@ public class ModelResolver {
                 node.type("string").format("date").primitive(true);
             } else if (targetClass.isArray()) {
                 node.type("array");
-                SchemaNode componentModel = createNode(targetClass.getComponentType());
+                TypeNode componentModel = createNode(targetClass.getComponentType());
                 node.items(componentModel);
             } else if (targetClass.isEnum()) {
                 node.type("string").primitive(true);
@@ -117,7 +140,7 @@ public class ModelResolver {
                 if (Set.class.isAssignableFrom(rawType)) {
                     node.uniqueItems(true);
                 }
-                SchemaNode componentModel = createNode(parameterizedType.getActualTypeArguments()[0]);
+                TypeNode componentModel = createNode(parameterizedType.getActualTypeArguments()[0]);
                 node.items(componentModel);
             } else {
                 throw new IllegalArgumentException("Unhandled generic type: " + target);
@@ -128,12 +151,12 @@ public class ModelResolver {
         return node;
     }
 
-    private void processFields(Map<String, SchemaNode> properties, Class<?> target) {
+    private void processFields(Map<String, TypeNode> properties, Class<?> target) {
         for (Field field : target.getDeclaredFields()) {
             if ((field.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) == 0) {
                 ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
                 if (apiModelProperty != null && !properties.containsKey(field.getName())) {
-                    SchemaNode property = createNode(field.getGenericType())
+                    TypeNode property = createNode(field.getGenericType())
                             .description(apiModelProperty.notes())
                             .required(apiModelProperty.required())
                             .position(apiModelProperty.position())

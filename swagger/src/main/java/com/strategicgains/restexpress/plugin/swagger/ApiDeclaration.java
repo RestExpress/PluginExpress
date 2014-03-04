@@ -28,7 +28,7 @@ import org.restexpress.domain.metadata.RouteMetadata;
  */
 public class ApiDeclaration
 {
-	private static final List<String> VALID_METHODS = new ArrayList<String>(Arrays.asList(new String[] {"GET", "PUT","POST","DELETE"}));
+	public static final List<String> VALID_METHODS = new ArrayList<String>(Arrays.asList(new String[] {"GET", "PUT","POST","DELETE"}));
 
 	private String path;
 	private String description;
@@ -56,5 +56,9 @@ public class ApiDeclaration
 
     public void addOperation(ApiOperation operation) {
         operations.add(operation);
+    }
+
+    public String getPath() {
+        return path;
     }
 }

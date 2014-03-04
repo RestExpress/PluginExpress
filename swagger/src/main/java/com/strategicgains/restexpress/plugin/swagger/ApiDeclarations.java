@@ -52,4 +52,13 @@ public class ApiDeclarations
     public Map<String, ApiModel> getModels() {
         return models;
     }
+
+    public ApiDeclaration findApiDeclarationByPath(String path) {
+        for (ApiDeclaration api : apis) {
+            if (api.getPath().equals(path)) {
+                return api;
+            }
+        }
+        return null;
+    }
 }

@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SchemaNode {
+public class TypeNode {
     private String type;
     private String format;
     private String $ref;
     private Boolean uniqueItems;
     private String description;
-    private SchemaNode items;
+    private TypeNode items;
+    // Note, since "enum" is a java reserved word, we have to override the serialized name
     @JsonProperty("enum")
     private Set<String> _enum;
     // The transient fields disable gson/jackson serialization.  We only use it during
@@ -25,7 +26,7 @@ public class SchemaNode {
         return type;
     }
 
-    public SchemaNode type(String type) {
+    public TypeNode type(String type) {
         this.type = type;
         return this;
     }
@@ -34,7 +35,7 @@ public class SchemaNode {
         return format;
     }
 
-    public SchemaNode format(String format) {
+    public TypeNode format(String format) {
         this.format = format;
         return this;
     }
@@ -43,7 +44,7 @@ public class SchemaNode {
         return $ref;
     }
 
-    public SchemaNode ref(String ref) {
+    public TypeNode ref(String ref) {
         this.$ref = ref;
         return this;
     }
@@ -56,12 +57,12 @@ public class SchemaNode {
         return required;
     }
 
-    public SchemaNode required(boolean required) {
+    public TypeNode required(boolean required) {
         this.required = required;
         return this;
     }
 
-    public SchemaNode uniqueItems(Boolean uniqueItems) {
+    public TypeNode uniqueItems(Boolean uniqueItems) {
         this.uniqueItems = uniqueItems;
         return this;
     }
@@ -70,7 +71,7 @@ public class SchemaNode {
         return description;
     }
 
-    public SchemaNode description(String description) {
+    public TypeNode description(String description) {
         // treat empty strings as nulls so we don't get JSON
         // generated for this field in those cases
         if (description.length() > 0) {
@@ -79,11 +80,11 @@ public class SchemaNode {
         return this;
     }
 
-    public SchemaNode getItems() {
+    public TypeNode getItems() {
         return items;
     }
 
-    public SchemaNode items(SchemaNode items) {
+    public TypeNode items(TypeNode items) {
         this.items = items;
         return this;
     }
@@ -92,7 +93,7 @@ public class SchemaNode {
         return position;
     }
 
-    public SchemaNode position(int position) {
+    public TypeNode position(int position) {
         this.position = position;
         return this;
     }
@@ -101,12 +102,12 @@ public class SchemaNode {
         return property;
     }
 
-    public SchemaNode property(String property) {
+    public TypeNode property(String property) {
         this.property = property;
         return this;
     }
 
-    public SchemaNode addEnum(String value) {
+    public TypeNode addEnum(String value) {
         if (_enum == null) {
             _enum = new HashSet<String>();
         }
@@ -118,7 +119,7 @@ public class SchemaNode {
         return primitive;
     }
 
-    public SchemaNode primitive(boolean primitive) {
+    public TypeNode primitive(boolean primitive) {
         this.primitive = primitive;
         return this;
     }

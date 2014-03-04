@@ -63,7 +63,7 @@ public class SwaggerController
                 {
                     RouteMetadata routeMetadata = routeBuilder.asMetadata();
                     String path = getPath(route.getPattern());
-                    if (!swaggerPath.equals(path))
+                    if (!swaggerPath.equals(path) && ApiDeclaration.VALID_METHODS.contains(route.getMethod().getName()))
                     {
                         ApiDeclarations apis = apisByPath.get(path);
                         if (apis == null)
@@ -74,18 +74,23 @@ public class SwaggerController
                         }
                         // TODO: use some annotation to indicate the model for the request body
 
-                        ApiDeclaration apiDeclaration = new ApiDeclaration(routeMetadata.getUri().getPattern(), routeMetadata.getName());
+                        ApiDeclaration apiDeclaration = apis.findApiDeclarationByPath(routeMetadata.getUri().getPattern());
+                        if (apiDeclaration == null) {
+                            apiDeclaration = new ApiDeclaration(routeMetadata.getUri().getPattern(), routeMetadata.getName());
+                            apis.addApi(apiDeclaration);
+                        }
 
                         ApiOperation operation = new ApiOperation(route.getMethod().getName(), routeMetadata);
                         apiDeclaration.addOperation(operation);
+                        // it's important to note that we scope models at the ApiDeclarations level so whenever
+                        // we resolve more types, we do so against any model(s) in that scope.
                         ModelResolver resolver = new ModelResolver(apis.getModels());
-                        SchemaNode returnType = resolver.resolve(route.getAction().getReturnType());
+                        TypeNode returnType = resolver.resolve(route.getAction().getReturnType());
                         if (returnType.getRef() != null) {
                             operation.type(returnType.getRef());
                         } else {
                             operation.type(returnType.getType());
                         }
-                        apis.addApi(apiDeclaration);
                     }
                 }
             }
