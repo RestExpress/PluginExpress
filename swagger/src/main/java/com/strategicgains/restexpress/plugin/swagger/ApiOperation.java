@@ -54,4 +54,9 @@ public class ApiOperation
 			parameters.add(new ApiParameters("path", param, "string", !param.equals("format")));
 		}
     }
+
+    public ApiOperation type(String type) {
+        this.type = type;
+        return this;
+    }
 }

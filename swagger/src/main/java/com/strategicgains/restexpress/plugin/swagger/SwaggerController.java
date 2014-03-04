@@ -72,7 +72,20 @@ public class SwaggerController
                             apisByPath.put(path, apis);
                             resources.addApi(path, null);
                         }
-                        apis.addApi(new ApiDeclaration(routeMetadata));
+                        // TODO: use some annotation to indicate the model for the request body
+
+                        ApiDeclaration apiDeclaration = new ApiDeclaration(routeMetadata.getUri().getPattern(), routeMetadata.getName());
+
+                        ApiOperation operation = new ApiOperation(route.getMethod().getName(), routeMetadata);
+                        apiDeclaration.addOperation(operation);
+                        ModelResolver resolver = new ModelResolver(apis.getModels());
+                        SchemaNode returnType = resolver.resolve(route.getAction().getReturnType());
+                        if (returnType.getRef() != null) {
+                            operation.type(returnType.getRef());
+                        } else {
+                            operation.type(returnType.getType());
+                        }
+                        apis.addApi(apiDeclaration);
                     }
                 }
             }

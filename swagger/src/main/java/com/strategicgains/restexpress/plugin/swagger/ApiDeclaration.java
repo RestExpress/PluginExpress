@@ -48,4 +48,13 @@ public class ApiDeclaration
 			}
 		}
     }
+
+    public ApiDeclaration(String path, String description) {
+        this.path = path;
+        this.description = description;
+    }
+
+    public void addOperation(ApiOperation operation) {
+        operations.add(operation);
+    }
 }

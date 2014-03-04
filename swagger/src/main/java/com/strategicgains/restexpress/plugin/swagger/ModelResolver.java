@@ -5,23 +5,33 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 // jackson 2.1.4 isn't generating $ref
 //
 public class ModelResolver {
-    private Map<Class, ApiModel> models = new HashMap<Class, ApiModel>();
+    private Map<String, ApiModel> models;
 
-    public void generate(Class<?> cls) {
-        resolveClass(cls);
+    public ModelResolver(Map<String, ApiModel> models) {
+        this.models = models;
+    }
+
+    public SchemaNode resolve(Class<?> cls) {
+        return createNode(cls);
     }
 
     private ApiModel resolveClass(Class<?> target) {
-        ApiModel model = models.get(target);
+        String id = target.getSimpleName();
+        ApiModel model = models.get(id);
         if (model != null) {
             return model;
         }
@@ -40,63 +50,95 @@ public class ModelResolver {
             throw new IllegalArgumentException("Missing ApiModel annotation on: " + target);
         }
 
-        model = new ApiModel().id(target.getSimpleName());
-        models.put(target, model);
+        model = new ApiModel().id(id);
+        models.put(id, model);
 
         Map<String, SchemaNode> properties = new HashMap<String, SchemaNode>();
         for (Class<?> cls = target; !Object.class.equals(cls); cls = cls.getSuperclass()) {
             processFields(properties, cls);
         }
-        // TODO: sort based on field annotation @ApiModelProperty.position
-        for (Map.Entry<String, SchemaNode> e : properties.entrySet()) {
-            model.addProperty(e.getKey(), e.getValue());
-            if (e.getValue().isRequired()) {
-                model.addRequired(e.getKey());
+        List<SchemaNode> sorted = new ArrayList<SchemaNode>(properties.values());
+        Collections.sort(sorted, new Comparator<SchemaNode>() {
+            @Override
+            public int compare(SchemaNode o1, SchemaNode o2) {
+                return o1.getPosition() - o2.getPosition();
+            }
+        });
+
+        for (SchemaNode property : sorted) {
+            model.addProperty(property);
+            if (property.isRequired()) {
+                model.addRequired(property.getProperty());
             }
         }
         return model;
     }
 
+    private SchemaNode createNode(Type target) {
+        SchemaNode node = new SchemaNode();
+        if (target instanceof Class) {
+            Class targetClass = (Class) target;
+            if (String.class.equals(target)) {
+                node.type("string").primitive(true);
+            } else if (Integer.class.equals(target) || Integer.TYPE.equals(target)) {
+                node.type("integer").format("int32").primitive(true);
+            } else if (Long.class.equals(target) || Long.TYPE.equals(target)) {
+                node.type("integer").format("int64").primitive(true);
+            } else if (Boolean.class.equals(target) || Boolean.TYPE.equals(target)) {
+                node.type("boolean").primitive(true);
+            } else if (Float.class.equals(target) || Float.TYPE.equals(target)) {
+                node.type("number").format("float").primitive(true);
+            } else if (Double.class.equals(target) || Double.TYPE.equals(target)) {
+                node.type("number").format("double").primitive(true);
+            } else if (Byte.class.equals(target) || Byte.TYPE.equals(target)) {
+                node.type("string").format("byte").primitive(true);
+            } else if (Date.class.equals(target)) {
+                node.type("string").format("date").primitive(true);
+            } else if (targetClass.isArray()) {
+                node.type("array");
+                SchemaNode componentModel = createNode(targetClass.getComponentType());
+                node.items(componentModel);
+            } else if (targetClass.isEnum()) {
+                node.type("string").primitive(true);
+                for (Object obj : targetClass.getEnumConstants()) {
+                    node.addEnum(obj.toString());
+                }
+            } else if (Void.class.equals(target) || Void.TYPE.equals(target)) {
+                node.type("void").primitive(true);
+            } else {
+                ApiModel subModel = resolveClass(targetClass);
+                node.ref(subModel.getId());
+            }
+        } else if (target instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) target;
+            Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+            if (Collection.class.isAssignableFrom(rawType)) {
+                node.type("array");
+                if (Set.class.isAssignableFrom(rawType)) {
+                    node.uniqueItems(true);
+                }
+                SchemaNode componentModel = createNode(parameterizedType.getActualTypeArguments()[0]);
+                node.items(componentModel);
+            } else {
+                throw new IllegalArgumentException("Unhandled generic type: " + target);
+            }
+        } else {
+            throw new UnsupportedOperationException("Unhandled type: " + target);
+        }
+        return node;
+    }
+
     private void processFields(Map<String, SchemaNode> properties, Class<?> target) {
         for (Field field : target.getDeclaredFields()) {
             if ((field.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) == 0) {
-                Class<?> fieldType = field.getType();
                 ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
-                if (apiModelProperty != null) {
-                    SchemaNode property = new SchemaNode().description(apiModelProperty.notes());
+                if (apiModelProperty != null && !properties.containsKey(field.getName())) {
+                    SchemaNode property = createNode(field.getGenericType())
+                            .description(apiModelProperty.notes())
+                            .required(apiModelProperty.required())
+                            .position(apiModelProperty.position())
+                            .property(field.getName());
                     properties.put(field.getName(), property);
-                    if (String.class.equals(fieldType)) {
-                        property.type("string");
-                    } else if (Integer.class.equals(fieldType) || Integer.TYPE.equals(fieldType)) {
-                        property.type("integer").format("int32");
-                    } else if (Long.class.equals(fieldType) || Long.TYPE.equals(fieldType)) {
-                        property.type("integer").format("int64");
-                    } else if (Boolean.class.equals(fieldType) || Boolean.TYPE.equals(fieldType)) {
-                        property.type("boolean");
-                    } else if (Float.class.equals(fieldType) || Float.TYPE.equals(fieldType)) {
-                        property.type("number").format("float");
-                    } else if (Double.class.equals(fieldType) || Double.TYPE.equals(fieldType)) {
-                        property.type("number").format("double");
-                    } else if (Byte.class.equals(fieldType) || Byte.TYPE.equals(fieldType)) {
-                        property.type("string").format("byte");
-                    } else if (Date.class.equals(fieldType)) {
-                        property.type("string").format("date");
-                    } else if (fieldType.isArray()) {
-                        property.type("array");
-                        ApiModel componentModel = resolveClass(fieldType.getComponentType());
-                        // TODO: fixme, needs items submap
-                        property.ref(componentModel.getId());
-                    } else if (Set.class.isAssignableFrom(fieldType)) {
-                        property.type("array").uniqueItems(true);
-                    } else if (Collection.class.isAssignableFrom(fieldType)) {
-                        ParameterizedType parameterizedType = (ParameterizedType)field.getGenericType();
-                        ApiModel componentModel = resolveClass((Class<?>)parameterizedType.getActualTypeArguments()[0]);
-                        // TODO: fixme, needs items submap
-                        property.ref(componentModel.getId());
-                    } else {
-                        ApiModel subModel = resolveClass(fieldType);
-                        property.ref(subModel.getId());
-                    }
                 }
             }
         }
