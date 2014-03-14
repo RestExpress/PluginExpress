@@ -15,6 +15,7 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
@@ -90,6 +91,14 @@ public class SwaggerController
                             operation.type(returnType.getRef());
                         } else {
                             operation.type(returnType.getType());
+                        }
+
+                        // look for our special method-level annotation to get information (if any) on the request body
+                        // parameter
+                        ApiModelRequest apiModelRequest = route.getAction().getAnnotation(ApiModelRequest.class);
+                        if (apiModelRequest != null) {
+                            TypeNode bodyType = resolver.resolve(apiModelRequest.model());
+                            operation.addParameter(new ApiParameters("body", "body", bodyType.getRef() != null ? bodyType.getRef() : bodyType, apiModelRequest.required()));
                         }
                     }
                 }

@@ -15,6 +15,7 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
@@ -24,14 +25,16 @@ import org.restexpress.Response;
  */
 public class DummyController
 {
-	public void read(Request request, Response response)
+	public DummyModel read(Request request, Response response)
 	{
+        return null;
 	}
 
 	public void readAll(Request request, Response response)
 	{
 	}
 
+    @ApiModelRequest(model = DummyModel[].class)
 	public void create(Request request, Response response)
 	{
 		response.setResponseCreated();
