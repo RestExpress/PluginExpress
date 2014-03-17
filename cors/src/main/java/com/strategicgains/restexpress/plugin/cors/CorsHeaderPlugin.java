@@ -50,7 +50,7 @@ import org.restexpress.util.Callback;
  * Note that flag() and parameter() values have no effect if noPreflightSupport() is called.
  * <p/>
  * For deeper information on the CORS specification, see: http://www.w3.org/TR/cors/
- * 
+ *
  * @author toddf
  * @since Jun 8, 2012
  */
@@ -74,10 +74,10 @@ extends AbstractPlugin
 		super();
 		allowOriginHeader = StringUtils.join(" ", (Object[]) origins);
 	}
-	
+
 	/**
 	 * Sets the maxAge for caching on the preflight OPTIONS request.
-	 * 
+	 *
 	 * @param seconds
 	 * @return
 	 */
@@ -89,9 +89,9 @@ extends AbstractPlugin
 		return this;
 	}
 
-	/** 
+	/**
 	 * Set the value of the 'Access-Control-Expose-Headers' header on responses.
-	 * 
+	 *
 	 * @param exposeHeaders
 	 * @return
 	 */
@@ -100,7 +100,7 @@ extends AbstractPlugin
 		exposeHeadersHeader = StringUtils.join(",", (Object[])exposeHeaders);
 		return this;
 	}
-	
+
 	public CorsHeaderPlugin allowHeaders(String... allowHeaders)
 	{
 		allowHeadersHeader = StringUtils.join(",", (Object[])allowHeaders);
@@ -121,7 +121,7 @@ extends AbstractPlugin
 
 	/**
 	 * Set a flag on the automatically generated OPTIONS route for pre-flight CORS requests.
-	 * 
+	 *
 	 * @param flagValue
 	 * @return a reference to this plugin to support method chaining.
 	 */
@@ -167,7 +167,7 @@ extends AbstractPlugin
 				{
 					methods.add(route.getMethod());
 				}
-				
+
 				if (isPreflightSupported)
 				{
 					if (!methods.contains(HttpMethod.OPTIONS))
@@ -176,9 +176,14 @@ extends AbstractPlugin
 					}
 				}
 
-                Set<HttpMethod> allMethods = methodsByPattern.get(pathPattern);
-                allMethods.addAll(methods);
-				methodsByPattern.put(pathPattern, allMethods);
+                Set<HttpMethod> existingMethods = methodsByPattern.get(pathPattern);
+                if (existingMethods != null) {
+                    existingMethods.addAll(methods);
+                } else {
+                    existingMethods = methods;
+                }
+
+				methodsByPattern.put(pathPattern, existingMethods);
 			}
 		});
 
@@ -198,14 +203,14 @@ extends AbstractPlugin
 
     /**
      * Add an 'OPTIONS' method supported on all routes for the pre-flight CORS request.
-     * 
+     *
      * @param server a RestExpress server instance.
      */
 	private void addPreflightOptionsRequestSupport(RestExpress server)
     {
 	    CorsOptionsController corsOptionsController = new CorsOptionsController(allowOriginHeader, maxAge, methodsByPattern, allowHeadersHeader);
 	    RouteBuilder rb;
-	    
+
 	    for (String pattern : methodsByPattern.keySet())
 	    {
 	    	rb = server.uri(pattern, corsOptionsController)
@@ -216,7 +221,7 @@ extends AbstractPlugin
 	    	{
 	    		rb.flag(flag);
 	    	}
-	    	
+
 	    	for (Entry<String, Object> entry : parameters.entrySet())
 	    	{
 	    		rb.parameter(entry.getKey(), entry.getValue());
@@ -273,7 +278,7 @@ extends AbstractPlugin
 			this.allowOriginsHeader = allowOriginsHeader;
 			this.maxAge = (maxAge == null ? null : Long.valueOf(maxAge));
 			this.allowHeadersHeader = allowHeadersHeader;
-			
+
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())
 			{
 				allowedMethodsByPattern.put(entry.getKey(), StringUtils.join(",", entry.getValue()));
@@ -294,7 +299,7 @@ extends AbstractPlugin
 			{
 				response.addHeader(CORS_MAX_AGE_HEADER, String.valueOf(maxAge));
 			}
-			
+
 			if (allowHeadersHeader != null)
 			{
 				response.addHeader(CORS_ALLOW_HEADERS_HEADER, allowHeadersHeader);
