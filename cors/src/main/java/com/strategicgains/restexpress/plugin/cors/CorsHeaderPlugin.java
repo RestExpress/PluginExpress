@@ -175,8 +175,10 @@ extends AbstractPlugin
 						methods.add(HttpMethod.OPTIONS);
 					}
 				}
-				
-				methodsByPattern.put(pathPattern, methods);
+
+                Set<HttpMethod> allMethods = methodsByPattern.get(pathPattern);
+                allMethods.addAll(methods);
+				methodsByPattern.put(pathPattern, allMethods);
 			}
 		});
 
