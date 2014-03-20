@@ -26,14 +26,14 @@ public class ApiParameters
 	private String paramType; // path, query, body, header, form
 	private String name;
 	private String description;
-	private String dataType;	// primitive type, or complex or container (for body paramType)
+	private Object dataType;	// primitive type, or complex or container (for body paramType)
 	private String format;
 	private boolean required;	// must be true for query paramType
 	
 	@JsonProperty("enum")
 	private String[] enumeration;
 	
-	public ApiParameters(String type, String name, String dataType, boolean isRequired)
+	public ApiParameters(String type, String name, Object dataType, boolean isRequired)
 	{
 		super();
 		this.paramType = type;

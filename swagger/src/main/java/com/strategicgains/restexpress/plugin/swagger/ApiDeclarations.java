@@ -16,7 +16,9 @@
 package com.strategicgains.restexpress.plugin.swagger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.restexpress.RestExpress;
 
@@ -32,7 +34,7 @@ public class ApiDeclarations
 	private String basePath;
 	private String resourcePath;
 	private List<ApiDeclaration> apis = new ArrayList<ApiDeclaration>();
-	private List<ApiModel> models;
+    private Map<String, ApiModel> models = new HashMap<String, ApiModel>();
 	
 	public ApiDeclarations(ApiResources api, RestExpress server, String path)
 	{
@@ -47,13 +49,16 @@ public class ApiDeclarations
 		apis.add(api);
 	}
 
-	public void addModel(ApiModel model)
-	{
-		if (models == null)
-		{
-			models = new ArrayList<ApiModel>();
-		}
-		
-		models.add(model);
-	}
+    public Map<String, ApiModel> getModels() {
+        return models;
+    }
+
+    public ApiDeclaration findApiDeclarationByPath(String path) {
+        for (ApiDeclaration api : apis) {
+            if (api.getPath().equals(path)) {
+                return api;
+            }
+        }
+        return null;
+    }
 }

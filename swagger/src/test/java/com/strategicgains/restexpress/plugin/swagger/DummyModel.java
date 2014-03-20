@@ -1,0 +1,51 @@
+package com.strategicgains.restexpress.plugin.swagger;
+
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+
+import java.util.List;
+
+@com.wordnik.swagger.annotations.ApiModel
+public class DummyModel extends DummyBase {
+    @ApiModel
+    public static class One extends Base {
+        private String prop1;
+        private String prop2;
+    }
+
+    public static class Base {
+        @ApiModelProperty(position = -1)
+        private String base1;
+        @ApiModelProperty(position = -2)
+        private String base2;
+    }
+
+    public enum ColorEnum {
+        RED,
+        GREEN,
+        BLUE
+    }
+
+    @ApiModelProperty
+    private List<One> ones;
+    @ApiModelProperty
+    private String dummy1;
+    @ApiModelProperty
+    private int dummy2;
+    private transient String transient1;
+    private static int static1;
+    @ApiModelProperty
+    private float dummy3;
+    @ApiModelProperty
+    private boolean dummy4;
+    @ApiModelProperty
+    private One[] dummy5;
+    @ApiModelProperty
+    private int[] dummy6;
+    @ApiModelProperty
+    private Integer dummy7;
+    @ApiModelProperty
+    private Double dummy8;
+    @ApiModelProperty
+    private ColorEnum color;
+}
