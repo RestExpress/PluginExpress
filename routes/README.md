@@ -19,7 +19,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>RoutesMetadataPlugin</artifactId>
-			<version>0.1.4</version>
+			<version>0.2.0</version>
 		</dependency>
 ```
 Development:
@@ -27,7 +27,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>RoutesMetadataPlugin</artifactId>
-			<version>0.1.5-SNAPSHOT</version>
+			<version>0.2.1-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
