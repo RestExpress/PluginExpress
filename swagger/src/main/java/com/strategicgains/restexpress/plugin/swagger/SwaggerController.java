@@ -15,15 +15,19 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.domain.metadata.RouteMetadata;
 import org.restexpress.domain.metadata.ServerMetadata;
 import org.restexpress.exception.NotFoundException;
+import org.restexpress.route.Route;
+import org.restexpress.route.RouteBuilder;
+import org.restexpress.util.Callback;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author toddf
@@ -49,28 +53,57 @@ public class SwaggerController
 
 	public void initialize(String urlPath, ServerMetadata data)
 	{
-		String swaggerPath = getPath(urlPath);
+		final String swaggerPath = getPath(urlPath);
 
-		for (RouteMetadata route : data.getRoutes())
-		{
-			String path = getPath(route.getUri().getPattern());
+        server.iterateRouteBuilders(new Callback<RouteBuilder>()
+        {
+            @Override
+            public void process(RouteBuilder routeBuilder)
+            {
+                for (Route route : routeBuilder.build ())
+                {
+                    RouteMetadata routeMetadata = routeBuilder.asMetadata();
+                    String path = getPath(route.getPattern());
+                    if (!swaggerPath.equals(path) && ApiDeclaration.VALID_METHODS.contains(route.getMethod().getName()))
+                    {
+                        ApiDeclarations apis = apisByPath.get(path);
+                        if (apis == null)
+                        {
+                            apis = new ApiDeclarations(resources, server, path);
+                            apisByPath.put(path, apis);
+                            resources.addApi(path, null);
+                        }
+                        // TODO: use some annotation to indicate the model for the request body
 
-			if (swaggerPath.equals(path)) continue;
+                        ApiDeclaration apiDeclaration = apis.findApiDeclarationByPath(routeMetadata.getUri().getPattern());
+                        if (apiDeclaration == null) {
+                            apiDeclaration = new ApiDeclaration(routeMetadata.getUri().getPattern(), routeMetadata.getName());
+                            apis.addApi(apiDeclaration);
+                        }
 
-			ApiDeclarations apis = apisByPath.get(path);
+                        ApiOperation operation = new ApiOperation(route.getMethod().getName(), routeMetadata);
+                        apiDeclaration.addOperation(operation);
+                        // it's important to note that we scope models at the ApiDeclarations level so whenever
+                        // we resolve more types, we do so against any model(s) in that scope.
+                        ModelResolver resolver = new ModelResolver(apis.getModels());
+                        TypeNode returnType = resolver.resolve(route.getAction().getReturnType());
+                        if (returnType.getRef() != null) {
+                            operation.type(returnType.getRef());
+                        } else {
+                            operation.type(returnType.getType());
+                        }
 
-			if (apis == null) // new path to document
-			{
-				apis = new ApiDeclarations(resources, server, path);
-				apisByPath.put(path, apis);
-				// TODO: pull the description from the route metadata (not
-				// currently available).
-				resources.addApi(path, null);
-			}
-
-			apis.addApi(new ApiDeclaration(route));
-			// apis.addModels();
-		}
+                        // look for our special method-level annotation to get information (if any) on the request body
+                        // parameter
+                        ApiModelRequest apiModelRequest = route.getAction().getAnnotation(ApiModelRequest.class);
+                        if (apiModelRequest != null) {
+                            TypeNode bodyType = resolver.resolve(apiModelRequest.model());
+                            operation.addParameter(new ApiParameters("body", "body", bodyType.getRef() != null ? bodyType.getRef() : bodyType, apiModelRequest.required()));
+                        }
+                    }
+                }
+            }
+        });
 	}
 
 	private String getPath(String pattern)

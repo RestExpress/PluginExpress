@@ -46,12 +46,21 @@ public class ApiOperation
 
 		for (String param : route.getUri().getParameters())
 		{
-			if (parameters == null)
-			{
-				parameters = new ArrayList<ApiParameters>();
-			}
-
-			parameters.add(new ApiParameters("path", param, "string", !param.equals("format")));
+			addParameter(new ApiParameters("path", param, "string", !param.equals("format")));
 		}
+    }
+
+    public ApiOperation type(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public void addParameter(ApiParameters param) {
+        if (parameters == null)
+        {
+            parameters = new ArrayList<ApiParameters>();
+        }
+
+        parameters.add(param);
     }
 }

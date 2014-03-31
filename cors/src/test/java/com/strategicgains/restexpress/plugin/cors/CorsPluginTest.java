@@ -42,7 +42,9 @@ public class CorsPluginTest
 
 		server.uri(URL_PATH1, new TestController());
 		server.uri(URL_PATH2, new TestController())
-			.method(HttpMethod.GET, HttpMethod.POST);
+			.method(HttpMethod.POST);
+		server.uri(URL_PATH2, new TestController())
+			.method(HttpMethod.GET);
 		server.uri(URL_PATTERN3, new TestController())
 			.action("readAll", HttpMethod.GET)
 			.method(HttpMethod.POST);

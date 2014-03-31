@@ -15,11 +15,54 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author toddf
  * @since Nov 21, 2013
  */
 public class ApiModel
 {
+    private String id;
+    private Set<String> required;
+    private Map<String, TypeNode> properties;
+    private String description;
 
+    public String getId() {
+        return id;
+    }
+
+    public ApiModel id(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ApiModel description(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public void addRequired(String property) {
+        if (required == null) {
+            required = new HashSet<String>();
+        }
+        required.add(property);
+    }
+
+    public void addProperty(TypeNode property) {
+        if (properties == null) {
+            // use a linked hash map so order of insertion is preserved
+            properties = new LinkedHashMap<String, TypeNode>();
+        }
+        if (!properties.containsKey(property.getProperty())) {
+            properties.put(property.getProperty(), property);
+        }
+    }
 }
