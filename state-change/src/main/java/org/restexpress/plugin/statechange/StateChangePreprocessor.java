@@ -22,6 +22,12 @@ import org.restexpress.Request;
 import org.restexpress.pipeline.Preprocessor;
 
 /**
+ * By default, adds httpMethod, href (requested URL), effectiveHttpMethod, and authorization, if the Authorization
+ * header is present, to the Mapped Message Context (MMC).
+ * <p/>
+ * Additional items may be added to the MMC by adding Enricher instances to the preprocessor via the enrichedBy()
+ * method.  These enrichers can pull data from the Request and put it in the MMC as desired. 
+ * 
  * @author toddf
  * @since Feb 18, 2014
  */

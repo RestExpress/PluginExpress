@@ -24,18 +24,15 @@ import java.util.Map;
  * is an instrument for passing augmentation data from different sources to
  * lower levels in the framework for each message received.
  * <p/>
- * <p>
- * <b><em>The Request Context is managed on a per thread basis</em></b>. A child
+ * <b><em>The Mapped Message Context is managed on a per thread basis</em></b>. A child
  * thread automatically inherits a <em>copy</em> of the mapped diagnostic
  * context of its parent.
  * <p/>
- * <p>
  * The Request class requires JDK 1.6 or above.
- * </p>
- * <p>The MMC is cleaned up after each request by removing the values set by that request,
+ * <p/>
+ * The MMC is cleaned up after each request by removing the values set by that request,
  * since all threads are pooled and re-used. This is accomplished via a call to
  * <code>MMC.clear()</code> in a finally processor within the StateChangePlugin.
- * </p>
  * 
  * @author toddf
  * @since Feb 17, 2014

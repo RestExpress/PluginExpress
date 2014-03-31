@@ -20,6 +20,8 @@ import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
 
 /**
+ * Cleans up the MMC after the request is complete.
+ * 
  * @author toddf
  * @since Feb 18, 2014
  */

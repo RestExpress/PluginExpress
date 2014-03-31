@@ -18,6 +18,10 @@ package org.restexpress.plugin.statechange;
 import org.restexpress.Request;
 
 /**
+ * An interface that defines how additional items may be added to the MMC during the pre-processor
+ * life-cycle. An enricher can pull data from the Request and put it in the MMC as desired for
+ * later, downstream layers to leverage per-request data. 
+ * 
  * @author toddf
  * @since Feb 18, 2014
  */
