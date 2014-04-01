@@ -16,15 +16,13 @@
 package org.restexpress.plugins.xss;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.omg.IOP.Encoding;
+import org.owasp.encoder.Encode;
+import org.restexpress.ContentType;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
-import org.restexpress.contenttype.MediaRange;
-import org.restexpress.contenttype.MediaTypeParser;
 import org.restexpress.pipeline.Postprocessor;
 import org.restexpress.plugin.AbstractPlugin;
 
@@ -37,26 +35,30 @@ import org.restexpress.plugin.AbstractPlugin;
 public class XssPlugin
 extends AbstractPlugin
 {
-	private Map<MediaRange, Encoding> encodings = new HashMap<MediaRange, Encoding>();
+	private Map<String, Encoding> encodings = new HashMap<String, Encoding>();
 
 	public XssPlugin()
 	{
 		super();
+		encode(ContentType.JSON, Encoding.JSON);
+		encode(ContentType.XML, Encoding.XML);
 	}
 
-	public XssPlugin encode(String contentType, Encoding encoding)
+	public XssPlugin encode(String mediaType, Encoding encoding)
 	{
-		List<MediaRange> mediaRanges = MediaTypeParser.parse(contentType);
+		String[] segments = mediaType.split("\\s*,\\s*");
 
-		for (MediaRange mediaRange : mediaRanges)
+		for (String segment : segments)
 		{
-			if (!encodings.containsKey(mediaRange))
-			{
-				encodings.put(mediaRange, encoding);
-			}
+			encodings.put(parseSegment(segment), encoding);
 		}
 
 		return this;
+	}
+
+	private String parseSegment(String segment)
+	{
+		return segment.split("\\s*;\\s*")[0];
 	}
 
 	@Override
@@ -69,18 +71,36 @@ extends AbstractPlugin
 	public class XssEncodingPostprocessor
 	implements Postprocessor
 	{
-		private Map<MediaRange, Encoding> encodings;
+		private Map<String, Encoding> encodings;
 
-		public XssEncodingPostprocessor(Map<MediaRange, Encoding> encodings)
+		public XssEncodingPostprocessor(Map<String, Encoding> encodings)
 		{
 			super();
-			this.encodings = new HashMap<MediaRange, Encoding>(encodings);
+			this.encodings = new HashMap<String, Encoding>(encodings);
 		}
 
 		@Override
 		public void process(Request request, Response response)
 		{
-			response.getContentType()
+			String contentType = parseSegment(response.getContentType());
+			Encoding encoding = encodings.get(contentType);
+
+			switch(encoding)
+			{
+				case JSON:
+					response.setBody(Encode.forJavaScript((String) response.getBody()));
+				break;
+				case XML:
+					response.setBody(Encode.forXml((String) response.getBody()));
+				break;
+				case HTML:
+					response.setBody(Encode.forHtml((String) response.getBody()));
+				break;
+				case CSS:
+					response.setBody(Encode.forCssString((String) response.getBody()));
+				break;
+				default:
+			}
 		}
 	}
 }
