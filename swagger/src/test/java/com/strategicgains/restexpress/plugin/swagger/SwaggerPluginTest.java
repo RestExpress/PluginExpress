@@ -49,6 +49,9 @@ public class SwaggerPluginTest
 
 		DummyController controller = new DummyController();
 		SERVER.setBaseUrl("http://localhost:9001");
+		SERVER.uri("/anothers/{userId}", controller)
+			.action("readAnother", HttpMethod.GET);
+
 		SERVER.uri("/users.{format}", controller)
 			.action("readAll", HttpMethod.GET)
 			.action("options", HttpMethod.OPTIONS)

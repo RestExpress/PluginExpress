@@ -12,8 +12,8 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
-package com.strategicgains.restexpress.plugin.swagger;
+ */
+package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,18 +28,22 @@ import org.restexpress.domain.metadata.RouteMetadata;
  */
 public class ApiDeclaration
 {
-	public static final List<String> VALID_METHODS = new ArrayList<String>(Arrays.asList(new String[] {"GET", "PUT","POST","DELETE"}));
+	public static final List<String> VALID_METHODS = new ArrayList<String>(
+	    Arrays.asList(new String[]
+	    {
+	        "GET", "PUT", "POST", "DELETE"
+	    }));
 
 	private String path;
 	private String description;
 	private List<ApiOperation> operations = new ArrayList<ApiOperation>();
 
 	public ApiDeclaration(RouteMetadata route)
-    {
+	{
 		super();
 		this.path = route.getUri().getPattern();
 		this.description = route.getName();
-		
+
 		for (String method : route.getMethods())
 		{
 			if (VALID_METHODS.contains(method))
@@ -47,18 +51,26 @@ public class ApiDeclaration
 				operations.add(new ApiOperation(method, route));
 			}
 		}
-    }
+	}
 
-    public ApiDeclaration(String path, String description) {
-        this.path = path;
-        this.description = description;
-    }
+	public ApiDeclaration(String path, String description)
+	{
+		this.path = path;
+		this.description = description;
+	}
 
-    public void addOperation(ApiOperation operation) {
-        operations.add(operation);
-    }
+	public void addOperation(ApiOperation operation)
+	{
+		operations.add(operation);
+	}
 
-    public String getPath() {
-        return path;
-    }
+	public String getPath()
+	{
+		return path;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
 }

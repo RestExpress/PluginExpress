@@ -15,9 +15,12 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
+import java.util.List;
+
 import org.restexpress.Request;
 import org.restexpress.Response;
+
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
 
 /**
  * @author toddf
@@ -30,8 +33,9 @@ public class DummyController
         return null;
 	}
 
-	public void readAll(Request request, Response response)
+	public List<DummyModel> readAll(Request request, Response response)
 	{
+		return null;
 	}
 
     @ApiModelRequest(model = DummyModel[].class)
@@ -55,5 +59,10 @@ public class DummyController
 
 	public void options(Request request, Response response)
 	{
+	}
+
+	public Another readAnother(Request request, Response response)
+	{
+		return null;
 	}
 }

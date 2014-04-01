@@ -13,7 +13,7 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-package com.strategicgains.restexpress.plugin.swagger;
+package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
