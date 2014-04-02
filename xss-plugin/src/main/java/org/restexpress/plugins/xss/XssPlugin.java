@@ -64,6 +64,8 @@ extends AbstractPlugin
 	@Override
 	public XssPlugin register(RestExpress server)
 	{
+		if (isRegistered()) return this;
+
 		super.register(server);
 		server.addFinallyProcessor(new XssEncodingPostprocessor(encodings));
 		return this;
