@@ -62,10 +62,11 @@ extends AbstractPlugin
 	}
 
 	@Override
-	public void bind(RestExpress server)
+	public XssPlugin register(RestExpress server)
 	{
-		super.bind(server);
+		super.register(server);
 		server.addFinallyProcessor(new XssEncodingPostprocessor(encodings));
+		return this;
 	}
 
 	public class XssEncodingPostprocessor
@@ -88,7 +89,9 @@ extends AbstractPlugin
 			switch(encoding)
 			{
 				case JSON:
-					response.setBody(Encode.forJavaScript((String) response.getBody()));
+					String encoded = Encode.forJavaScript((String) response.getBody());
+					System.out.println(encoded);
+					response.setBody(encoded);
 				break;
 				case XML:
 					response.setBody(Encode.forXml((String) response.getBody()));
