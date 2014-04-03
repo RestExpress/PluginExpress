@@ -85,18 +85,21 @@ extends AbstractPlugin
 		@Override
 		public void process(Request request, Response response)
 		{
+			if (!response.hasBody()) return;
+			if (!String.class.isAssignableFrom(response.getBody().getClass())) return;
+
 			String contentType = parseSegment(response.getContentType());
 			Encoding encoding = encodings.get(contentType);
+
+			if (encoding == null) return;
 
 			switch(encoding)
 			{
 				case JSON:
-					String encoded = Encode.forJavaScript((String) response.getBody());
-					System.out.println(encoded);
-					response.setBody(encoded);
+					response.setBody(Encode.forHtmlContent((String) response.getBody()));
 				break;
 				case XML:
-					response.setBody(Encode.forXml((String) response.getBody()));
+					response.setBody(Encode.forJavaScript((String) response.getBody()));
 				break;
 				case HTML:
 					response.setBody(Encode.forHtml((String) response.getBody()));
