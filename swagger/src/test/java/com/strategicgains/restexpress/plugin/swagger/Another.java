@@ -15,6 +15,8 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,8 +25,11 @@ import java.util.Map;
  */
 public class Another
 {
-	private String something;
-	private int otherInt;
-	private Integer[] integers;
-	private Map<String, String> stringsByString;
+	private String aString;
+	private int anInt;
+	private Integer[] intArray;
+	private Map<String, String> mapStringString;
+	private Map<Object, Object> mapObjectObject;
+	private List<DummyModel> listDummyModel;
+	Collection<Another> anothers;
 }

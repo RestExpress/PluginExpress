@@ -129,6 +129,7 @@ public class SwaggerPluginTest
 		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
+		assertTrue(json.contains("\"path\":\"/anothers\""));
 		assertTrue(json.contains("\"path\":\"/users\""));
 		assertTrue(json.contains("\"path\":\"/orders\""));
 		assertTrue(json.contains("\"path\":\"/products\""));
