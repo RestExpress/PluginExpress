@@ -234,7 +234,6 @@ public class ModelResolver
 			}
 			else if(Map.class.isAssignableFrom(rawType))
 			{
-				
 			}
 			else
 			{

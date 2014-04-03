@@ -36,6 +36,9 @@ public class ApiDeclaration
 
 	private String path;
 	private String description;
+	private List<String> consumes = new ArrayList<String>();
+	private List<String> produces = new ArrayList<String>();
+	private Authorizations authorizations = new Authorizations();
 	private List<ApiOperation> operations = new ArrayList<ApiOperation>();
 
 	public ApiDeclaration(RouteMetadata route)
@@ -62,6 +65,26 @@ public class ApiDeclaration
 	public void addOperation(ApiOperation operation)
 	{
 		operations.add(operation);
+	}
+
+	public ApiDeclaration consumes(String contentType)
+	{
+		if (!consumes.contains(contentType))
+		{
+			consumes.add(contentType);
+		}
+
+		return this;
+	}
+
+	public ApiDeclaration produces(String contentType)
+	{
+		if (!produces.contains(contentType))
+		{
+			produces.add(contentType);
+		}
+
+		return this;
 	}
 
 	public String getPath()
