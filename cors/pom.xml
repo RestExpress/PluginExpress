@@ -4,9 +4,7 @@
 	<name>CORS Plugin</name>
 	<description>RESTExpress CORS Plugin</description>
 	<url>https://github.com/RestExpress/PluginExpress</url>
-	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>CORSPlugin</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<parent>

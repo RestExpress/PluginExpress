@@ -4,9 +4,7 @@
 	<name>Metrics Plugin</name>
 	<description>RESTExpress Metrics Plugin (uses the Yammer metrics library)</description>
 	<url>https://github.com/RestExpress/PluginExpress</url>
-	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>MetricsPlugin</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<parent>

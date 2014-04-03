@@ -4,9 +4,7 @@
 	<name>Swagger Plugin</name>
 	<description>RESTExpress plugin for automatic Swagger documentation</description>
 	<url>https://github.com/RestExpress/PluginExpress</url>
-	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>SwaggerPlugin</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<parent>
