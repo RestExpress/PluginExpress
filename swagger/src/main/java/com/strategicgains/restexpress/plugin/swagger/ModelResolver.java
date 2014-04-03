@@ -139,11 +139,11 @@ public class ModelResolver
 
 		for (TypeNode property : sorted)
 		{
-			model.addProperty(property);
+			model.property(property);
 
 			if (property.isRequired())
 			{
-				model.addRequired(property.getProperty());
+				model.required(property.getProperty());
 			}
 		}
 
