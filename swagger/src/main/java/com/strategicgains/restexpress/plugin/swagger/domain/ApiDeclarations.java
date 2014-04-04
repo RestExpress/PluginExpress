@@ -35,8 +35,8 @@ public class ApiDeclarations
 	private String swaggerVersion;
 	private String basePath;
 	private String resourcePath;
-	private List<String> consumes = new ArrayList<String>();
-	private List<String> produces = new ArrayList<String>();
+	private List<String> consumes;
+	private List<String> produces;
 	private List<ApiDeclaration> apis = new ArrayList<ApiDeclaration>();
 	private Map<String, ApiModel> models = new HashMap<String, ApiModel>();
 
@@ -55,6 +55,11 @@ public class ApiDeclarations
 
 	public ApiDeclarations consumes(String contentType)
 	{
+		if (consumes == null)
+		{
+			consumes = new ArrayList<String>();
+		}
+
 		if (!consumes.contains(contentType))
 		{
 			consumes.add(contentType);
@@ -65,6 +70,11 @@ public class ApiDeclarations
 
 	public ApiDeclarations produces(String contentType)
 	{
+		if (produces == null)
+		{
+			produces = new ArrayList<String>();
+		}
+
 		if (!produces.contains(contentType))
 		{
 			produces.add(contentType);

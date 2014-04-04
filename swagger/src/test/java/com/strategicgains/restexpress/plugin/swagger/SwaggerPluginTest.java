@@ -15,6 +15,9 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.matcher.RestAssuredMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,6 +35,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.restexpress.RestExpress;
+
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.path.json.JsonPath;
 
 /**
  * @author toddf
@@ -110,12 +117,30 @@ public class SwaggerPluginTest
 			.register(SERVER);
 		
 		SERVER.bind(9001);
+		RestAssured.port = 9001;
 	}
 	
 	@AfterClass
 	public static void shutdown()
 	{
 		SERVER.shutdown();
+	}
+
+	@Test
+	public void shouldReturnApiResources()
+	throws Exception
+	{
+		get("/api-docs")
+			.then()
+				.contentType(ContentType.JSON)
+				.body("apiVersion", equalTo("1.0"))
+				.body("swaggerVersion", equalTo("1.2"))
+				.body("apis", hasItem(hasEntry("path", "/anothers")))
+				.body("apis", hasItem(hasEntry("path", "/users")))
+				.body("apis", hasItem(hasEntry("path", "/orders")))
+				.body("apis", hasItem(hasEntry("path", "/products")))
+				.body("apis", hasItem(hasEntry("path", "/health")));
+//				.body("apis", hasItem(hasEntry("path", "/api-docs")));
 	}
 
 	@Test
