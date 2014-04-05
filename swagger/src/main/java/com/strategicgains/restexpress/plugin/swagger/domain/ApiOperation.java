@@ -18,49 +18,46 @@ package com.strategicgains.restexpress.plugin.swagger.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.restexpress.domain.metadata.RouteMetadata;
 import org.restexpress.domain.metadata.UriMetadata;
+import org.restexpress.route.Route;
 
 /**
  * @author toddf
  * @since Nov 21, 2013
  */
 public class ApiOperation
+extends DataType
 {
 	private String method;
 	private String nickname = "";
-	private String type; // return type
-	private List<ApiParameters> parameters;
+	private List<ApiOperationParameters> parameters;
 	private String summary = "";
 	private String notes;
 	private String[] errorResponses;
 
-	public ApiOperation(String method, RouteMetadata route)
+	public ApiOperation(Route route)
 	{
-		this.method = method;
+		// TODO: use Swagger annotation on controller method, if present.
+
+		this.method = route.getMethod().getName();
 		String name = route.getName();
-		this.nickname = method.toLowerCase() + (name == null ? "" : name);
-		UriMetadata metadata = route.getUri();
+		this.nickname = method + (name == null ? "" : " " + name);
 
-		if (metadata.getParameters() == null) return;
+		if (route.getUrlParameters() == null) return;
 
-		for (String param : route.getUri().getParameters())
+		for (String param : route.getUrlParameters())
 		{
-			addParameter(new ApiParameters("path", param, "string", !param.equals("format")));
+			addParameter(new ApiOperationParameters("path", param, "string", !param.equals("format")));
 		}
+
+		// TODO: determine body/input parameters.
 	}
 
-	public ApiOperation type(String type)
-	{
-		this.type = type;
-		return this;
-	}
-
-	public void addParameter(ApiParameters param)
+	public void addParameter(ApiOperationParameters param)
 	{
 		if (parameters == null)
 		{
-			parameters = new ArrayList<ApiParameters>();
+			parameters = new ArrayList<ApiOperationParameters>();
 		}
 
 		parameters.add(param);

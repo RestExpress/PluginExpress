@@ -28,7 +28,7 @@ public class ApiModel
 {
 	private String id;
 	private Set<String> required;
-	private Map<String, TypeNode> properties;
+	private Map<String, DataType> properties;
 	private String description;
 
 	public String getId()
@@ -64,11 +64,11 @@ public class ApiModel
 		return this;
 	}
 
-	public ApiModel property(TypeNode property)
+	public ApiModel property(DataType property)
 	{
 		if (properties == null)
 		{
-			properties = new LinkedHashMap<String, TypeNode>();
+			properties = new LinkedHashMap<String, DataType>();
 		}
 
 		if (!properties.containsKey(property.getProperty()))

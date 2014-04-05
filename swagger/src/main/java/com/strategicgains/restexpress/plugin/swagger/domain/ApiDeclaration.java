@@ -16,10 +16,9 @@
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.route.Route;
 
 /**
  * @author toddf
@@ -28,32 +27,18 @@ import org.restexpress.domain.metadata.RouteMetadata;
  */
 public class ApiDeclaration
 {
-	public static final List<String> VALID_METHODS = new ArrayList<String>(
-	    Arrays.asList(new String[]
-	    {
-	        "GET", "PUT", "POST", "DELETE"
-	    }));
-
 	private String path;
 	private String description;
-	private List<String> consumes = new ArrayList<String>();
-	private List<String> produces = new ArrayList<String>();
-	private Authorizations authorizations = new Authorizations();
+	private List<String> consumes;
+	private List<String> produces;
+	private Authorizations authorizations;
 	private List<ApiOperation> operations = new ArrayList<ApiOperation>();
 
-	public ApiDeclaration(RouteMetadata route)
+	public ApiDeclaration(Route route)
 	{
 		super();
-		this.path = route.getUri().getPattern();
+		this.path = route.getPattern();
 		this.description = route.getName();
-
-		for (String method : route.getMethods())
-		{
-			if (VALID_METHODS.contains(method))
-			{
-				operations.add(new ApiOperation(method, route));
-			}
-		}
 	}
 
 	public ApiDeclaration(String path, String description)
@@ -62,13 +47,30 @@ public class ApiDeclaration
 		this.description = description;
 	}
 
-	public void addOperation(ApiOperation operation)
+	public ApiDeclaration operation(ApiOperation operation)
 	{
 		operations.add(operation);
+		return this;
+	}
+
+	public ApiDeclaration authorization(String key, Authorization authn)
+	{
+		if (authorizations == null)
+		{
+			authorizations = new Authorizations();
+		}
+
+		authorizations.put(key, authn);
+		return this;
 	}
 
 	public ApiDeclaration consumes(String contentType)
 	{
+		if (consumes == null)
+		{
+			consumes = new ArrayList<String>();
+		}
+
 		if (!consumes.contains(contentType))
 		{
 			consumes.add(contentType);
@@ -79,6 +81,11 @@ public class ApiDeclaration
 
 	public ApiDeclaration produces(String contentType)
 	{
+		if (produces == null)
+		{
+			produces = new ArrayList<String>();
+		}
+
 		if (!produces.contains(contentType))
 		{
 			produces.add(contentType);

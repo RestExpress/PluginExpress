@@ -30,7 +30,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.strategicgains.restexpress.plugin.swagger.domain.ApiModel;
-import com.strategicgains.restexpress.plugin.swagger.domain.TypeNode;
+import com.strategicgains.restexpress.plugin.swagger.domain.DataType;
+import com.strategicgains.restexpress.plugin.swagger.domain.Items;
+import com.strategicgains.restexpress.plugin.swagger.domain.Primitives;
 import com.wordnik.swagger.annotations.ApiModelProperty;
 
 /**
@@ -79,7 +81,7 @@ public class ModelResolver
 		this.models = models;
 	}
 
-	public TypeNode resolve(Class<?> cls)
+	public DataType resolve(Type cls)
 	{
 		return createNode(cls);
 	}
@@ -88,6 +90,7 @@ public class ModelResolver
 	{
 		String id = target.getSimpleName();
 		ApiModel model = models.get(id);
+
 		if (model != null)
 		{
 			return model;
@@ -95,17 +98,23 @@ public class ModelResolver
 
 		if (target.isPrimitive())
 		{
-			throw new IllegalArgumentException("Unable to resolve primitive class: " + target);
+			System.err.println("Unable to resolve primitive class: " + target);
+			return model;
+//			throw new IllegalArgumentException("Unable to resolve primitive class: " + target);
 		}
 
 		if (target.isSynthetic())
 		{
-			throw new IllegalArgumentException("Unable to resolve synthetic class: " + target);
+			System.err.println("Unable to resolve synthetic class: " + target);
+			return model;
+//			throw new IllegalArgumentException("Unable to resolve synthetic class: " + target);
 		}
 
 		if (target.isArray())
 		{
-			throw new IllegalArgumentException("Unable to use arrays for models: " + target);
+			System.err.println("Unable to use arrays for models: " + target);
+			return model;
+//			throw new IllegalArgumentException("Unable to use arrays for models: " + target);
 		}
 
 		// com.wordnik.swagger.annotations.ApiModel apiModel =
@@ -117,27 +126,27 @@ public class ModelResolver
 
 		model = new ApiModel().id(id);
 		models.put(id, model);
-		Map<String, TypeNode> properties = new HashMap<String, TypeNode>();
+		Map<String, DataType> properties = new HashMap<String, DataType>();
 
 		for (Class<?> cls = target; !Object.class.equals(cls) && cls != null; cls = cls.getSuperclass())
 		{
 			processFields(properties, cls);
 		}
 
-		List<TypeNode> sorted = new ArrayList<TypeNode>(properties.values());
+		List<DataType> sorted = new ArrayList<DataType>(properties.values());
 
 		// sort the properties based on property "position" attribute of
 		// annotation
-		Collections.sort(sorted, new Comparator<TypeNode>()
+		Collections.sort(sorted, new Comparator<DataType>()
 		{
 			@Override
-			public int compare(TypeNode o1, TypeNode o2)
+			public int compare(DataType o1, DataType o2)
 			{
 				return o1.getPosition() - o2.getPosition();
 			}
 		});
 
-		for (TypeNode property : sorted)
+		for (DataType property : sorted)
 		{
 			model.property(property);
 
@@ -150,9 +159,9 @@ public class ModelResolver
 		return model;
 	}
 
-	private TypeNode createNode(Type target)
+	private DataType createNode(Type target)
 	{
-		TypeNode node = new TypeNode();
+		DataType node = new DataType();
 
 		if (target instanceof Class)
 		{
@@ -160,45 +169,45 @@ public class ModelResolver
 
 			if (String.class.equals(target))
 			{
-				node.type("string").primitive(true);
+				node.setType(Primitives.STRING);
 			}
 			else if (Integer.class.equals(target) || Integer.TYPE.equals(target))
 			{
-				node.type("integer").format("int32").primitive(true);
+				node.setType(Primitives.INTEGER);
 			}
 			else if (Long.class.equals(target) || Long.TYPE.equals(target))
 			{
-				node.type("integer").format("int64").primitive(true);
+				node.setType(Primitives.LONG);
 			}
 			else if (Boolean.class.equals(target) || Boolean.TYPE.equals(target))
 			{
-				node.type("boolean").primitive(true);
+				node.setType(Primitives.BOOLEAN);
 			}
 			else if (Float.class.equals(target) || Float.TYPE.equals(target))
 			{
-				node.type("number").format("float").primitive(true);
+				node.setType(Primitives.FLOAT);
 			}
 			else if (Double.class.equals(target) || Double.TYPE.equals(target))
 			{
-				node.type("number").format("double").primitive(true);
+				node.setType(Primitives.DOUBLE);
 			}
 			else if (Byte.class.equals(target) || Byte.TYPE.equals(target))
 			{
-				node.type("string").format("byte").primitive(true);
+				node.setType(Primitives.BYTE);
 			}
 			else if (Date.class.equals(target))
 			{
-				node.type("string").format("date").primitive(true);
+				node.setType(Primitives.DATE_TIME);
 			}
 			else if (targetClass.isArray())
 			{
-				node.type("array");
-				TypeNode componentModel = createNode(targetClass.getComponentType());
-				node.items(componentModel);
+				node.setType("array");
+				DataType componentModel = createNode(targetClass.getComponentType());
+				node.setItems(new Items(componentModel));
 			}
 			else if (targetClass.isEnum())
 			{
-				node.type("string").primitive(true);
+				node.setType(Primitives.STRING);
 
 				for (Object obj : targetClass.getEnumConstants())
 				{
@@ -207,12 +216,12 @@ public class ModelResolver
 			}
 			else if (Void.class.equals(target) || Void.TYPE.equals(target))
 			{
-				node.type("void").primitive(true);
+				node.setType(Primitives.VOID);
 			}
 			else
 			{
 				ApiModel subModel = resolveClass(targetClass);
-				node.ref(subModel.getId());
+				node.setRef(subModel.getId());
 			}
 		}
 		else if (target instanceof ParameterizedType)
@@ -222,33 +231,34 @@ public class ModelResolver
 
 			if (Collection.class.isAssignableFrom(rawType))
 			{
-				node.type("array");
+				node.setType("array");
 
 				if (Set.class.isAssignableFrom(rawType))
 				{
-					node.uniqueItems(true);
+					node.setUniqueItems(true);
 				}
 
-				TypeNode componentModel = createNode(parameterizedType.getActualTypeArguments()[0]);
-				node.items(componentModel);
-			}
-			else if(Map.class.isAssignableFrom(rawType))
-			{
+				DataType componentModel = createNode(parameterizedType.getActualTypeArguments()[0]);
+				node.setItems(new Items(componentModel));
 			}
 			else
 			{
-				throw new IllegalArgumentException("Unhandled generic type: " + target);
+				System.err.println("Unhandled generic type: " + target);
+				return node;
+//				throw new IllegalArgumentException("Unhandled generic type: " + target);
 			}
 		}
 		else
 		{
-			throw new UnsupportedOperationException("Unhandled type: " + target);
+			System.err.println("Unhandled type: " + target);
+			return node;
+//			throw new UnsupportedOperationException("Unhandled type: " + target);
 		}
 
 		return node;
 	}
 
-	private void processFields(Map<String, TypeNode> properties, Class<?> target)
+	private void processFields(Map<String, DataType> properties, Class<?> target)
 	{
 		for (Field field : target.getDeclaredFields())
 		{
@@ -257,17 +267,17 @@ public class ModelResolver
 				ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
 				if (apiModelProperty != null && !properties.containsKey(field.getName()))
 				{
-					TypeNode property = createNode(field.getGenericType())
-					    .description(apiModelProperty.notes())
-					    .required(apiModelProperty.required())
-					    .position(apiModelProperty.position())
-					    .property(field.getName());
+					DataType property = createNode(field.getGenericType())
+					    .setDescription(apiModelProperty.notes())
+					    .setRequired(apiModelProperty.required())
+					    .setPosition(apiModelProperty.position())
+					    .setProperty(field.getName());
 					properties.put(field.getName(), property);
 				}
 				else
 				{
-					TypeNode property = createNode(field.getGenericType())
-						.property(field.getName());
+					DataType property = createNode(field.getGenericType())
+						.setProperty(field.getName());
 					properties.put(field.getName(), property);
 				}
 			}

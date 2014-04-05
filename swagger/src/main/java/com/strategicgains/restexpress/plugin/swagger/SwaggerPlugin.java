@@ -102,7 +102,7 @@ extends AbstractPlugin
 	@Override
 	public void bind(RestExpress server)
 	{
-		controller.initialize(urlPath, server.getRouteMetadata());
+		controller.initialize(urlPath, server);
 	}
 
 	// RouteBuilder route augmentation delegates.

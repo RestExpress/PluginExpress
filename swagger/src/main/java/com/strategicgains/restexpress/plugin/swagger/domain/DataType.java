@@ -23,23 +23,22 @@ import java.util.Set;
 /**
  * @author russtrotter
  */
-public class TypeNode
+public class DataType
 {
 	private String type;
 	private String format;
 	private String $ref;
 	private Boolean uniqueItems;
 	private String description;
-	private TypeNode items;
+	private Items items;
 
 	// Note, since "enum" is a java reserved word, we have to override the
 	// serialized name
 	@JsonProperty("enum")
-	private Set<String> _enum;
-	// The transient fields disable gson/jackson serialization. We only use it
-	// during
-	// model building
+	private Set<String> enumeration;
 
+	// The transient fields disable gson/jackson serialization. We only use it
+	// during model building
 	private transient boolean primitive = false;
 	private transient String property;
 	private transient boolean required;
@@ -50,7 +49,15 @@ public class TypeNode
 		return type;
 	}
 
-	public TypeNode type(String type)
+	public DataType setType(Primitives primitive)
+	{
+		setType(primitive.type());
+		setFormat(primitive.format());
+		setPrimitive(true);
+		return this;
+	}
+
+	public DataType setType(String type)
 	{
 		this.type = type;
 		return this;
@@ -61,7 +68,7 @@ public class TypeNode
 		return format;
 	}
 
-	public TypeNode format(String format)
+	public DataType setFormat(String format)
 	{
 		this.format = format;
 		return this;
@@ -72,7 +79,7 @@ public class TypeNode
 		return $ref;
 	}
 
-	public TypeNode ref(String ref)
+	public DataType setRef(String ref)
 	{
 		this.$ref = ref;
 		return this;
@@ -83,20 +90,20 @@ public class TypeNode
 		return uniqueItems;
 	}
 
+	public DataType setUniqueItems(Boolean uniqueItems)
+	{
+		this.uniqueItems = uniqueItems;
+		return this;
+	}
+
 	public boolean isRequired()
 	{
 		return required;
 	}
 
-	public TypeNode required(boolean required)
+	public DataType setRequired(boolean required)
 	{
 		this.required = required;
-		return this;
-	}
-
-	public TypeNode uniqueItems(Boolean uniqueItems)
-	{
-		this.uniqueItems = uniqueItems;
 		return this;
 	}
 
@@ -105,23 +112,24 @@ public class TypeNode
 		return description;
 	}
 
-	public TypeNode description(String description)
+	public DataType setDescription(String description)
 	{
 		// treat empty strings as nulls so we don't get JSON
 		// generated for this field in those cases
-		if (description.length() > 0)
+		if (description != null && description.length() > 0)
 		{
 			this.description = description;
 		}
+
 		return this;
 	}
 
-	public TypeNode getItems()
+	public Items getItems()
 	{
 		return items;
 	}
 
-	public TypeNode items(TypeNode items)
+	public DataType setItems(Items items)
 	{
 		this.items = items;
 		return this;
@@ -132,7 +140,7 @@ public class TypeNode
 		return position;
 	}
 
-	public TypeNode position(int position)
+	public DataType setPosition(int position)
 	{
 		this.position = position;
 		return this;
@@ -143,19 +151,20 @@ public class TypeNode
 		return property;
 	}
 
-	public TypeNode property(String property)
+	public DataType setProperty(String property)
 	{
 		this.property = property;
 		return this;
 	}
 
-	public TypeNode addEnum(String value)
+	public DataType addEnum(String value)
 	{
-		if (_enum == null)
+		if (enumeration == null)
 		{
-			_enum = new HashSet<String>();
+			enumeration = new HashSet<String>();
 		}
-		_enum.add(value);
+
+		enumeration.add(value);
 		return this;
 	}
 
@@ -164,7 +173,7 @@ public class TypeNode
 		return primitive;
 	}
 
-	public TypeNode primitive(boolean primitive)
+	public DataType setPrimitive(boolean primitive)
 	{
 		this.primitive = primitive;
 		return this;

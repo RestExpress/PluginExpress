@@ -38,7 +38,7 @@ public class DummyController
 		return null;
 	}
 
-    @ApiModelRequest(model = DummyModel[].class)
+    @ApiModelRequest(model=DummyModel.class, required=true)
 	public void create(Request request, Response response)
 	{
 		response.setResponseCreated();

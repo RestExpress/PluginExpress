@@ -17,12 +17,15 @@ package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.RestExpress;
-import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.route.Route;
+
+import com.strategicgains.restexpress.plugin.swagger.ModelResolver;
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
 
 /**
  * @author toddf
@@ -38,6 +41,7 @@ public class ApiDeclarations
 	private List<String> consumes;
 	private List<String> produces;
 	private List<ApiDeclaration> apis = new ArrayList<ApiDeclaration>();
+	private transient Map<String, ApiDeclaration> apisByPath = new LinkedHashMap<String, ApiDeclaration>();
 	private Map<String, ApiModel> models = new HashMap<String, ApiModel>();
 
 	public ApiDeclarations(ApiResources api, RestExpress server, String path)
@@ -51,6 +55,7 @@ public class ApiDeclarations
 	public void addApi(ApiDeclaration api)
 	{
 		apis.add(api);
+		apisByPath.put(api.getPath(), api);
 	}
 
 	public ApiDeclarations consumes(String contentType)
@@ -83,35 +88,61 @@ public class ApiDeclarations
 		return this;
 	}
 
+	public ApiDeclarations addModel(ApiModel model)
+	{
+		if (!models.containsKey(model.getId()))
+		{
+			models.put(model.getId(), model);
+		}
+
+		return this;
+	}
+
 	public Map<String, ApiModel> getModels()
 	{
 		return models;
 	}
 
-//	public ApiDeclaration addOperation(RouteMetadata route, HttpMethod method)
-//	{
-//		ApiDeclaration apiDeclaration = findApiDeclarationByPath(route.getUri().getPattern());
-//
-//		if (apiDeclaration == null)
-//		{
-//			apiDeclaration = new ApiDeclaration(route.getUri().getPattern(), route.getName());
-//		}
-//
-//		ApiOperation operation = new ApiOperation(method.getName(), route);
-//		apiDeclaration.addOperation(operation);
-//		return apiDeclaration;
-//	}
-
-	public ApiDeclaration findApiDeclarationByPath(String path)
+	public ApiOperation addOperation(Route route)
 	{
-		for (ApiDeclaration api : apis)
+		ApiDeclaration apiDeclaration = apisByPath.get(route.getPattern());
+
+		if (apiDeclaration == null)
 		{
-			if (api.getPath().equals(path))
-			{
-				return api;
-			}
+			apiDeclaration = new ApiDeclaration(route);
+			addApi(apiDeclaration);
 		}
 
-		return null;
+		ApiOperation operation = new ApiOperation(route);
+		apiDeclaration.operation(operation);
+		return operation;
+	}
+
+	public void addModels(ApiOperation operation, Route route)
+	{
+		ModelResolver resolver = new ModelResolver(models);
+		DataType returnType = resolver.resolve(route.getAction().getGenericReturnType());
+
+		if (returnType.getRef() != null)
+		{
+			operation.setType(returnType.getRef());
+		}
+		else
+		{
+			operation.setType(returnType.getType());
+			operation.setItems(returnType.getItems());
+		}
+
+		ApiModelRequest apiModelRequest = route.getAction().getAnnotation(ApiModelRequest.class);
+
+		if (apiModelRequest != null)
+		{
+			DataType bodyType = resolver.resolve(apiModelRequest.model());
+			operation.addParameter(new ApiOperationParameters(
+				"body",
+				"body",
+				bodyType.getRef() != null ? bodyType.getRef() : bodyType.getType(),
+				apiModelRequest.required()));
+		}
 	}
 }
