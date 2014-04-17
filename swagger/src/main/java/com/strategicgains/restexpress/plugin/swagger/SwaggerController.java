@@ -15,98 +15,78 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
-import org.restexpress.domain.metadata.RouteMetadata;
-import org.restexpress.domain.metadata.ServerMetadata;
 import org.restexpress.exception.NotFoundException;
 import org.restexpress.route.Route;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.strategicgains.restexpress.plugin.swagger.domain.ApiDeclarations;
+import com.strategicgains.restexpress.plugin.swagger.domain.ApiOperation;
+import com.strategicgains.restexpress.plugin.swagger.domain.ApiResources;
 
 /**
  * @author toddf
  * @since Nov 21, 2013
  */
 public class SwaggerController
+implements Callback<RouteBuilder>
 {
-	// private static final String RESOURCE_REGEX = "(/.*)(/|\\.)?";
-	// private static final Pattern RESOURCE_PATTERN =
-	// Pattern.compile(RESOURCE_REGEX);
+	public static final List<String> VALID_METHODS = new ArrayList<String>(
+    Arrays.asList(new String[]
+    {
+        "GET", "PUT", "POST", "DELETE"
+    }));
 
 	private RestExpress server;
 	private ApiResources resources;
 	private Map<String, ApiDeclarations> apisByPath = new HashMap<String, ApiDeclarations>();
+	private String swaggerRoot;
 
-	public SwaggerController(RestExpress server, String apiVersion,
-	    String swaggerVersion)
+	public SwaggerController(RestExpress server, String apiVersion, String swaggerVersion)
 	{
 		super();
 		this.resources = new ApiResources(apiVersion, swaggerVersion);
 		this.server = server;
 	}
 
-	public void initialize(String urlPath, ServerMetadata data)
+	public void initialize(String urlPath, RestExpress server)
+    {
+		swaggerRoot = getPathSegment(urlPath);
+		server.iterateRouteBuilders(this);
+    }
+
+	public ApiResources readAll(Request request, Response response)
 	{
-		final String swaggerPath = getPath(urlPath);
-
-        server.iterateRouteBuilders(new Callback<RouteBuilder>()
-        {
-            @Override
-            public void process(RouteBuilder routeBuilder)
-            {
-                for (Route route : routeBuilder.build ())
-                {
-                    RouteMetadata routeMetadata = routeBuilder.asMetadata();
-                    String path = getPath(route.getPattern());
-                    if (!swaggerPath.equals(path) && ApiDeclaration.VALID_METHODS.contains(route.getMethod().getName()))
-                    {
-                        ApiDeclarations apis = apisByPath.get(path);
-                        if (apis == null)
-                        {
-                            apis = new ApiDeclarations(resources, server, path);
-                            apisByPath.put(path, apis);
-                            resources.addApi(path, null);
-                        }
-                        // TODO: use some annotation to indicate the model for the request body
-
-                        ApiDeclaration apiDeclaration = apis.findApiDeclarationByPath(routeMetadata.getUri().getPattern());
-                        if (apiDeclaration == null) {
-                            apiDeclaration = new ApiDeclaration(routeMetadata.getUri().getPattern(), routeMetadata.getName());
-                            apis.addApi(apiDeclaration);
-                        }
-
-                        ApiOperation operation = new ApiOperation(route.getMethod().getName(), routeMetadata);
-                        apiDeclaration.addOperation(operation);
-                        // it's important to note that we scope models at the ApiDeclarations level so whenever
-                        // we resolve more types, we do so against any model(s) in that scope.
-                        ModelResolver resolver = new ModelResolver(apis.getModels());
-                        TypeNode returnType = resolver.resolve(route.getAction().getReturnType());
-                        if (returnType.getRef() != null) {
-                            operation.type(returnType.getRef());
-                        } else {
-                            operation.type(returnType.getType());
-                        }
-
-                        // look for our special method-level annotation to get information (if any) on the request body
-                        // parameter
-                        ApiModelRequest apiModelRequest = route.getAction().getAnnotation(ApiModelRequest.class);
-                        if (apiModelRequest != null) {
-                            TypeNode bodyType = resolver.resolve(apiModelRequest.model());
-                            operation.addParameter(new ApiParameters("body", "body", bodyType.getRef() != null ? bodyType.getRef() : bodyType, apiModelRequest.required()));
-                        }
-                    }
-                }
-            }
-        });
+		return resources;
 	}
 
-	private String getPath(String pattern)
+	public ApiDeclarations read(Request request, Response response)
+	{
+		String path = request.getHeader("path");
+		ApiDeclarations api = apisByPath.get("/" + path);
+
+		if (api == null) throw new NotFoundException(path);
+
+		return api;
+	}
+
+	/**
+	 * Returns the first part of the URL path. Either the leading slash to the first period ('.')
+	 * or the first slash to the second slash.
+	 * 
+	 * @param pattern a URL pattern.
+	 * @return
+	 */
+	private String getPathSegment(String pattern)
 	{
 		int slash = pattern.indexOf('/', 1);
 		int dot = pattern.indexOf('.', 1);
@@ -128,18 +108,31 @@ public class SwaggerController
 		return path;
 	}
 
-	public ApiResources readAll(Request request, Response response)
-	{
-		return resources;
-	}
+	@Override
+    public void process(RouteBuilder routeBuilder)
+    {
+		for (Route route : routeBuilder.build())
+		{
+			if (!VALID_METHODS.contains(route.getMethod().getName())) continue;
 
-	public ApiDeclarations read(Request request, Response response)
-	{
-		String path = request.getHeader("path");
-		ApiDeclarations api = apisByPath.get("/" + path);
+			String path = getPathSegment(route.getPattern());
 
-		if (api == null) throw new NotFoundException(path);
+			// Don't report the Swagger routes...
+			if (swaggerRoot.equals(path)) continue;
 
-		return api;
-	}
+			ApiDeclarations apis = apisByPath.get(path);
+
+			if (apis == null) // new path to document
+			{
+				apis = new ApiDeclarations(resources, server, path);
+				apisByPath.put(path, apis);
+				// TODO: pull the description from the route metadata (not
+				// currently available).
+				resources.addApi(path, null);
+			}
+
+			ApiOperation operation = apis.addOperation(route);
+			apis.addModels(operation, route);
+		}
+    }
 }

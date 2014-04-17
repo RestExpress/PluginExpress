@@ -13,7 +13,7 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-package com.strategicgains.restexpress.plugin.swagger;
+package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +27,8 @@ public class ApiResources
 {
 	private String apiVersion;
 	private String swaggerVersion;
+	private Info info;
+	private Authorizations authorizations;
 	private List<ApiResource> apis = new ArrayList<ApiResource>();
 	
 	public ApiResources(String apiVersion, String swaggerVersion)

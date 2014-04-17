@@ -15,10 +15,12 @@
 */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.jayway.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -33,6 +35,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.restexpress.RestExpress;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.response.Response;
+
 /**
  * @author toddf
  * @since Nov 22, 2013
@@ -40,15 +45,20 @@ import org.restexpress.RestExpress;
 public class SwaggerPluginTest
 {
 	private static final RestExpress SERVER = new RestExpress();
+	private static final int PORT = 9001;
+	private static final String BASE_URL = "http://localhost:" + PORT;
 	private HttpClient http = new DefaultHttpClient();
 
 	@BeforeClass
 	public static void intialize()
 	{
-		RestExpress.getSerializationProvider();
+		RestAssured.port = PORT;
 
 		DummyController controller = new DummyController();
-		SERVER.setBaseUrl("http://localhost:9001");
+		SERVER.setBaseUrl(BASE_URL);
+		SERVER.uri("/anothers/{userId}", controller)
+			.action("readAnother", HttpMethod.GET);
+
 		SERVER.uri("/users.{format}", controller)
 			.action("readAll", HttpMethod.GET)
 			.action("options", HttpMethod.OPTIONS)
@@ -106,7 +116,7 @@ public class SwaggerPluginTest
 			.parameter("parm2", "value2")
 			.register(SERVER);
 		
-		SERVER.bind(9001);
+		SERVER.bind(PORT);
 	}
 	
 	@AfterClass
@@ -116,22 +126,56 @@ public class SwaggerPluginTest
 	}
 
 	@Test
-	public void testApiResourcesRoute()
-	throws ClientProtocolException, IOException
+	public void shouldReturnApiResources()
+	throws Exception
 	{
-		HttpGet request = new HttpGet("http://localhost:9001/api-docs");
-		HttpResponse response = (HttpResponse) http.execute(request);
-		HttpEntity entity = response.getEntity();
-		String json = EntityUtils.toString(entity);
-		System.out.println(json);
-		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
-		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
-		assertTrue(json.contains("\"path\":\"/users\""));
-		assertTrue(json.contains("\"path\":\"/orders\""));
-		assertTrue(json.contains("\"path\":\"/products\""));
-		assertTrue(json.contains("\"path\":\"/health\""));
-		assertFalse(json.contains("\"path\":\"/api-docs\""));
-		request.releaseConnection();
+		Response r = get("/api-docs");
+		System.out.println(r.asString());
+		SwaggerAssert.common(r);
+		r.then()
+			.body("apis", hasItem(hasEntry("path", "/anothers")))
+			.body("apis", hasItem(hasEntry("path", "/users")))
+			.body("apis", hasItem(hasEntry("path", "/orders")))
+			.body("apis", hasItem(hasEntry("path", "/products")))
+			.body("apis", hasItem(hasEntry("path", "/health")))
+			.body("apis", not(hasItem(hasEntry("path", "/api-docs"))));
+	}
+
+	@Test
+	public void shouldReturnUsersApi()
+	{
+		Response r = get("/api-docs/users");
+		System.out.println(r.asString());
+		SwaggerAssert.common(r);
+		r.then()
+			.body("basePath", equalTo(BASE_URL))
+			.body("resourcePath", is("/users"));
+
+		r.then()
+			.root("apis[%s].%s")
+//			.body(withArgs(0, "path"), is("/users.{format}"))
+			.body(withArgs(0, "path"), is("/users"))
+			.body(withArgs(0, "description"), is("Users Collection"))
+			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "GET")))			
+			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "POST")))
+			.body(withArgs(0, "operations"), not(hasItem(hasEntry("method", "PUT"))))
+			.body(withArgs(0, "operations"), not(hasItem(hasEntry("method", "DELETE"))))
+
+//			.body(withArgs(1, "path"), is("/users/{userId}.{format}"))
+			.body(withArgs(1, "path"), is("/users/{userId}"))
+			.body(withArgs(1, "description"), is("Individual User"))
+			.body(withArgs(1, "operations"), hasItem(hasEntry("method", "GET")))			
+			.body(withArgs(1, "operations"), hasItem(hasEntry("method", "PUT")))
+			.body(withArgs(1, "operations"), hasItem(hasEntry("method", "DELETE")))
+			.body(withArgs(1, "operations"), not(hasItem(hasEntry("method", "POST"))))
+
+//			.body(withArgs(2, "path"), is("/users/{userId}/orders.{format}"))
+			.body(withArgs(2, "path"), is("/users/{userId}/orders"))
+			.body(withArgs(2, "description"), is("User Orders Collection"))
+			.body(withArgs(2, "operations"), hasItem(hasEntry("method", "GET")))			
+			.body(withArgs(2, "operations"), hasItem(hasEntry("method", "POST")))
+			.body(withArgs(2, "operations"), not(hasItem(hasEntry("method", "PUT"))))
+			.body(withArgs(2, "operations"), not(hasItem(hasEntry("method", "DELETE"))));
 	}
 
 	@Test
@@ -142,18 +186,18 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-		System.out.println(json);
+//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
 		assertTrue(json.contains("\"resourcePath\":\"/users\""));
-		assertTrue(json.contains("\"nickname\":\"getUsers Collection\""));
-		assertTrue(json.contains("\"nickname\":\"postUsers Collection\""));
-		assertFalse(json.contains("\"nickname\":\"optionsUsers Collection\""));
-		assertTrue(json.contains("\"nickname\":\"getIndividual User\""));
-		assertTrue(json.contains("\"nickname\":\"putIndividual User\""));
-		assertTrue(json.contains("\"nickname\":\"deleteIndividual User\""));
-		assertFalse(json.contains("\"nickname\":\"optionsIndividual User\""));
+		assertTrue(json.contains("\"nickname\":\"GET Users Collection\""));
+		assertTrue(json.contains("\"nickname\":\"POST Users Collection\""));
+		assertFalse(json.contains("\"nickname\":\"OPTIONS Users Collection\""));
+		assertTrue(json.contains("\"nickname\":\"GET Individual User\""));
+		assertTrue(json.contains("\"nickname\":\"PUT Individual User\""));
+		assertTrue(json.contains("\"nickname\":\"DELETE Individual User\""));
+		assertFalse(json.contains("\"nickname\":\"OPTIONS Individual User\""));
 		assertTrue(json.contains("\"summary\":\"\""));
 		request.releaseConnection();
 	}
@@ -166,7 +210,7 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-		System.out.println(json);
+//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
@@ -182,7 +226,7 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-		System.out.println(json);
+//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
@@ -198,7 +242,7 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-		System.out.println(json);
+//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));

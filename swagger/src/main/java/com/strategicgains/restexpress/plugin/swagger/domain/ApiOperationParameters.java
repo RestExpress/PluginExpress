@@ -12,33 +12,29 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
-package com.strategicgains.restexpress.plugin.swagger;
+ */
+package com.strategicgains.restexpress.plugin.swagger.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author toddf
  * @since Nov 22, 2013
  */
-public class ApiParameters
+public class ApiOperationParameters
+extends DataType
 {
 	private String paramType; // path, query, body, header, form
 	private String name;
-	private String description;
-	private Object dataType;	// primitive type, or complex or container (for body paramType)
 	private String format;
-	private boolean required;	// must be true for query paramType
-	
-	@JsonProperty("enum")
-	private String[] enumeration;
-	
-	public ApiParameters(String type, String name, Object dataType, boolean isRequired)
+	private boolean required; // must be true for query paramType
+	private Boolean allowMultiple;
+
+	public ApiOperationParameters(String paramType, String name, String type, boolean isRequired)
 	{
 		super();
-		this.paramType = type;
+		this.paramType = paramType;
 		this.name = name;
-		this.dataType = dataType;
 		this.required = isRequired;
+		setType(type);
 	}
 }

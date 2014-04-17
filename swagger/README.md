@@ -1,6 +1,10 @@
 Swagger Plugin
 ==============
 
+*Help Us Out!* This plugin is not quite ready for prime time. While it honors many of the Swagger-provided annotations, when they are absent,
+it provides defaults by simply introspects your object models, exposing every non-static, non-transient property.  This may not be desired.  Additionally, it doesn't
+yet support annotations for the 'authorizations' and 'info' Swagger models.  Help us get it to prime time by sending a pull request!
+
 The Swagger plugin gathers metadata about the routes in your RestExpress service suite
 to render live documentation, so it's never out of date.
 
@@ -18,7 +22,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>SwaggerPlugin</artifactId>
-			<version>0.2.0</version>
+			<version>0.2.1</version>
 		</dependency>
 ```
 Development:
@@ -26,7 +30,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>SwaggerPlugin</artifactId>
-			<version>0.2.1-SNAPSHOT</version>
+			<version>0.2.2-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 

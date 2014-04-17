@@ -108,7 +108,7 @@ implements Plugin, Preprocessor, Postprocessor
 		server
 			.addMessageObserver(this)
 			.addPreprocessor(this)
-			.addPostprocessor(this);
+			.addFinallyProcessor(this);
 
 		return this;
 	}
