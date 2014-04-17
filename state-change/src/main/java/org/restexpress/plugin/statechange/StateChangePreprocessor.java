@@ -23,10 +23,10 @@ import org.restexpress.pipeline.Preprocessor;
 
 /**
  * By default, adds httpMethod, href (requested URL), effectiveHttpMethod, and authorization, if the Authorization
- * header is present, to the Mapped Message Context (MMC).
+ * header is present, to the StateContext.
  * <p/>
  * Additional items may be added to the MMC by adding Enricher instances to the preprocessor via the enrichedBy()
- * method.  These enrichers can pull data from the Request and put it in the MMC as desired. 
+ * method.  These enrichers can pull data from the Request and put it in the StateContext as desired. 
  * 
  * @author toddf
  * @since Feb 18, 2014
@@ -39,15 +39,15 @@ implements Preprocessor
 	@Override
 	public void process(Request request)
 	{
-		MMC.put("httpMethod", request.getHttpMethod());
-		MMC.put("href", request.getUrl());
-		MMC.put("effectiveHttpMethod", request.getEffectiveHttpMethod());
+		StateContext.put("httpMethod", request.getHttpMethod());
+		StateContext.put("href", request.getUrl());
+		StateContext.put("effectiveHttpMethod", request.getEffectiveHttpMethod());
 
 		String token = request.getHeader("Authorization");
 
 		if (token != null)
 		{
-			MMC.put("authorization", token);
+			StateContext.put("authorization", token);
 		}
 
 		for (Enricher enricher : enrichers)

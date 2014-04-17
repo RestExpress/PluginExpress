@@ -16,34 +16,36 @@
 package org.restexpress.plugin.statechange;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
- * The Mapped Message Context (MMC) class maintains a Map of name/value pairs much like the
- * Log4j <em>mapped diagnostic context (MDC)</em>. A <em>MMC</em>,
+ * The StateContext class maintains a Map of name/value pairs much like the
+ * Log4j <em>mapped diagnostic context (MDC)</em>. A <em>StateContext</em>,
  * is an instrument for passing augmentation data from different sources to
  * lower levels in the framework for each message received.
  * <p/>
- * <b><em>The Mapped Message Context is managed on a per thread basis</em></b>. A child
- * thread automatically inherits a <em>copy</em> of the mapped diagnostic
- * context of its parent.
+ * <b><em>The StateContext is managed on a per thread basis</em></b>. A child
+ * thread automatically inherits a <em>copy</em> of the state context of its parent.
  * <p/>
- * The Request class requires JDK 1.6 or above.
+ * The class requires JDK 1.6 or above.
  * <p/>
- * The MMC is cleaned up after each request by removing the values set by that request,
+ * The StateContext is cleaned up after each request by removing the values set by that request,
  * since all threads are pooled and re-used. This is accomplished via a call to
- * <code>MMC.clear()</code> in a finally processor within the StateChangePlugin.
+ * <code>StateContext.clear()</code> in a finally processor within the StateChangePlugin.
  * 
  * @author toddf
  * @since Feb 17, 2014
  */
-public class MMC
+public class StateContext
 {
-	final static MMC RC = new MMC();
+	final static StateContext SC = new StateContext();
 
 	private ThreadLocal<Map<String, Object>> tlm;
 
-	private MMC()
+	private StateContext()
 	{
 		tlm = new ThreadLocal<Map<String, Object>>();
 	}
@@ -58,7 +60,7 @@ public class MMC
 	 */
 	public static void put(String key, Object o)
 	{
-		RC._put(key, o);
+		SC._put(key, o);
 	}
 
 	/**
@@ -69,7 +71,7 @@ public class MMC
 	 */
 	public static Object get(String key)
 	{
-		return RC._get(key);
+		return SC._get(key);
 	}
 
 	/**
@@ -77,7 +79,7 @@ public class MMC
 	 */
 	public static void remove(String key)
 	{
-		RC._remove(key);
+		SC._remove(key);
 	}
 
 	/**
@@ -86,7 +88,17 @@ public class MMC
 	 */
 	public static Map<String, Object> getContext()
 	{
-		return RC._getContext();
+		return SC._getContext();
+	}
+
+	public static Set<Entry<String, Object>> entrySet()
+	{
+		return SC._getContext().entrySet();
+	}
+
+	public static Iterator<Entry<String, Object>> iterator()
+	{
+		return entrySet().iterator();
 	}
 
 	/**
@@ -94,7 +106,7 @@ public class MMC
 	 */
 	public static void clear()
 	{
-		RC._clear();
+		SC._clear();
 	}
 
 

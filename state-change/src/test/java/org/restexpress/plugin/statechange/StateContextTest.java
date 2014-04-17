@@ -26,32 +26,32 @@ import org.junit.Test;
  * @author toddf
  * @since Feb 18, 2014
  */
-public class MMCTest
+public class StateContextTest
 {
 	@Before
 	public void setup()
 	{
-		MMC.clear();
+		StateContext.clear();
 	}
 
 	@After
 	public void teardown()
 	{
-		MMC.clear();
+		StateContext.clear();
 	}
 
 	@Test
 	public void shouldPut()
 	{
-		MMC.put("key", "some value");
-		assertEquals("some value", MMC.get("key"));
-		assertEquals(1, MMC.getContext().size());
+		StateContext.put("key", "some value");
+		assertEquals("some value", StateContext.get("key"));
+		assertEquals(1, StateContext.getContext().size());
 	}
 
 	@Test
 	public void shouldClearAfterLastRemove()
 	{
-		MMC.remove("key");
-		assertNull(MMC.getContext());
+		StateContext.remove("key");
+		assertNull(StateContext.getContext());
 	}
 }

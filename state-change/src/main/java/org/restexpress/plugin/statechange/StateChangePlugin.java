@@ -20,12 +20,12 @@ import org.restexpress.plugin.AbstractPlugin;
 
 /**
  * The StateChangePlugin enables augmentation of the request with enriched data, which is passed via
- * the Mapped Message Context (MMC) down to lower layers of the service stack. It is with the MMC
+ * the StateContext down to lower layers of the service stack. It is with the MMC
  * that lower levels of the service can access this enrichment data.
  * </p>
  * The plugin supports the concept of Enrichers, which when added via the enrichedBy(Enricher) method,
  * are executed during the RestExpress preprocessor life-cycle to extract data from the request. Additionally,
- * individual controller methods can place data in the MMC via calls to MMC.put(String, Object).
+ * individual controller methods can place data in the StateContext via calls to StateContext.put(String, Object).
  * </p>
  * Enrichers implement the Enricher interface, providing an implementation of the enrich(Request) method.
  * 
