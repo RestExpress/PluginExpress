@@ -72,8 +72,8 @@ public class DummyController
 		return null;
 	}
 	
-		@ApiOperation(value = "Read with Annotations.", 
-			notes = "More detailed description here.")
+	@ApiOperation(value = "Read with Annotations.", 
+		notes = "More detailed description here.")
 	public Another readWithApiOperationAnnotation(Request request, Response response) 
 	{
 		return null;
