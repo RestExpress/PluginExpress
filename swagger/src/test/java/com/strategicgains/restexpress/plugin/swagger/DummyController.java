@@ -21,6 +21,12 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 
 import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelRequest;
+import com.wordnik.swagger.annotations.ApiImplicitParam;
+import com.wordnik.swagger.annotations.ApiImplicitParams;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 
 /**
  * @author toddf
@@ -65,4 +71,33 @@ public class DummyController
 	{
 		return null;
 	}
+	
+		@ApiOperation(value = "Read with Annotations.", 
+			notes = "More detailed description here.")
+	public Another readWithApiOperationAnnotation(Request request, Response response) 
+	{
+		return null;
+	}
+
+	@ApiResponses({
+		@ApiResponse(code = 204, message = "Successful update"),
+		@ApiResponse(code = 404, message = "Item not found"),
+		@ApiResponse(code = 400, message = "Item id incorrect format")})
+	public void updateWithApiResponse(Request request, Response response) 
+	{
+	}
+	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "expand", required = false, value = "(Optional) Return item and all its children.", paramType = "query", dataType = "String", allowableValues = "all, some, none"),
+		@ApiImplicitParam(name = "title", required = true, value = "(Required) Title of the item.", paramType = "body", dataType = "String", allowableValues = "Any string"),
+	})
+	public void createWithApiImplicitParams(Request request, Response response) 
+	{
+	}
+	
+	@ApiParam(name = "title", required = true, value = "(Required) Title of the item.", defaultValue = "Title placeholder", allowableValues = "Any String")
+	public void createWithApiParam(Request request, Response response) 
+	{
+	}
+
 }
