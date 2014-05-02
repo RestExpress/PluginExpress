@@ -265,10 +265,6 @@ public class ModelResolver
 			if ((field.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) == 0)
 			{
 				ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
-				// Ignore all properties that are marked as hidden
-				if(apiModelProperty != null && apiModelProperty.hidden()) {
-					continue;
-				}
 				if (apiModelProperty != null && !properties.containsKey(field.getName()))
 				{
 					DataType property = createNode(field.getGenericType())
