@@ -72,6 +72,15 @@ extends AbstractPlugin
 	    return (HyperExpressPlugin) super.register(server);
     }
 
+	@Override
+    public void bind(RestExpress server)
+    {
+		ResourceFactoryStrategy hal = new HalResourceFactory();
+		HyperExpress.registerResourceFactory(hal, ContentType.JSON);
+		HyperExpress.registerResourceFactory(hal, ContentType.HAL_JSON);
+	    super.bind(server);
+    }
+
 	public HyperExpressPlugin addResourceFactory(ResourceFactoryStrategy factoryStrategy, String contentType)
 	{
 		HyperExpress.registerResourceFactory(factoryStrategy, contentType);
