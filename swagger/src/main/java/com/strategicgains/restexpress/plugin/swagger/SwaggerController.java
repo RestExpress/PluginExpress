@@ -43,7 +43,7 @@ implements Callback<RouteBuilder>
 	public static final List<String> VALID_METHODS = new ArrayList<String>(
     Arrays.asList(new String[]
     {
-        "GET", "PUT", "POST", "DELETE"
+        "GET", "PUT", "POST", "DELETE", "HEAD"
     }));
 
 	private RestExpress server;
