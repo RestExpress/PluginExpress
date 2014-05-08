@@ -107,6 +107,26 @@ public class SwaggerPluginTest
 			.action("health", HttpMethod.GET)
 			.name("health");
 		
+		SERVER.uri("/annotations/{userId}/users", controller)
+			.action("readWithApiOperationAnnotation", HttpMethod.GET)
+			.method(HttpMethod.GET)
+			.name("Read with Annotations");
+		
+		SERVER.uri("/annotations/{userId}", controller)
+			.action("updateWithApiResponse", HttpMethod.PUT)
+			.method(HttpMethod.PUT)
+			.name("Update with Annotations");
+
+		SERVER.uri("/annotations/{userId}/users/list", controller)
+			.action("createWithApiImplicitParams", HttpMethod.POST)
+			.method(HttpMethod.POST)
+			.name("Create with Implicit Params");
+
+		SERVER.uri("/annotations/{userId}/users/newlist", controller)
+			.action("createWithApiParam", HttpMethod.POST)
+			.method(HttpMethod.POST)
+			.name("Create with Api Param");
+
 		new SwaggerPlugin()
 			.apiVersion("1.0")
 			.swaggerVersion("1.2")
@@ -138,6 +158,7 @@ public class SwaggerPluginTest
 			.body("apis", hasItem(hasEntry("path", "/orders")))
 			.body("apis", hasItem(hasEntry("path", "/products")))
 			.body("apis", hasItem(hasEntry("path", "/health")))
+			.body("apis", hasItem(hasEntry("path", "/annotations")))
 			.body("apis", not(hasItem(hasEntry("path", "/api-docs"))));
 	}
 
@@ -249,4 +270,74 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"resourcePath\":\"/health\""));
 		request.releaseConnection();
 	}
+	
+	/**
+	 * Test controller methods with Swagger annotations return the
+	 * expected json values.
+	 */
+	@Test
+	public void shouldReturnAnnotationsApi()
+	{
+		Response r = get("/api-docs/annotations");
+		SwaggerAssert.common(r);
+		r.then()
+			.body("basePath", equalTo(BASE_URL))
+			.body("resourcePath", is("/annotations"));
+
+		// For first api verify that summary and notes are populated successfully.
+		r.then()
+			.root("apis[%s].%s")
+			.body(withArgs(0, "path"), is("/annotations/{userId}/users"))
+			.body(withArgs(0, "description"), is("Read with Annotations"))
+			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "GET")))			
+			.body(withArgs(0, "operations"), hasItem(hasEntry("nickname", "GET Read with Annotations")))
+			.body(withArgs(0, "operations"), hasItem(hasEntry("summary", "Read with Annotations.")))
+			.body(withArgs(0, "operations"), hasItem(hasEntry("notes", "More detailed description here.")));
+		
+		// For second api verify the three response codes are being returned correctly.
+		r.then()
+			.root("apis[1].operations[0].errorResponses[%s].%s")
+			.body(withArgs(0, "code"), is(204))
+			.body(withArgs(0, "reason"), is("Successful update"))
+			.body(withArgs(1, "code"), is(404))
+			.body(withArgs(1, "reason"), is("Item not found"))
+			.body(withArgs(2, "code"), is(400))
+			.body(withArgs(2, "reason"), is("Item id incorrect format"));
+		
+		// For third api verify the parameters are being returned correctly.
+		r.then()
+			.root("apis[2].operations[0].parameters[%s].%s")
+			.body(withArgs(0, "type"), is("string"))
+			.body(withArgs(0, "paramType"), is("path"))
+			.body(withArgs(0, "name"), is("userId"))
+			.body(withArgs(0, "required"), is(true))
+			.body(withArgs(1, "type"), is("String"))
+			.body(withArgs(1, "description"), is("(Optional) Return item and all its children."))
+			.body(withArgs(1, "paramType"), is("query"))
+			.body(withArgs(1, "name"), is("expand"))
+			.body(withArgs(1, "allowableValues"), is("all, some, none"))
+			.body(withArgs(1, "required"), is(false))
+			.body(withArgs(2, "type"), is("String"))
+			.body(withArgs(2, "description"), is("(Required) Title of the item."))
+			.body(withArgs(2, "paramType"), is("body"))
+			.body(withArgs(2, "name"), is("title"))
+			.body(withArgs(2, "allowableValues"), is("Any string"))
+			.body(withArgs(2, "required"), is(true));
+
+		// For fourth api verify parameters are being returned correctly.
+		r.then()
+			.root("apis[3].operations[0].parameters[%s].%s")
+			.body(withArgs(0, "type"), is("string"))
+			.body(withArgs(0, "paramType"), is("path"))
+			.body(withArgs(0, "name"), is("userId"))
+			.body(withArgs(0, "required"), is(true))
+			.body(withArgs(1, "type"), is("string"))
+			.body(withArgs(1, "description"), is("(Required) Title of the item."))
+			.body(withArgs(1, "defaultValue"), is("Title placeholder"))
+			.body(withArgs(1, "paramType"), is("body"))
+			.body(withArgs(1, "name"), is("title"))
+			.body(withArgs(1, "allowableValues"), is("Any String"))
+			.body(withArgs(1, "required"), is(true));
+	}
+
 }
