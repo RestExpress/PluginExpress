@@ -12,7 +12,7 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
+ */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
 /**
@@ -35,19 +35,19 @@ public class ApiResource
 		this.path = path;
 		this.description = description;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
-		return path.hashCode() + (description == null ? 0 : description.hashCode());
+		return path.hashCode()
+		    + (description == null ? 0 : description.hashCode());
 	}
 
 	@Override
 	public boolean equals(Object o)
 	{
 		ApiResource that = (ApiResource) o;
-		return (path.equals(that.path)
-			&& ((description == null && that.description == null)
-				|| (description != null && description.equals(that.description))));
+		return (path.equals(that.path) && ((description == null && that.description == null) || (description != null && description
+		    .equals(that.description))));
 	}
 }

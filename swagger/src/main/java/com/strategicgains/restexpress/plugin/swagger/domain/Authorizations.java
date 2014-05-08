@@ -12,7 +12,7 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
+ */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.HashMap;
@@ -24,5 +24,5 @@ import java.util.HashMap;
 public class Authorizations
 extends HashMap<String, Authorization>
 {
-    private static final long serialVersionUID = -970523650140785684L;
+	private static final long serialVersionUID = -970523650140785684L;
 }

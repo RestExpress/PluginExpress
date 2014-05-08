@@ -12,7 +12,7 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
+ */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.List;
@@ -23,13 +23,14 @@ import java.util.List;
  */
 public class Authorization
 {
-	private AuthorizationTypes type;	// 'basicAuth' | 'apiKey' | 'oauth2'
-	private ApiKeys passAs;	// 'header' | 'query'
-	private ApiKeys keyname;	// 'header' | 'query'
+	private AuthorizationTypes type; // 'basicAuth' | 'apiKey' | 'oauth2'
+	private ApiKeys passAs; // 'header' | 'query'
+	private ApiKeys keyname; // 'header' | 'query'
 	private List<Scope> scopes;
 	private GrantTypes grantTypes;
 
-	public Authorization(AuthorizationTypes type, ApiKeys passAs, ApiKeys keyname)
+	public Authorization(AuthorizationTypes type, ApiKeys passAs,
+	    ApiKeys keyname)
 	{
 		super();
 		this.type = type;

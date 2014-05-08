@@ -41,17 +41,18 @@ public class SwaggerController
 implements Callback<RouteBuilder>
 {
 	public static final List<String> VALID_METHODS = new ArrayList<String>(
-    Arrays.asList(new String[]
-    {
-        "GET", "PUT", "POST", "DELETE", "HEAD"
-    }));
+	    Arrays.asList(new String[]
+	    {
+	        "GET", "PUT", "POST", "DELETE", "HEAD"
+	    }));
 
 	private RestExpress server;
 	private ApiResources resources;
 	private Map<String, ApiDeclarations> apisByPath = new HashMap<String, ApiDeclarations>();
 	private String swaggerRoot;
 
-	public SwaggerController(RestExpress server, String apiVersion, String swaggerVersion)
+	public SwaggerController(RestExpress server, String apiVersion,
+	    String swaggerVersion)
 	{
 		super();
 		this.resources = new ApiResources(apiVersion, swaggerVersion);
@@ -59,10 +60,10 @@ implements Callback<RouteBuilder>
 	}
 
 	public void initialize(String urlPath, RestExpress server)
-    {
+	{
 		swaggerRoot = getPathSegment(urlPath);
 		server.iterateRouteBuilders(this);
-    }
+	}
 
 	public ApiResources readAll(Request request, Response response)
 	{
@@ -80,10 +81,11 @@ implements Callback<RouteBuilder>
 	}
 
 	/**
-	 * Returns the first part of the URL path. Either the leading slash to the first period ('.')
-	 * or the first slash to the second slash.
+	 * Returns the first part of the URL path. Either the leading slash to the
+	 * first period ('.') or the first slash to the second slash.
 	 * 
-	 * @param pattern a URL pattern.
+	 * @param pattern
+	 *            a URL pattern.
 	 * @return
 	 */
 	private String getPathSegment(String pattern)
@@ -109,8 +111,8 @@ implements Callback<RouteBuilder>
 	}
 
 	@Override
-    public void process(RouteBuilder routeBuilder)
-    {
+	public void process(RouteBuilder routeBuilder)
+	{
 		for (Route route : routeBuilder.build())
 		{
 			if (!VALID_METHODS.contains(route.getMethod().getName())) continue;
@@ -134,5 +136,5 @@ implements Callback<RouteBuilder>
 			ApiOperation operation = apis.addOperation(route);
 			apis.addModels(operation, route);
 		}
-    }
+	}
 }

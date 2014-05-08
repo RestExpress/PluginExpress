@@ -26,17 +26,17 @@ public class Items
 	private String $ref;
 
 	public Items()
-    {
+	{
 		super();
-    }
+	}
 
 	public Items(DataType dataType)
-    {
+	{
 		this();
 		this.type = dataType.getType();
 		this.format = dataType.getFormat();
 		this.$ref = dataType.getRef();
-    }
+	}
 
 	public String getType()
 	{
