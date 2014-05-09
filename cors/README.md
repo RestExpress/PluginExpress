@@ -74,3 +74,15 @@ new CorsHeaderPlugin("*")							// Array of domain strings.
 	.noPreflightSupport()							// Turn off OPTIONS request support.
 	.register(server);
 ```
+
+To be more specific, my common CORS configuration is:
+```java
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
+import static org.restexpress.Flags.Auth.PUBLIC_ROUTE;
+
+new CorsHeaderPlugin("*")
+	.flag(PUBLIC_ROUTE)
+	.allowHeaders(CONTENT_TYPE, ACCEPT, AUTHORIZATION)
+	.exposeHeaders(LOCATION)
+	.register(server);
+```
