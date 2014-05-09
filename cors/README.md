@@ -58,7 +58,7 @@ RestExpress server = new RestExpress()...
 
 new CorsHeaderPlugin("*")							// Array of domain strings.
 	.exposeHeaders("Location")						// Array of header names (Optional).
-	.allowHeaders("Content-Type", "Accept")			// Array of header names (Optional).
+	.allowHeaders("Content-Type", "Accept", "Authorization")	// Array of header names (Optional).
 	.maxAge(2592000)								// Seconds to cache (Optional).
 	.flag("flag value")								// Just like flag() on Routes (Optional).
 	.parameter("string", object)					// Just like parameter() on Routes (Optional).
