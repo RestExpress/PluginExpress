@@ -13,13 +13,15 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
  */
-package com.strategicgains.restexpress.plugin.swagger.domain;
+package org.restexpress.plugin.hyperexpress;
 
 /**
+ * A marker-interface indicating that a domain object should be converted into a HyperExpress
+ * Resource with links injected into it.
+ * 
  * @author toddf
- * @since Apr 1, 2014
+ * @since May 7, 2014
  */
-public class Scope
+public interface Linkable
 {
-
 }

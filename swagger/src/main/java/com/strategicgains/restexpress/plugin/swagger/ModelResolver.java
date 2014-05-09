@@ -100,21 +100,27 @@ public class ModelResolver
 		{
 			System.err.println("Unable to resolve primitive class: " + target);
 			return model;
-//			throw new IllegalArgumentException("Unable to resolve primitive class: " + target);
+			// throw new
+			// IllegalArgumentException("Unable to resolve primitive class: " +
+			// target);
 		}
 
 		if (target.isSynthetic())
 		{
 			System.err.println("Unable to resolve synthetic class: " + target);
 			return model;
-//			throw new IllegalArgumentException("Unable to resolve synthetic class: " + target);
+			// throw new
+			// IllegalArgumentException("Unable to resolve synthetic class: " +
+			// target);
 		}
 
 		if (target.isArray())
 		{
 			System.err.println("Unable to use arrays for models: " + target);
 			return model;
-//			throw new IllegalArgumentException("Unable to use arrays for models: " + target);
+			// throw new
+			// IllegalArgumentException("Unable to use arrays for models: " +
+			// target);
 		}
 
 		// com.wordnik.swagger.annotations.ApiModel apiModel =
@@ -128,7 +134,8 @@ public class ModelResolver
 		models.put(id, model);
 		Map<String, DataType> properties = new HashMap<String, DataType>();
 
-		for (Class<?> cls = target; !Object.class.equals(cls) && cls != null; cls = cls.getSuperclass())
+		for (Class<?> cls = target; !Object.class.equals(cls) && cls != null; cls = cls
+		    .getSuperclass())
 		{
 			processFields(properties, cls);
 		}
@@ -171,7 +178,8 @@ public class ModelResolver
 			{
 				node.setType(Primitives.STRING);
 			}
-			else if (Integer.class.equals(target) || Integer.TYPE.equals(target))
+			else if (Integer.class.equals(target)
+			    || Integer.TYPE.equals(target))
 			{
 				node.setType(Primitives.INTEGER);
 			}
@@ -179,7 +187,8 @@ public class ModelResolver
 			{
 				node.setType(Primitives.LONG);
 			}
-			else if (Boolean.class.equals(target) || Boolean.TYPE.equals(target))
+			else if (Boolean.class.equals(target)
+			    || Boolean.TYPE.equals(target))
 			{
 				node.setType(Primitives.BOOLEAN);
 			}
@@ -202,7 +211,8 @@ public class ModelResolver
 			else if (targetClass.isArray())
 			{
 				node.setType("array");
-				DataType componentModel = createNode(targetClass.getComponentType());
+				DataType componentModel = createNode(targetClass
+				    .getComponentType());
 				node.setItems(new Items(componentModel));
 			}
 			else if (targetClass.isEnum())
@@ -238,21 +248,24 @@ public class ModelResolver
 					node.setUniqueItems(true);
 				}
 
-				DataType componentModel = createNode(parameterizedType.getActualTypeArguments()[0]);
+				DataType componentModel = createNode(parameterizedType
+				    .getActualTypeArguments()[0]);
 				node.setItems(new Items(componentModel));
 			}
 			else
 			{
 				System.err.println("Unhandled generic type: " + target);
 				return node;
-//				throw new IllegalArgumentException("Unhandled generic type: " + target);
+				// throw new IllegalArgumentException("Unhandled generic type: "
+				// + target);
 			}
 		}
 		else
 		{
 			System.err.println("Unhandled type: " + target);
 			return node;
-//			throw new UnsupportedOperationException("Unhandled type: " + target);
+			// throw new UnsupportedOperationException("Unhandled type: " +
+			// target);
 		}
 
 		return node;
@@ -264,8 +277,16 @@ public class ModelResolver
 		{
 			if ((field.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) == 0)
 			{
-				ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
-				if (apiModelProperty != null && !properties.containsKey(field.getName()))
+				ApiModelProperty apiModelProperty = field
+				    .getAnnotation(ApiModelProperty.class);
+				// Ignore all properties that are marked as hidden
+				if (apiModelProperty != null && apiModelProperty.hidden())
+				{
+					continue;
+				}
+
+				if (apiModelProperty != null
+				    && !properties.containsKey(field.getName()))
 				{
 					DataType property = createNode(field.getGenericType())
 					    .setDescription(apiModelProperty.notes())
@@ -277,7 +298,7 @@ public class ModelResolver
 				else
 				{
 					DataType property = createNode(field.getGenericType())
-						.setProperty(field.getName());
+					    .setProperty(field.getName());
 					properties.put(field.getName(), property);
 				}
 			}

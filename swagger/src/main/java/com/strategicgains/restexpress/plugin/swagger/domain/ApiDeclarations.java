@@ -133,16 +133,15 @@ public class ApiDeclarations
 			operation.setItems(returnType.getItems());
 		}
 
-		ApiModelRequest apiModelRequest = route.getAction().getAnnotation(ApiModelRequest.class);
+		ApiModelRequest apiModelRequest = route.getAction().getAnnotation(
+		    ApiModelRequest.class);
 
 		if (apiModelRequest != null)
 		{
 			DataType bodyType = resolver.resolve(apiModelRequest.model());
-			operation.addParameter(new ApiOperationParameters(
-				"body",
-				"body",
-				bodyType.getRef() != null ? bodyType.getRef() : bodyType.getType(),
-				apiModelRequest.required()));
+			operation.addParameter(new ApiOperationParameters("body", "body",
+			    bodyType.getRef() != null ? bodyType.getRef() : bodyType
+			        .getType(), apiModelRequest.required()));
 		}
 	}
 }

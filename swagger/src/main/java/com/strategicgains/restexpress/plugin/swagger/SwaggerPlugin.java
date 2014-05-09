@@ -75,15 +75,12 @@ extends AbstractPlugin
 		controller = new SwaggerController(server, apiVersion, swaggerVersion);
 
 		RouteBuilder resources = server.uri(urlPath, controller)
-			.action("readAll", HttpMethod.GET)
-			.name("swagger.resources")
+		    .action("readAll", HttpMethod.GET).name("swagger.resources")
 		    .format(Format.JSON);
 
 		RouteBuilder apis = server.uri(urlPath + "/{path}", controller)
-			.method(HttpMethod.GET)
-			.name("swagger.apis")
-			.format(Format.JSON);
-		
+		    .method(HttpMethod.GET).name("swagger.apis").format(Format.JSON);
+
 		for (String flag : flags)
 		{
 			resources.flag(flag);

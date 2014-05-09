@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ApiModelRequest {
-    Class<?> model();
-    boolean required() default false;
+public @interface ApiModelRequest
+{
+	Class<?> model();
+	boolean required() default false;
 }

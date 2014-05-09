@@ -12,7 +12,7 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
+ */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
 /**
@@ -31,10 +31,10 @@ public enum Primitives
 	DATE("string", "date"),
 	DATE_TIME("string", "date-time"),
 	VOID("void", null);
-	
+
 	private String type;
 	private String format;
-	
+
 	private Primitives(String type, String format)
 	{
 		this.type = type;

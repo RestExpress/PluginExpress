@@ -12,7 +12,7 @@
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-*/
+ */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class ApiResources
 	private Info info;
 	private Authorizations authorizations;
 	private List<ApiResource> apis = new ArrayList<ApiResource>();
-	
+
 	public ApiResources(String apiVersion, String swaggerVersion)
 	{
 		super();

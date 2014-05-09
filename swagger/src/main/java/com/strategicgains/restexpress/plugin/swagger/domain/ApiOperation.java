@@ -15,6 +15,7 @@
  */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +34,24 @@ extends DataType
 	private List<ApiOperationParameters> parameters;
 	private String summary = "";
 	private String notes;
-	private String[] errorResponses;
+	private List<ApiResponse> errorResponses;
 
 	public ApiOperation(Route route)
 	{
 		// TODO: use Swagger annotation on controller method, if present.
+		// Get the method from the route
+		Method m = route.getAction();
+		if (m
+		    .isAnnotationPresent(com.wordnik.swagger.annotations.ApiOperation.class))
+		{
+			com.wordnik.swagger.annotations.ApiOperation ao = m
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiOperation.class);
+			// Both value and notes are used as descriptions in ApiOperation
+			// annotation.
+			// value is a brief description, notes a more detailed description.
+			if (ao.value() != null) summary = ao.value();
+			if (ao.notes() != null) notes = ao.notes();
+		}
 
 		this.method = route.getMethod().getName();
 		String name = route.getName();
@@ -47,12 +61,25 @@ extends DataType
 
 		for (String param : route.getUrlParameters())
 		{
-			addParameter(new ApiOperationParameters("path", param, "string", !param.equals("format")));
+			addParameter(new ApiOperationParameters("path", param, "string",
+			    !param.equals("format")));
 		}
 
 		// TODO: determine body/input parameters.
+		// For now depend on the swagger annotation for body/input specific
+		// parameters.
+		determineBodyInputParameters(m);
+
+		// Check for any swagger errorResponses
+		checkForSwaggerResponseAnnotations(m);
+
 	}
 
+	/**
+	 * Add operation parameter
+	 * 
+	 * @param param
+	 */
 	public void addParameter(ApiOperationParameters param)
 	{
 		if (parameters == null)
@@ -62,4 +89,115 @@ extends DataType
 
 		parameters.add(param);
 	}
+
+	/**
+	 * Add response to the errorResponse list
+	 * 
+	 * @param response
+	 */
+	public void addResponse(ApiResponse response)
+	{
+		if (errorResponses == null)
+		{
+			errorResponses = new ArrayList<ApiResponse>();
+		}
+
+		errorResponses.add(response);
+	}
+
+	/**
+	 * Process any swagger annotations relating to parameters passed in the
+	 * body.
+	 * 
+	 * Swagger annotations are @ApiParam, @ApiImplicitParam and
+	 * @ApiImplicitParams, a collection of @ApiImplicitParam annotations.
+	 * 
+	 * @param method
+	 *            - Controller method
+	 */
+	public void determineBodyInputParameters(Method method)
+	{
+		if (method
+		    .isAnnotationPresent(com.wordnik.swagger.annotations.ApiParam.class))
+		{
+			com.wordnik.swagger.annotations.ApiParam ap = method
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiParam.class);
+			ApiOperationParameters inputParam = new ApiOperationParameters(
+			    "body", ap.name(), "string", ap.required());
+			if (ap.allowableValues() != null
+			    && !ap.allowableValues().equals(""))
+			    inputParam.setAllowableValues(ap.allowableValues());
+			if (ap.value() != null && !ap.value().equals(""))
+			    inputParam.setDescription(ap.value());
+			if (ap.defaultValue() != null && !ap.defaultValue().equals(""))
+			    inputParam.setDefaultValue(ap.defaultValue());
+
+			addParameter(inputParam);
+		}
+		if (method
+		    .isAnnotationPresent(com.wordnik.swagger.annotations.ApiImplicitParam.class))
+		{
+			com.wordnik.swagger.annotations.ApiImplicitParam aip = method
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiImplicitParam.class);
+			ApiOperationParameters inputParam = new ApiOperationParameters(
+			    aip.paramType(), aip.name(), aip.dataType(), aip.required());
+			if (aip.allowableValues() != null
+			    && !aip.allowableValues().equals(""))
+			    inputParam.setAllowableValues(aip.allowableValues());
+			if (aip.value() != null && !aip.value().equals(""))
+			    inputParam.setDescription(aip.value());
+			addParameter(inputParam);
+		}
+		if (method
+		    .isAnnotationPresent(com.wordnik.swagger.annotations.ApiImplicitParams.class))
+		{
+			com.wordnik.swagger.annotations.ApiImplicitParams aip = method
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiImplicitParams.class);
+			for (com.wordnik.swagger.annotations.ApiImplicitParam ip : aip
+			    .value())
+			{
+				ApiOperationParameters inputParam = new ApiOperationParameters(
+				    ip.paramType(), ip.name(), ip.dataType(), ip.required());
+				if (ip.allowableValues() != null
+				    && !ip.allowableValues().equals(""))
+				    inputParam.setAllowableValues(ip.allowableValues());
+				if (ip.value() != null && !ip.value().equals(""))
+				    inputParam.setDescription(ip.value());
+				addParameter(inputParam);
+			}
+		}
+	}
+
+	/**
+	 * Process any swagger ApiResponse annotations
+	 * 
+	 * Swagger response annotations are @ApiResponse and @ApiResponses, a
+	 * collection of @ApiResponse annotations.
+	 * 
+	 * @param m
+	 */
+	public void checkForSwaggerResponseAnnotations(Method m)
+	{
+		if (m
+		    .isAnnotationPresent(com.wordnik.swagger.annotations.ApiResponse.class))
+		{
+			com.wordnik.swagger.annotations.ApiResponse ar = m
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiResponse.class);
+			ApiResponse apiResponse = new ApiResponse(ar.code(), ar.message());
+			addResponse(apiResponse);
+		}
+		else if (m
+		    .isAnnotationPresent(com.wordnik.swagger.annotations.ApiResponses.class))
+		{
+			com.wordnik.swagger.annotations.ApiResponses ar = m
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiResponses.class);
+			for (com.wordnik.swagger.annotations.ApiResponse r : ar.value())
+			{
+				ApiResponse apiResponse = new ApiResponse(r.code(), r.message());
+				addResponse(apiResponse);
+			}
+		}
+
+	}
+
 }

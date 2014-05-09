@@ -15,7 +15,6 @@
  */
 package com.strategicgains.restexpress.plugin.swagger.domain;
 
-
 /**
  * @author toddf
  * @since Nov 22, 2013
@@ -28,8 +27,13 @@ extends DataType
 	private String format;
 	private boolean required; // must be true for query paramType
 	private Boolean allowMultiple;
+	private String allowableValues; // values allowed for the parameter, matches
+									// Swagger annotation value in
+									// @ApiImplicitParam
+	private String defaultValue;
 
-	public ApiOperationParameters(String paramType, String name, String type, boolean isRequired)
+	public ApiOperationParameters(String paramType, String name, String type,
+	    boolean isRequired)
 	{
 		super();
 		this.paramType = paramType;
@@ -37,4 +41,20 @@ extends DataType
 		this.required = isRequired;
 		setType(type);
 	}
+
+	/**
+	 * Allowable values for the operation parameter.
+	 * 
+	 * @param value
+	 */
+	public void setAllowableValues(String value)
+	{
+		allowableValues = value;
+	}
+
+	public void setDefaultValue(String defaultValue)
+	{
+		this.defaultValue = defaultValue;
+	}
+
 }
