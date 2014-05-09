@@ -76,14 +76,14 @@ extends AbstractPlugin
     public void bind(RestExpress server)
     {
 		ResourceFactoryStrategy hal = new HalResourceFactory();
-		HyperExpress.registerResourceFactory(hal, ContentType.JSON);
-		HyperExpress.registerResourceFactory(hal, ContentType.HAL_JSON);
+		HyperExpress.registerResourceFactoryStrategy(hal, ContentType.JSON);
+		HyperExpress.registerResourceFactoryStrategy(hal, ContentType.HAL_JSON);
 	    super.bind(server);
     }
 
 	public HyperExpressPlugin addResourceFactory(ResourceFactoryStrategy factoryStrategy, String contentType)
 	{
-		HyperExpress.registerResourceFactory(factoryStrategy, contentType);
+		HyperExpress.registerResourceFactoryStrategy(factoryStrategy, contentType);
 		return this;
 	}
 }

@@ -19,7 +19,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -27,15 +26,15 @@ import org.restexpress.pipeline.Postprocessor;
 
 import com.strategicgains.hyperexpress.HyperExpress;
 import com.strategicgains.hyperexpress.domain.Resource;
-import com.strategicgains.hyperexpress.util.Pluralizer;
 
 /**
- * If the Response contains an instance of the given domainBaseClass, or a Collection (or Array)
+ * If the Response contains an instance of the given domainMarkerClass, or a Collection (or Array)
  * of the same, generates a HyperExpress Resource from it, injecting links and namespaces
  * as applicable.
  * <p/>
  * This postprocessor works in conjunction with HyperExpress relationship definitions, token bindings
- * and Jackson-based custom serializers.
+ * and Jackson-based custom serializers. It will copy any extenders of the domainMarkerClass into
+ * an instance of Resource, depending on the content type of the requested Accept header.
  * 
  * @author toddf
  * @since Apr 21, 2014
@@ -44,12 +43,12 @@ import com.strategicgains.hyperexpress.util.Pluralizer;
 public class LinkInjectionPostprocessor
 implements Postprocessor
 {
-	private Class<?> domainClass;
+	private Class<?> domainMarker;
 
-	public LinkInjectionPostprocessor(Class<?> domainBaseClass)
+	public LinkInjectionPostprocessor(Class<?> domainMarkerClass)
 	{
 		super();
-		this.domainClass = domainBaseClass;
+		this.domainMarker = domainMarkerClass;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -77,11 +76,13 @@ implements Postprocessor
 			{
 				Type t = (((ParameterizedType) type).getActualTypeArguments())[0];
 
-				if (domainClass.isAssignableFrom((Class<?>) t))
+				if (domainMarker.isAssignableFrom((Class<?>) t))
 				{
 					shouldHALify = true;
-					r = createEmbeddedCollectionResource((Class<?>)t, (Collection<Object>) body,
-						response.getSerializationSettings().getMediaType());
+					// TODO: do sensible defaults, but allow caller to set 'rel'.
+					// maybe this method simply returns the elements and they get embedded here.
+					r = HyperExpress.createCollectionResource((Collection<Object>) body, (Class<?>) t,
+							response.getSerializationSettings().getMediaType());
 				}
 			}
 		}
@@ -90,7 +91,9 @@ implements Postprocessor
 			if (isDomainClass(bodyClass.getComponentType()))
 			{
 				shouldHALify = true;
-				r = createEmbeddedCollectionResource(bodyClass.getComponentType(), Arrays.asList((Object[]) body),
+				// TODO: do sensible defaults, but allow caller to set 'rel'.
+				// maybe this method simply returns the elements and they get embedded here.
+				r = HyperExpress.createCollectionResource(Arrays.asList((Object[]) body), bodyClass.getComponentType(),
 					response.getSerializationSettings().getMediaType());
 			}
 		}
@@ -103,31 +106,9 @@ implements Postprocessor
 		HyperExpress.clearTokenBindings();
 	}
 
-	@SuppressWarnings("unchecked")
-    private Resource createEmbeddedCollectionResource(Class<?> childType, Collection<Object> children, String contentType)
-	{
-		Resource r = HyperExpress.createCollectionResource(childType, contentType);
-		Resource childResource = null;
-		String childRel = Pluralizer.pluralize(childType.getSimpleName().toLowerCase());
-
-		for (Object child : children)
-		{
-			HyperExpress.bindTokensFor(child);
-			childResource = HyperExpress.createResource(child, contentType);
-			r.addResource(childRel, childResource);
-		}
-
-		if (children.isEmpty())
-		{
-			r.addResources(childRel, Collections.EMPTY_LIST);
-		}
-
-		return r;
-	}
-
 	private boolean isDomainClass(Class<?> aClass)
 	{
-		return domainClass.isAssignableFrom(aClass);
+		return domainMarker.isAssignableFrom(aClass);
 	}
 
 	private boolean isCollection(Class<?> aClass)

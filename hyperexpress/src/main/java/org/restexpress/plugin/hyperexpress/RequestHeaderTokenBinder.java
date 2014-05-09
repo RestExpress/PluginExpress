@@ -22,11 +22,12 @@ import com.strategicgains.hyperexpress.HyperExpress;
 
 /**
  * Iterates the headers on the request and binds them to the HyperExpress URL token binder.
- * This supports automatic binding of incoming IDs, etc. to outbound links.
+ * This supports automatic binding of incoming IDs, etc. on the URL to outbound links created
+ * in Resource instances for the response.
  * <p/>
  * If there is more-than one value for a given header, the first one is bound to the token.
  * <p/>
- * These automatic binds are overriden by calls to HyperExpress.bindToken() and @BindUrlToken
+ * These automatic bindings are overridden by calls to HyperExpress.bindToken() and @BindToken
  * annotations on your domain model.
  * 
  * @author toddf
