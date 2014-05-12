@@ -42,7 +42,7 @@ implements Preprocessor
 	{
 		for (String token : request.getHeaderNames())
 		{
-			HyperExpress.bindToken(token, request.getHeader(token));
+			HyperExpress.bind(token, request.getHeader(token));
 		}
 	}
 }
