@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.restexpress.domain.metadata.UriMetadata;
 import org.restexpress.route.Route;
 
 /**
@@ -61,8 +60,9 @@ extends DataType
 
 		for (String param : route.getUrlParameters())
 		{
-			addParameter(new ApiOperationParameters("path", param, "string",
-			    !param.equals("format")));
+			if (param.equals("format")) continue;
+
+			addParameter(new ApiOperationParameters("path", param, "string", true));
 		}
 
 		// TODO: determine body/input parameters.
