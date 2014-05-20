@@ -170,7 +170,12 @@ implements Plugin, Preprocessor, Postprocessor
 			String name = getRouteName(request);
 			if (name == null || name.isEmpty()) return;
 
-			ROUTE_TIMERS.get(name).update(duration, TimeUnit.MILLISECONDS);
+			Timer timer = ROUTE_TIMERS.get(name);
+
+			if (timer != null)
+			{
+				timer.update(duration, TimeUnit.MILLISECONDS);
+			}
 		}
 
 		Counter responseCounter = COUNTERS_BY_RESPONSE.get(response.getResponseStatus().getCode());
