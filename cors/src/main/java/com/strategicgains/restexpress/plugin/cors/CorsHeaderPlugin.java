@@ -17,9 +17,9 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.common.util.StringUtils;
+import org.restexpress.domain.metadata.RouteMetadata;
 import org.restexpress.pipeline.Postprocessor;
 import org.restexpress.plugin.AbstractPlugin;
-import org.restexpress.route.Route;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
 
@@ -159,13 +159,12 @@ extends AbstractPlugin
 			@Override
 			public void process(RouteBuilder builder)
 			{
-				List<Route> routes = builder.build();
-				String pathPattern = routes.get(0).getPattern();
+				RouteMetadata rmd = builder.asMetadata();
 				Set<HttpMethod> methods = new HashSet<HttpMethod>();
 
-				for (Route route : routes)
+				for (String methodString : rmd.getMethods())
 				{
-					methods.add(route.getMethod());
+					methods.add(HttpMethod.valueOf(methodString));
 				}
 
 				if (isPreflightSupported)
@@ -176,15 +175,30 @@ extends AbstractPlugin
 					}
 				}
 
-                Set<HttpMethod> existingMethods = methodsByPattern.get(pathPattern);
-                if (existingMethods != null) {
-                    existingMethods.addAll(methods);
-                } else {
-                    existingMethods = methods;
+				String pathPattern = rmd.getUri().getPattern();
+                updateAcceptedMethods(methods, pathPattern);
+
+                for (String alias : rmd.getAliases())
+                {
+                	updateAcceptedMethods(methods, alias);
                 }
+			}
+
+			private void updateAcceptedMethods(Set<HttpMethod> methods, String pathPattern)
+            {
+	            Set<HttpMethod> existingMethods = methodsByPattern.get(pathPattern);
+                
+                if (existingMethods != null)
+				{
+					existingMethods.addAll(methods);
+				}
+				else
+				{
+					existingMethods = methods;
+				}
 
 				methodsByPattern.put(pathPattern, existingMethods);
-			}
+            }
 		});
 
 		if (isPreflightSupported)
@@ -281,7 +295,8 @@ extends AbstractPlugin
 
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())
 			{
-				allowedMethodsByPattern.put(entry.getKey(), StringUtils.join(",", entry.getValue()));
+				String pathPattern = entry.getKey().replaceFirst("\\.\\{format\\}", "");
+				allowedMethodsByPattern.put(pathPattern, StringUtils.join(",", entry.getValue()));
 			}
 		}
 
@@ -289,7 +304,6 @@ extends AbstractPlugin
         public void options(Request request, Response response)
 		{
 			response.addHeader(CORS_ALLOW_ORIGIN_HEADER, allowOriginsHeader);
-			String pat = request.getResolvedRoute().getPattern();
 			response.addHeader(CORS_ALLOW_METHODS_HEADER, allowedMethodsByPattern.get(request.getResolvedRoute().getPattern()));
 			response.addHeader("Content-Length","0");
 			response.setContentType(ContentType.TEXT_PLAIN);
