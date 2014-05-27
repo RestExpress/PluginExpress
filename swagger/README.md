@@ -22,7 +22,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>SwaggerPlugin</artifactId>
-			<version>0.2.1</version>
+			<version>0.2.2</version>
 		</dependency>
 ```
 Development:
@@ -30,7 +30,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>SwaggerPlugin</artifactId>
-			<version>0.2.2-SNAPSHOT</version>
+			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 

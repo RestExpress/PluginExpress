@@ -17,16 +17,16 @@ Stable:
 ```xml
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
-			<artifactId>SwaggerPlugin</artifactId>
-			<version>0.2.2-SNAPSHOT</version>
+			<artifactId>HyperExpressPlugin</artifactId>
+			<version>0.2.2</version>
 		</dependency>
 ```
 Development:
 ```xml
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
-			<artifactId>SwaggerPlugin</artifactId>
-			<version>0.2.2-SNAPSHOT</version>
+			<artifactId>HyperExpressPlugin</artifactId>
+			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
