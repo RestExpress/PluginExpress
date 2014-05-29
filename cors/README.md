@@ -86,3 +86,18 @@ new CorsHeaderPlugin("*")
 	.exposeHeaders(LOCATION)
 	.register(server);
 ```
+
+Release Notes
+=============
+Release 0.2.3-SNAPSHOT (in branch 'master')
+-------------------------------------------
+* Added CorsConfig bean to simplify reading configuration from Properties.
+
+Release 0.2.2 - 28 May 2014
+---------------------------
+* Fixed issue where route aliases were not supported via CORS pre-flight OPTIONS request.
+
+Release 0.2.1 - 6 April 2014
+----------------------------
+* Adding methods to routes trough multiple calls should be additive not overriding
+* Handle initially empty list of methods for route
