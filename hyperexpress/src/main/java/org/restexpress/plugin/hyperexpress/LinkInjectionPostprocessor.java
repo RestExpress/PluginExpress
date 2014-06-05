@@ -43,12 +43,12 @@ import com.strategicgains.hyperexpress.domain.Resource;
 public class LinkInjectionPostprocessor
 implements Postprocessor
 {
-	private Class<?> domainMarker;
+	private Class<?> resourceMarker;
 
-	public LinkInjectionPostprocessor(Class<?> domainMarkerClass)
+	public LinkInjectionPostprocessor(Class<?> resourceMarkerClass)
 	{
 		super();
-		this.domainMarker = domainMarkerClass;
+		this.resourceMarker = resourceMarkerClass;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -59,14 +59,12 @@ implements Postprocessor
 
 		if (body == null || !response.isSerialized()) return;
 
-		boolean shouldHALify = false;
-		Resource r = null;
+		Resource resource = null;
 		Class<?> bodyClass = body.getClass();
 
-		if (isDomainClass(bodyClass))
+		if (isMarkerClass(bodyClass))
 		{
-			shouldHALify = true;
-			r = HyperExpress.createResource(body, response.getSerializationSettings().getMediaType());
+			resource = HyperExpress.createResource(body, response.getSerializationSettings().getMediaType());
 		}
 		else if (isCollection(bodyClass))
 		{
@@ -76,39 +74,37 @@ implements Postprocessor
 			{
 				Type t = (((ParameterizedType) type).getActualTypeArguments())[0];
 
-				if (domainMarker.isAssignableFrom((Class<?>) t))
+				if (resourceMarker.isAssignableFrom((Class<?>) t))
 				{
-					shouldHALify = true;
 					// TODO: do sensible defaults, but allow caller to set 'rel'.
 					// maybe this method simply returns the elements and they get embedded here.
-					r = HyperExpress.createCollectionResource((Collection<Object>) body, (Class<?>) t,
+					resource = HyperExpress.createCollectionResource((Collection<Object>) body, (Class<?>) t,
 							response.getSerializationSettings().getMediaType());
 				}
 			}
 		}
 		else if (bodyClass.isArray())
 		{
-			if (isDomainClass(bodyClass.getComponentType()))
+			if (isMarkerClass(bodyClass.getComponentType()))
 			{
-				shouldHALify = true;
 				// TODO: do sensible defaults, but allow caller to set 'rel'.
 				// maybe this method simply returns the elements and they get embedded here.
-				r = HyperExpress.createCollectionResource(Arrays.asList((Object[]) body), bodyClass.getComponentType(),
+				resource = HyperExpress.createCollectionResource(Arrays.asList((Object[]) body), bodyClass.getComponentType(),
 					response.getSerializationSettings().getMediaType());
 			}
 		}
 
-		if (shouldHALify)
+		if (resource != null)
 		{
-			response.setBody(r);
+			response.setBody(resource);
 		}
 
 		HyperExpress.clearTokenBindings();
 	}
 
-	private boolean isDomainClass(Class<?> aClass)
+	private boolean isMarkerClass(Class<?> aClass)
 	{
-		return domainMarker.isAssignableFrom(aClass);
+		return resourceMarker.isAssignableFrom(aClass);
 	}
 
 	private boolean isCollection(Class<?> aClass)
