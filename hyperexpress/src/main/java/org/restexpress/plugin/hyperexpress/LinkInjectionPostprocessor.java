@@ -78,7 +78,7 @@ implements Postprocessor
 				{
 					// TODO: do sensible defaults, but allow caller to set 'rel'.
 					// maybe this method simply returns the elements and they get embedded here.
-					resource = HyperExpress.createCollectionResource((Collection<Object>) body, (Class<?>) t,
+					resource = HyperExpress.createCollectionResource((Collection) body, (Class<?>) t,
 							response.getSerializationSettings().getMediaType());
 				}
 			}
