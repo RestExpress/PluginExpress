@@ -15,6 +15,7 @@
  */
 package org.restexpress.plugin.statechange;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -91,9 +92,11 @@ public class StateContext
 		return SC._getContext();
 	}
 
-	public static Set<Entry<String, Object>> entrySet()
+	@SuppressWarnings("unchecked")
+    public static Set<Entry<String, Object>> entrySet()
 	{
-		return SC._getContext().entrySet();
+		Map<String, Object> context = SC._getContext();
+		return (context == null ? Collections.EMPTY_SET : context.entrySet());
 	}
 
 	public static Iterator<Entry<String, Object>> iterator()
