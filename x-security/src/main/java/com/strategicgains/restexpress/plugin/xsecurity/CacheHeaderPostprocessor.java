@@ -53,7 +53,7 @@ import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
  * @author toddf
  * @since Oct 3, 2011
  */
-public class CacheHeaderPostprocessor
+public class XSecurityHeaderPostprocessor
 implements Postprocessor
 {
     private static final String NO_CACHE = "no-cache";

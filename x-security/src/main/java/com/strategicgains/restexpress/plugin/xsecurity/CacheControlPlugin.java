@@ -19,14 +19,14 @@ import org.restexpress.RestExpress;
 import org.restexpress.plugin.AbstractPlugin;
 
 /**
- * @author toddf
- * @since Dec 23, 2011
+ * @author cjm
+ * @since July 6, 2014
  */
-public class CacheControlPlugin
+public class XSecurityPlugin
 extends AbstractPlugin
 {
 	@Override
-	public CacheControlPlugin register(RestExpress server)
+	public XSecurityPlugin register(RestExpress server)
 	{
 		if (isRegistered()) return this;
 
