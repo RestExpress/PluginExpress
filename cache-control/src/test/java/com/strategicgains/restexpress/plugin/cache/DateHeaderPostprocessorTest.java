@@ -28,10 +28,10 @@ import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpVersion;
 import org.junit.Test;
+import org.restexpress.Request;
+import org.restexpress.Response;
+import org.restexpress.pipeline.Postprocessor;
 
-import com.strategicgains.restexpress.Request;
-import com.strategicgains.restexpress.Response;
-import com.strategicgains.restexpress.pipeline.Postprocessor;
 import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
 
 /**
@@ -47,6 +47,21 @@ public class DateHeaderPostprocessorTest
 	throws ParseException
 	{
 		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.addHeader("Host", "testing-host");
+		Response response = new Response();
+		processor.process(new Request(httpRequest, null), response);
+		assertTrue(response.hasHeaders());
+		String dateHeader = response.getHeader(HttpHeaders.Names.DATE);
+		assertNotNull(dateHeader);
+		Date dateValue = new HttpHeaderTimestampAdapter().parse(dateHeader);
+		assertNotNull(dateValue);
+	}
+
+	@Test
+	public void shouldAddDateHeaderOnHead()
+	throws ParseException
+	{
+		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.HEAD, "/foo?param1=bar&param2=blah&yada");
 		httpRequest.addHeader("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
@@ -91,16 +106,6 @@ public class DateHeaderPostprocessorTest
 	public void shouldNotAddDateHeaderOnOptions()
 	{
 		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.OPTIONS, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
-		Response response = new Response();
-		processor.process(new Request(httpRequest, null), response);
-		assertFalse(response.hasHeader(HttpHeaders.Names.DATE));
-	}
-
-	@Test
-	public void shouldNotAddDateHeaderOnHead()
-	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.HEAD, "/foo?param1=bar&param2=blah&yada");
 		httpRequest.addHeader("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
