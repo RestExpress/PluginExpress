@@ -13,30 +13,12 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-package com.strategicgains.restexpress.plugin.cache;
+package com.strategicgains.restexpress.plugin.xsecurity;
 
-import org.restexpress.RestExpress;
-import org.restexpress.plugin.AbstractPlugin;
+import org.restexpress.pipeline.Postprocessor;
 
-/**
- * @author toddf
- * @since Dec 23, 2011
- */
-public class CacheControlPlugin
-extends AbstractPlugin
+public class XContentTypeOptionsHeaderPostprocessor
+implements Postprocessor
 {
-	@Override
-	public CacheControlPlugin register(RestExpress server)
-	{
-		if (isRegistered()) return this;
 
-		super.register(server);
-
-		server
-			.addPostprocessor(new DateHeaderPostprocessor())
-			.addPostprocessor(new CacheHeaderPostprocessor())
-			.addPostprocessor(new EtagHeaderPostprocessor());
-
-		return this;
-	}
 }
