@@ -15,10 +15,23 @@
 */
 package com.strategicgains.restexpress.plugin.xsecurity;
 
+import org.restexpress.Request;
+import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
 
+/**
+ * @author cjm
+ * @since 8 July, 2014
+ */
 public class XContentTypeOptionsHeaderPostprocessor
 implements Postprocessor
 {
+    private static final String XCONTENTTYPEOPTIONS = "X-Content-Type-Options";
+    private static final String NOSNIFF = "nosniff";
 
+    @Override
+    public void process(Request request, Response response)
+    {
+        response.addHeader(XCONTENTTYPEOPTIONS, NOSNIFF);
+    }
 }

@@ -33,15 +33,16 @@ extends AbstractPlugin
         super.register(server);
 
         server
-                .addPostprocessor(new HSTSHeaderPostprocessor())
-                .addPostprocessor(new XFrameOptionsHeaderPostprocessor())
-                .addPostprocessor(new FrameOptionsHeaderPostprocessor())
-                .addPostprocessor(new XXSSProtectionHeaderPostprocessor())
+                //.addPostprocessor(new HSTSHeaderPostprocessor())
+                //.addPostprocessor(new XFrameOptionsHeaderPostprocessor())
+                //.addPostprocessor(new FrameOptionsHeaderPostprocessor())
+                //.addPostprocessor(new XXSSProtectionHeaderPostprocessor())
                 .addPostprocessor(new XContentTypeOptionsHeaderPostprocessor())
-                .addPostprocessor(new ContentSecurityPolicyHeaderPostprocessor())
-                .addPostprocessor(new XContentSecurityPolicyHeaderPostprocessor())
-                .addPostprocessor(new XWebKitCSPHeaderPostprocessor())
-                .addPostprocessor(new ContentSecurityPolicyReportOnlyHeaderPostprocessor());
+                //.addPostprocessor(new ContentSecurityPolicyHeaderPostprocessor())
+                //.addPostprocessor(new XContentSecurityPolicyHeaderPostprocessor())
+                //.addPostprocessor(new XWebKitCSPHeaderPostprocessor())
+                //.addPostprocessor(new ContentSecurityPolicyReportOnlyHeaderPostprocessor())
+        ;
 
         return this;
     }
