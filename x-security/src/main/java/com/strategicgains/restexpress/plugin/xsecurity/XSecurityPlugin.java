@@ -21,6 +21,8 @@ import org.restexpress.plugin.AbstractPlugin;
 /**
  * @author pbj23000
  * @since July 6, 2014
+ *
+ * OWASP headers based on recommendations at <a href="https://www.owasp.org/index.php/List_of_useful_HTTP_headers">List of useful HTTP headers</a>
  */
 public class XSecurityPlugin
 extends AbstractPlugin
@@ -32,8 +34,9 @@ extends AbstractPlugin
 
         super.register(server);
 
+        // first deliverable is only the X-Content-Type-Options header
         server
-                .addPostprocessor(new HSTSHeaderPostprocessor())
+                //.addPostprocessor(new HSTSHeaderPostprocessor())
                 //.addPostprocessor(new XFrameOptionsHeaderPostprocessor())
                 //.addPostprocessor(new FrameOptionsHeaderPostprocessor())
                 //.addPostprocessor(new XXSSProtectionHeaderPostprocessor())
