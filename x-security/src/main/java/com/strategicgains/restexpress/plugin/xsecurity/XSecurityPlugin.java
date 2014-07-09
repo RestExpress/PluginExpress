@@ -19,7 +19,7 @@ import org.restexpress.RestExpress;
 import org.restexpress.plugin.AbstractPlugin;
 
 /**
- * @author cjm
+ * @author pbj23000
  * @since July 6, 2014
  */
 public class XSecurityPlugin

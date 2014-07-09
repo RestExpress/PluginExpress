@@ -20,7 +20,7 @@ import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
 
 /**
- * @author cjm
+ * @author pbj23000
  * @since 8 July, 2014
  *
  * See <a href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">MIME-Handling: Sniffing Opt-Out</a>
