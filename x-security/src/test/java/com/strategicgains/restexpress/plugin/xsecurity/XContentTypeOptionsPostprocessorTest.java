@@ -1,5 +1,10 @@
 package com.strategicgains.restexpress.plugin.xsecurity;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -23,7 +28,7 @@ public class XContentTypeOptionsPostprocessorTest
     public void shouldAddXContentTypeOptionsHeader()
     {
         HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/foo?param1=bar&param2=baz&quux");
-        HttpRequest.addHeader("Host", "testing-host");
+        httpRequest.addHeader("Host", "testing-host");
         Response response = new Response();
         postprocessor.process(new Request(httpRequest, null), response);
         assertTrue(response.hasHeaders());
