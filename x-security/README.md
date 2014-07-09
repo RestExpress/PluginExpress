@@ -1,7 +1,8 @@
-Cache-Control Plugin
+X-Security Plugin
 ====================
 
-Adds owasp recomended x-security headers to responses.
+Adds owasp recomended x-security headers to responses. Based on the 
+recommendations at https://www.owasp.org/index.php/List_of_useful_HTTP_headers
 
 Maven Usage
 ===========
