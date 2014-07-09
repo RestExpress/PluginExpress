@@ -22,6 +22,8 @@ import org.restexpress.pipeline.Postprocessor;
 /**
  * @author cjm
  * @since 8 July, 2014
+ *
+ * See <a href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">MIME-Handling: Sniffing Opt-Out</a>
  */
 public class XContentTypeOptionsHeaderPostprocessor
 implements Postprocessor

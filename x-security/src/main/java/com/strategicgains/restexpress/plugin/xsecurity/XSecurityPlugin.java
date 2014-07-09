@@ -33,7 +33,7 @@ extends AbstractPlugin
         super.register(server);
 
         server
-                //.addPostprocessor(new HSTSHeaderPostprocessor())
+                .addPostprocessor(new HSTSHeaderPostprocessor())
                 //.addPostprocessor(new XFrameOptionsHeaderPostprocessor())
                 //.addPostprocessor(new FrameOptionsHeaderPostprocessor())
                 //.addPostprocessor(new XXSSProtectionHeaderPostprocessor())
