@@ -45,7 +45,7 @@ Note that to use the SNAPSHOT version, you must enable snapshots and a repositor
 
 Usage
 ========
-This plugin adds the X-Content-Type-Options header to all responses leaving 
+Currently, this plugin only adds the X-Content-Type-Options header to all responses leaving 
 the RestExpress server. The only currently defined option is "nosniff",
 therefore each header leaving the system will have a header that looks like
 ```X-Content-Type-Options: nosniff```
