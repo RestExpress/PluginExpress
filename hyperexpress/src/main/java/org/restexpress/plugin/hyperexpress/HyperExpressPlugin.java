@@ -19,11 +19,27 @@ import org.restexpress.ContentType;
 import org.restexpress.RestExpress;
 import org.restexpress.plugin.AbstractPlugin;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.strategicgains.hyperexpress.HyperExpress;
 import com.strategicgains.hyperexpress.ResourceFactoryStrategy;
 import com.strategicgains.hyperexpress.domain.hal.HalResourceFactory;
 
 /**
+ * This plugin will convert any domain models returned from controller methods into a Resource implementation
+ * based on the Accept header.  It will render HAL for both application/json and application/hal+json.
+ * <p/>
+ * To override this behavior, use the addResourceFactory() method, which puts you in complete control 
+ * of the behavior, not doing any default mappings.
+ * <p/>
+ * In other words:<br/>
+ * <code>
+ * HalResourceFactory hal = new HalResourceFactory();
+ * plugin.addResourceFactory(hal, ContentType.HAL_JSON);
+ * </code>
+ * Will cause the service suite to only support links in 'application/hal+json' content types. Note that
+ * there are possibly other configuration options on the factory, such as HalResourceFactory, which can
+ * be configured before passing it to addResourceFactory().
+ * 
  * @author toddf
  * @since May 7, 2014
  */
@@ -31,6 +47,7 @@ public class HyperExpressPlugin
 extends AbstractPlugin
 {
 	private Class<?> domainMarkerClass;
+	private boolean usesCustomFactory = false;
 
 	/**
 	 * Default constructor. Use this constructor if your domain classes implement the Linkable interface.
@@ -75,15 +92,28 @@ extends AbstractPlugin
 	@Override
     public void bind(RestExpress server)
     {
-		ResourceFactoryStrategy hal = new HalResourceFactory();
-		HyperExpress.registerResourceFactoryStrategy(hal, ContentType.JSON);
-		HyperExpress.registerResourceFactoryStrategy(hal, ContentType.HAL_JSON);
-	    super.bind(server);
+		if (!usesCustomFactory)
+		{
+			HalResourceFactory hal = new HalResourceFactory();
+			hal.excludeAnnotations(JsonIgnore.class);
+			HyperExpress.registerResourceFactoryStrategy(hal, ContentType.JSON);
+			HyperExpress.registerResourceFactoryStrategy(hal, ContentType.HAL_JSON);
+		}
+
+		super.bind(server);
     }
 
+	/**
+	 * Add a custom {@link ResourceFactoryStrategy} for a given content type.
+	 * 
+	 * @param factoryStrategy
+	 * @param contentType
+	 * @return
+	 */
 	public HyperExpressPlugin addResourceFactory(ResourceFactoryStrategy factoryStrategy, String contentType)
 	{
 		HyperExpress.registerResourceFactoryStrategy(factoryStrategy, contentType);
+		usesCustomFactory = true;
 		return this;
 	}
 }
