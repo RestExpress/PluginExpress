@@ -296,7 +296,7 @@ public class SwaggerPluginTest
 		
 		// For second api verify the three response codes are being returned correctly.
 		r.then()
-			.root("apis[1].operations[0].errorResponses[%s].%s")
+			.root("apis[1].operations[0].responseMessages[%s].%s")
 			.body(withArgs(0, "code"), is(204))
 			.body(withArgs(0, "reason"), is("Successful update"))
 			.body(withArgs(1, "code"), is(404))
