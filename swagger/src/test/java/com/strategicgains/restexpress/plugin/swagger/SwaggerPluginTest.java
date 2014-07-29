@@ -338,6 +338,24 @@ public class SwaggerPluginTest
 			.body(withArgs(1, "name"), is("title"))
 			.body(withArgs(1, "allowableValues"), is("Any String"))
 			.body(withArgs(1, "required"), is(true));
-	}
+
+        // Verify the models
+        r.then()
+            .root("models.%s.properties.%s.%s")
+            .body(withArgs("DummyModel", "dummy1", "type"), is("string"))
+            .body(withArgs("DummyModel", "dummy2", "type"), is("integer"))
+            .body(withArgs("DummyModel", "dummy2", "format"), is("int32"))
+            .body(withArgs("DummyModel", "dummy3", "type"), is("number"))
+            .body(withArgs("DummyModel", "dummy3", "format"), is("float"))
+            .body(withArgs("DummyModel", "dummy4", "type"), is("boolean"))
+            .body(withArgs("DummyModel", "dummy5", "type"), is("array"))
+            .body(withArgs("DummyModel", "dummy6", "type"), is("array"))
+            .body(withArgs("DummyModel", "dummy7", "type"), is("integer"))
+            .body(withArgs("DummyModel", "dummy7", "format"), is("int32"))
+            .body(withArgs("DummyModel", "dummy8", "type"), is("number"))
+            .body(withArgs("DummyModel", "dummy8", "format"), is("double"))
+            .body(withArgs("DummyModel", "dummy9", "type"), is("number"));
+
+    }
 
 }
