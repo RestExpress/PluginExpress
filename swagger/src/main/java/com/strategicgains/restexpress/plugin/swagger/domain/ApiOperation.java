@@ -33,7 +33,7 @@ extends DataType
 	private List<ApiOperationParameters> parameters;
 	private String summary = "";
 	private String notes;
-	private List<ApiResponse> errorResponses;
+	private List<ApiResponse> responseMessages;
 
 	public ApiOperation(Route route)
 	{
@@ -70,7 +70,7 @@ extends DataType
 		// parameters.
 		determineBodyInputParameters(m);
 
-		// Check for any swagger errorResponses
+		// Check for any swagger responseMessages
 		checkForSwaggerResponseAnnotations(m);
 
 	}
@@ -97,12 +97,12 @@ extends DataType
 	 */
 	public void addResponse(ApiResponse response)
 	{
-		if (errorResponses == null)
+		if (responseMessages == null)
 		{
-			errorResponses = new ArrayList<ApiResponse>();
+			responseMessages = new ArrayList<ApiResponse>();
 		}
 
-		errorResponses.add(response);
+		responseMessages.add(response);
 	}
 
 	/**
