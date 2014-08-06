@@ -166,11 +166,21 @@ public class ModelResolver
 		return model;
 	}
 
+
 	private DataType createNode(Type target)
+	{
+		return createNode(target, null);
+	}
+
+	private DataType createNode(Type target, String dataType)
 	{
 		DataType node = new DataType();
 
-		if (target instanceof Class)
+		if (dataType != null && !dataType.isEmpty())
+		{
+			node.setType(dataType);
+		}
+		else if (target instanceof Class)
 		{
 			Class<?> targetClass = (Class<?>) target;
 
@@ -285,22 +295,26 @@ public class ModelResolver
 					continue;
 				}
 
-				if (apiModelProperty != null
-				    && !properties.containsKey(field.getName()))
-				{
-					DataType property = createNode(field.getGenericType())
-					    .setDescription(apiModelProperty.notes())
-					    .setRequired(apiModelProperty.required())
-					    .setPosition(apiModelProperty.position())
-					    .setProperty(field.getName());
-					properties.put(field.getName(), property);
-				}
-				else
-				{
-					DataType property = createNode(field.getGenericType())
-					    .setProperty(field.getName());
-					properties.put(field.getName(), property);
-				}
+                if (apiModelProperty == null) {
+                    DataType property = createNode(field.getGenericType())
+                        .setProperty(field.getName());
+                    properties.put(field.getName(), property);
+                }
+                else if(!properties.containsKey(field.getName()))
+                {
+                    DataType property = createNode(field.getGenericType(), apiModelProperty.dataType())
+                        .setDescription(apiModelProperty.notes())
+                        .setRequired(apiModelProperty.required())
+                        .setPosition(apiModelProperty.position())
+                        .setProperty(field.getName());
+                    properties.put(field.getName(), property);
+                }
+                else
+                {
+                    DataType property = createNode(field.getGenericType(), apiModelProperty.dataType())
+                        .setProperty(field.getName());
+                    properties.put(field.getName(), property);
+                }
 			}
 		}
 	}
