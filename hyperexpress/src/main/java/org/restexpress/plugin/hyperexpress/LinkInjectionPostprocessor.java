@@ -26,6 +26,7 @@ import org.restexpress.pipeline.Postprocessor;
 
 import com.strategicgains.hyperexpress.HyperExpress;
 import com.strategicgains.hyperexpress.domain.Resource;
+import com.strategicgains.hyperexpress.exception.ResourceException;
 
 /**
  * If the Response contains an instance of the given domainMarkerClass, or a Collection (or Array)
@@ -51,7 +52,6 @@ implements Postprocessor
 		this.resourceMarker = resourceMarkerClass;
 	}
 
-	@SuppressWarnings("unchecked")
     @Override
 	public void process(Request request, Response response)
 	{
@@ -62,36 +62,43 @@ implements Postprocessor
 		Resource resource = null;
 		Class<?> bodyClass = body.getClass();
 
-		if (isMarkerClass(bodyClass))
+		try
 		{
-			resource = HyperExpress.createResource(body, response.getSerializationSettings().getMediaType());
-		}
-		else if (isCollection(bodyClass))
-		{
-			Type type = request.getResolvedRoute().getAction().getGenericReturnType();
-
-			if (type instanceof ParameterizedType)
+			if (isMarkerClass(bodyClass))
 			{
-				Type t = (((ParameterizedType) type).getActualTypeArguments())[0];
-
-				if (resourceMarker.isAssignableFrom((Class<?>) t))
+				resource = HyperExpress.createResource(body, response.getSerializationSettings().getMediaType());
+			}
+			else if (isCollection(bodyClass))
+			{
+				Type type = request.getResolvedRoute().getAction().getGenericReturnType();
+	
+				if (type instanceof ParameterizedType)
+				{
+					Type t = (((ParameterizedType) type).getActualTypeArguments())[0];
+	
+					if (resourceMarker.isAssignableFrom((Class<?>) t))
+					{
+						// TODO: do sensible defaults, but allow caller to set 'rel'.
+						// maybe this method simply returns the elements and they get embedded here.
+						resource = HyperExpress.createCollectionResource((Collection<?>) body, (Class<?>) t,
+								response.getSerializationSettings().getMediaType());
+					}
+				}
+			}
+			else if (bodyClass.isArray())
+			{
+				if (isMarkerClass(bodyClass.getComponentType()))
 				{
 					// TODO: do sensible defaults, but allow caller to set 'rel'.
 					// maybe this method simply returns the elements and they get embedded here.
-					resource = HyperExpress.createCollectionResource((Collection) body, (Class<?>) t,
-							response.getSerializationSettings().getMediaType());
+					resource = HyperExpress.createCollectionResource(Arrays.asList((Object[]) body), bodyClass.getComponentType(),
+						response.getSerializationSettings().getMediaType());
 				}
 			}
 		}
-		else if (bodyClass.isArray())
+		catch (ResourceException e)
 		{
-			if (isMarkerClass(bodyClass.getComponentType()))
-			{
-				// TODO: do sensible defaults, but allow caller to set 'rel'.
-				// maybe this method simply returns the elements and they get embedded here.
-				resource = HyperExpress.createCollectionResource(Arrays.asList((Object[]) body), bodyClass.getComponentType(),
-					response.getSerializationSettings().getMediaType());
-			}
+			// log the exception and move on...
 		}
 
 		if (resource != null)
