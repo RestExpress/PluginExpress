@@ -23,10 +23,13 @@ import java.util.Collection;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
+import org.restexpress.plugin.hyperexpress.expand.ExpansionParser;
 
 import com.strategicgains.hyperexpress.HyperExpress;
 import com.strategicgains.hyperexpress.domain.Resource;
 import com.strategicgains.hyperexpress.exception.ResourceException;
+import com.strategicgains.hyperexpress.expand.Expander;
+import com.strategicgains.hyperexpress.expand.Expansion;
 
 /**
  * If the Response contains an instance of the given domainMarkerClass, or a Collection (or Array)
@@ -41,12 +44,12 @@ import com.strategicgains.hyperexpress.exception.ResourceException;
  * @since Apr 21, 2014
  * @see HyperExpress
  */
-public class LinkInjectionPostprocessor
+public class HyperExpressPostprocessor
 implements Postprocessor
 {
 	private Class<?> resourceMarker;
 
-	public LinkInjectionPostprocessor(Class<?> resourceMarkerClass)
+	public HyperExpressPostprocessor(Class<?> resourceMarkerClass)
 	{
 		super();
 		this.resourceMarker = resourceMarkerClass;
@@ -103,11 +106,23 @@ implements Postprocessor
 
 		if (resource != null)
 		{
-			response.setBody(resource);
+			populateResponse(request, response, resource);
 		}
 
 		HyperExpress.clearTokenBindings();
 	}
+
+	private void populateResponse(Request request, Response response, Resource resource)
+    {
+	    Expansion expansion = ExpansionParser.parseFrom(request);
+
+	    if (!expansion.isEmpty())
+	    {
+	    	Expander.expand(expansion, response.getBody().getClass(), resource, response.getSerializationSettings().getMediaType());
+	    }
+
+	    response.setBody(resource);
+    }
 
 	private boolean isMarkerClass(Class<?> aClass)
 	{

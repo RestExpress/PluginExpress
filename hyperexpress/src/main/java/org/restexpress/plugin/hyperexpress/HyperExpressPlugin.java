@@ -84,7 +84,7 @@ extends AbstractPlugin
 
 		server
 		    .addPreprocessor(new RequestHeaderTokenBinder())
-		    .addPostprocessor(new LinkInjectionPostprocessor(domainMarkerClass));
+		    .addPostprocessor(new HyperExpressPostprocessor(domainMarkerClass));
 		
 	    return (HyperExpressPlugin) super.register(server);
     }
