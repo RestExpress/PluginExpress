@@ -18,6 +18,7 @@ package org.restexpress.plugin.hyperexpress.expand;
 import java.util.Arrays;
 
 import org.restexpress.Request;
+import org.restexpress.Response;
 
 import com.strategicgains.hyperexpress.expand.Expansion;
 
@@ -31,16 +32,16 @@ public class ExpansionParser
 	private static final String EXPAND_SEPARATOR = ",\\s*";
 //	private static final String EXPAND_SEGMENT_SEPARATOR = "\\.";
 
-	public static Expansion parseFrom(Request request)
+	public static Expansion parseFrom(Request request, Response response)
     {
 		String expandString = request.getHeader(EXPAND_HEADER_NAME);
 
 		if (expandString == null || expandString.trim().isEmpty())
 		{
-			return new Expansion();
+			return new Expansion(response.getSerializationSettings().getMediaType());
 		}
 
 		String[] expansions = expandString.split(EXPAND_SEPARATOR);
-		return new Expansion(Arrays.asList(expansions));
+		return new Expansion(response.getSerializationSettings().getMediaType(), Arrays.asList(expansions));
     }
 }

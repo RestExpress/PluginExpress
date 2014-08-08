@@ -114,11 +114,11 @@ implements Postprocessor
 
 	private void populateResponse(Request request, Response response, Resource resource)
     {
-	    Expansion expansion = ExpansionParser.parseFrom(request);
+	    Expansion expansion = ExpansionParser.parseFrom(request, response);
 
 	    if (!expansion.isEmpty())
 	    {
-	    	Expander.expand(expansion, response.getBody().getClass(), resource, response.getSerializationSettings().getMediaType());
+	    	Expander.expand(expansion, response.getBody().getClass(), resource);
 	    }
 
 	    response.setBody(resource);
