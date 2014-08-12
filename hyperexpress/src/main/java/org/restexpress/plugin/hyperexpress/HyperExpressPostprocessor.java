@@ -29,7 +29,6 @@ import com.strategicgains.hyperexpress.HyperExpress;
 import com.strategicgains.hyperexpress.domain.Resource;
 import com.strategicgains.hyperexpress.exception.ResourceException;
 import com.strategicgains.hyperexpress.expand.Expander;
-import com.strategicgains.hyperexpress.expand.Expansion;
 
 /**
  * If the Response contains an instance of the given domainMarkerClass, or a Collection (or Array)
@@ -114,13 +113,7 @@ implements Postprocessor
 
 	private void populateResponse(Request request, Response response, Resource resource)
     {
-	    Expansion expansion = ExpansionParser.parseFrom(request, response);
-
-	    if (!expansion.isEmpty())
-	    {
-	    	Expander.expand(expansion, response.getBody().getClass(), resource);
-	    }
-
+    	Expander.expand(ExpansionParser.parseFrom(request, response), response.getBody().getClass(), resource);
 	    response.setBody(resource);
     }
 
