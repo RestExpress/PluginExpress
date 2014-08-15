@@ -22,7 +22,6 @@
 		<module>metrics</module>
 		<module>swagger</module>
 		<module>state-change</module>
-		<module>hyperexpress</module>
         <module>x-security</module>
 	</modules>
 
