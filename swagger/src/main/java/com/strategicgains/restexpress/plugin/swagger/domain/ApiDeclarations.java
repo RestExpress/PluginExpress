@@ -138,7 +138,7 @@ public class ApiDeclarations
 
 		if (apiModelRequest != null)
 		{
-			DataType bodyType = resolver.resolve(apiModelRequest.model());
+			DataType bodyType = resolver.resolve(apiModelRequest.model(), apiModelRequest.modelName());
 			operation.addParameter(new ApiOperationParameters("body", "body",
 			    bodyType.getRef() != null ? bodyType.getRef() : bodyType
 			        .getType(), apiModelRequest.required()));

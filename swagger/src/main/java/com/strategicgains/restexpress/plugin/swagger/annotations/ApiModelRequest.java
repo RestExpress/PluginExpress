@@ -11,4 +11,5 @@ public @interface ApiModelRequest
 {
 	Class<?> model();
 	boolean required() default false;
+	String modelName() default "";
 }

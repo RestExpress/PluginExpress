@@ -127,6 +127,11 @@ public class SwaggerPluginTest
 			.method(HttpMethod.POST)
 			.name("Create with Api Param");
 
+		SERVER.uri("/annotations/{userId}/users/list2", controller)
+				.action("createWithApiModelRequest", HttpMethod.POST)
+				.method(HttpMethod.POST)
+				.name("Create with Implicit Params");
+
 		new SwaggerPlugin()
 			.apiVersion("1.0")
 			.swaggerVersion("1.2")
@@ -354,7 +359,23 @@ public class SwaggerPluginTest
             .body(withArgs("DummyModel", "dummy7", "format"), is("int32"))
             .body(withArgs("DummyModel", "dummy8", "type"), is("number"))
             .body(withArgs("DummyModel", "dummy8", "format"), is("double"))
-            .body(withArgs("DummyModel", "dummy9", "type"), is("number"));
+            .body(withArgs("DummyModel", "dummy9", "type"), is("number"))
+            .body(withArgs("DummyModel", "dummy10", "type"), is("number"))
+            .body(withArgs("DummyModel", "dummy10", "format"), is("double"));
+
+        // Make sure that the dummy10 property is not part of the AlternativeDummyModel model
+        r.then()
+            .root("models.%s.properties.%s")
+            .body(withArgs("AlternativeDummyModel", "dummy1"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy2"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy3"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy4"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy5"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy6"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy7"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy8"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy9"), notNullValue())
+            .body(withArgs("AlternativeDummyModel", "dummy10"), nullValue());
 
     }
 
