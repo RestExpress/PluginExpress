@@ -15,25 +15,18 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.strategicgains.restexpress.plugin.swagger.domain.ApiModel;
 import com.strategicgains.restexpress.plugin.swagger.domain.DataType;
 import com.strategicgains.restexpress.plugin.swagger.domain.Items;
 import com.strategicgains.restexpress.plugin.swagger.domain.Primitives;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelProperty;
 
 /**
  * This class implements a simplified least-common denominator reflection-based
@@ -83,12 +76,17 @@ public class ModelResolver
 
 	public DataType resolve(Type cls)
 	{
-		return createNode(cls);
+		return resolve(cls, null);
 	}
 
-	private ApiModel resolveClass(Class<?> target)
+	public DataType resolve(Type cls, String modelName)
 	{
-		String id = target.getSimpleName();
+		return createNode(cls, modelName, null, null);
+	}
+
+	private ApiModel resolveClass(Class<?> target, String modelName)
+	{
+		String id = getModelId(target, modelName);
 		ApiModel model = models.get(id);
 
 		if (model != null)
@@ -137,7 +135,7 @@ public class ModelResolver
 		for (Class<?> cls = target; !Object.class.equals(cls) && cls != null; cls = cls
 		    .getSuperclass())
 		{
-			processFields(properties, cls);
+			processFields(properties, cls, modelName);
 		}
 
 		List<DataType> sorted = new ArrayList<DataType>(properties.values());
@@ -166,19 +164,18 @@ public class ModelResolver
 		return model;
 	}
 
-
-	private DataType createNode(Type target)
-	{
-		return createNode(target, null);
-	}
-
-	private DataType createNode(Type target, String dataType)
+	private DataType createNode(Type target, String modelName, String dataType, String format)
 	{
 		DataType node = new DataType();
 
 		if (dataType != null && !dataType.isEmpty())
 		{
 			node.setType(dataType);
+
+			if(format != null && !format.isEmpty())
+			{
+				node.setFormat(format);
+			}
 		}
 		else if (target instanceof Class)
 		{
@@ -222,7 +219,7 @@ public class ModelResolver
 			{
 				node.setType("array");
 				DataType componentModel = createNode(targetClass
-				    .getComponentType());
+				    .getComponentType(), null, null, null);
 				node.setItems(new Items(componentModel));
 			}
 			else if (targetClass.isEnum())
@@ -240,7 +237,7 @@ public class ModelResolver
 			}
 			else
 			{
-				ApiModel subModel = resolveClass(targetClass);
+				ApiModel subModel = resolveClass(targetClass, modelName);
 				node.setRef(subModel.getId());
 			}
 		}
@@ -259,7 +256,7 @@ public class ModelResolver
 				}
 
 				DataType componentModel = createNode(parameterizedType
-				    .getActualTypeArguments()[0]);
+				    .getActualTypeArguments()[0], null, null, null);
 				node.setItems(new Items(componentModel));
 			}
 			else
@@ -281,41 +278,124 @@ public class ModelResolver
 		return node;
 	}
 
-	private void processFields(Map<String, DataType> properties, Class<?> target)
+	private void processFields(Map<String, DataType> properties, Class<?> target, String modelName)
 	{
 		for (Field field : target.getDeclaredFields())
 		{
 			if ((field.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) == 0)
 			{
-				ApiModelProperty apiModelProperty = field
-				    .getAnnotation(ApiModelProperty.class);
+                PropertyMetadata propertyMetadata = getPropertyMetadataFromField(field);
+
 				// Ignore all properties that are marked as hidden
-				if (apiModelProperty != null && apiModelProperty.hidden())
+				if (propertyMetadata != null && propertyMetadata.hidden)
 				{
 					continue;
 				}
 
-                if (apiModelProperty == null) {
-                    DataType property = createNode(field.getGenericType())
+                //Ignore properties that are marked to be excluded from this model
+                if(propertyMetadata != null && propertyMetadata.excludeFromModels != null)
+                {
+                    String modelId = getModelId(target, modelName);
+                    if(Arrays.asList(propertyMetadata.excludeFromModels).contains(modelId))
+                    {
+                        continue;
+                    }
+                }
+
+                if (propertyMetadata == null) {
+                    DataType property = createNode(field.getGenericType(), null, null, null)
                         .setProperty(field.getName());
                     properties.put(field.getName(), property);
                 }
                 else if(!properties.containsKey(field.getName()))
                 {
-                    DataType property = createNode(field.getGenericType(), apiModelProperty.dataType())
-                        .setDescription(apiModelProperty.notes())
-                        .setRequired(apiModelProperty.required())
-                        .setPosition(apiModelProperty.position())
+                    DataType property = createNode(field.getGenericType(), null, propertyMetadata.dataType, propertyMetadata.format)
+                        .setDescription(propertyMetadata.notes)
+                        .setRequired(propertyMetadata.required)
+                        .setPosition(propertyMetadata.position)
                         .setProperty(field.getName());
                     properties.put(field.getName(), property);
                 }
                 else
                 {
-                    DataType property = createNode(field.getGenericType(), apiModelProperty.dataType())
+                    DataType property = createNode(field.getGenericType(), null, propertyMetadata.dataType, propertyMetadata.format)
                         .setProperty(field.getName());
                     properties.put(field.getName(), property);
                 }
 			}
 		}
 	}
+
+	private String getModelId(Class<?> target, String modelName)
+	{
+		String id = null;
+		if(modelName != null && !modelName.isEmpty())
+		{
+			id = modelName;
+		}
+		else
+		{
+			id = target.getSimpleName();
+		}
+
+		return id;
+	}
+
+    //The logic of pulling the data out of the field annotation is encapsulated here to stay backward compatible
+    //with consumers using the com.wordnik.swagger.annotations.ApiModelProperty annotation.
+    private PropertyMetadata getPropertyMetadataFromField(Field field)
+    {
+        PropertyMetadata propertyMetadata = null;
+        if(field != null) {
+            for(Annotation a : field.getAnnotations())
+            {
+                if (a instanceof ApiModelProperty)
+                {
+                    ApiModelProperty model = (ApiModelProperty) a;
+                    propertyMetadata = new PropertyMetadata();
+                    propertyMetadata.value = model.value();
+                    propertyMetadata.allowableValues = model.allowableValues();
+                    propertyMetadata.access = model.access();
+                    propertyMetadata.notes = model.notes();
+                    propertyMetadata.dataType = model.dataType();
+                    propertyMetadata.format = model.format();
+                    propertyMetadata.required = model.required();
+                    propertyMetadata.position = model.position();
+                    propertyMetadata.hidden = model.hidden();
+                    propertyMetadata.excludeFromModels = model.excludeFromModels();
+                    break;
+                }
+                else if (a instanceof com.wordnik.swagger.annotations.ApiModelProperty)
+                {
+                    com.wordnik.swagger.annotations.ApiModelProperty model = (com.wordnik.swagger.annotations.ApiModelProperty) a;
+                    propertyMetadata = new PropertyMetadata();
+                    propertyMetadata.value = model.value();
+                    propertyMetadata.allowableValues = model.allowableValues();
+                    propertyMetadata.access = model.access();
+                    propertyMetadata.notes = model.notes();
+                    propertyMetadata.dataType = model.dataType();
+                    propertyMetadata.required = model.required();
+                    propertyMetadata.position = model.position();
+                    propertyMetadata.hidden = model.hidden();
+                    break;
+                }
+            }
+        }
+
+        return propertyMetadata;
+    }
+
+    private class PropertyMetadata {
+        String value =  "";
+        String allowableValues = "";
+        String access = "";
+        String notes = "";
+        String dataType = "";
+        String format = "";
+        boolean required = false;
+        int position = 0;
+        boolean hidden = false;
+        String[] excludeFromModels = {};
+    }
+
 }
