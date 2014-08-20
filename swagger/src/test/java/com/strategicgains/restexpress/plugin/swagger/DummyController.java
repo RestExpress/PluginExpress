@@ -94,9 +94,14 @@ public class DummyController
 	public void createWithApiImplicitParams(Request request, Response response) 
 	{
 	}
-	
+
 	@ApiParam(name = "title", required = true, value = "(Required) Title of the item.", defaultValue = "Title placeholder", allowableValues = "Any String")
 	public void createWithApiParam(Request request, Response response) 
+	{
+	}
+
+	@ApiModelRequest(model=DummyModel.class, modelName="AlternativeDummyModel")
+	public void createWithApiModelRequest(Request request, Response response)
 	{
 	}
 

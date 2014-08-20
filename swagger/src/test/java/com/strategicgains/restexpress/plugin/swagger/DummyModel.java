@@ -1,7 +1,7 @@
 package com.strategicgains.restexpress.plugin.swagger;
 
 import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelProperty;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -51,4 +51,6 @@ public class DummyModel extends DummyBase {
     private ColorEnum color;
     @ApiModelProperty(dataType = "number")
     private BigDecimal dummy9;
+    @ApiModelProperty(dataType = "number", format = "double", excludeFromModels = {"AlternativeDummyModel"})
+    private BigDecimal dummy10;
 }
