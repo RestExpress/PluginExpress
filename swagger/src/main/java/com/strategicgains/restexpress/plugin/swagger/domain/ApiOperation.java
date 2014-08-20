@@ -34,6 +34,7 @@ extends DataType
 	private String summary = "";
 	private String notes;
 	private List<ApiResponse> responseMessages;
+	private Class<?> response;
 
 	public ApiOperation(Route route)
 	{
@@ -50,6 +51,9 @@ extends DataType
 			// value is a brief description, notes a more detailed description.
 			if (ao.value() != null) summary = ao.value();
 			if (ao.notes() != null) notes = ao.notes();
+			if (ao.response() != null) {
+				response = ao.response();
+			}
 		}
 
 		this.method = route.getMethod().getName();
@@ -198,6 +202,10 @@ extends DataType
 			}
 		}
 
+	}
+
+	public Class<?> getResponse() {
+		return response;
 	}
 
 }
