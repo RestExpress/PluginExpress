@@ -204,6 +204,10 @@ extends DataType
 
 	}
 
+	/**
+	 * Return the response class
+	 * @return
+	 */
 	public Class<?> getResponse() {
 		return response;
 	}

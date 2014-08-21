@@ -284,6 +284,8 @@ public class SwaggerPluginTest
 	public void shouldReturnAnnotationsApi()
 	{
 		Response r = get("/api-docs/annotations");
+		String json = r.asString();
+		System.out.println(json);
 		SwaggerAssert.common(r);
 		r.then()
 			.body("basePath", equalTo(BASE_URL))
@@ -294,7 +296,8 @@ public class SwaggerPluginTest
 			.root("apis[%s].%s")
 			.body(withArgs(0, "path"), is("/annotations/{userId}/users"))
 			.body(withArgs(0, "description"), is("Read with Annotations"))
-			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "GET")))			
+			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "GET")))
+			.body(withArgs(0, "operations"), hasItem(hasEntry("type", "Another")))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("nickname", "GET Read with Annotations")))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("summary", "Read with Annotations.")))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("notes", "More detailed description here.")));

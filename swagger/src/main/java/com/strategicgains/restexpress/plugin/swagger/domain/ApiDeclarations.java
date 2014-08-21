@@ -125,20 +125,21 @@ public class ApiDeclarations
 		// the method has a valid response type this will get set to Void.  Do we want to default to 
 		// Reflection if response is Void?  Only issue with this is if the method returns an object,
 		// but the response is explicitly set to Void.
+		DataType returnType = null;
 		if(operation.getResponse() != null && operation.getResponse() != Void.class) {
-			operation.setType(operation.getResponse().getSimpleName());
+			//operation.setType(operation.getResponse().getSimpleName());
+			returnType = resolver.resolve(operation.getResponse());
 		} else {
-			DataType returnType = resolver.resolve(route.getAction().getGenericReturnType());
-
-			if (returnType.getRef() != null)
-			{
-				operation.setType(returnType.getRef());
-			}
-			else
-			{
-				operation.setType(returnType.getType());
-				operation.setItems(returnType.getItems());
-			}
+			returnType = resolver.resolve(route.getAction().getGenericReturnType());
+		}
+		if (returnType.getRef() != null)
+		{
+			operation.setType(returnType.getRef());
+		}
+		else
+		{
+			operation.setType(returnType.getType());
+			operation.setItems(returnType.getItems());
 		}
 
 		ApiModelRequest apiModelRequest = route.getAction().getAnnotation(

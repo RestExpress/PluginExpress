@@ -73,8 +73,9 @@ public class DummyController
 	}
 	
 	@ApiOperation(value = "Read with Annotations.", 
-		notes = "More detailed description here.")
-	public Another readWithApiOperationAnnotation(Request request, Response response) 
+		notes = "More detailed description here.",
+		response = Another.class)
+	public AnotherReturnType readWithApiOperationAnnotation(Request request, Response response) 
 	{
 		return null;
 	}
