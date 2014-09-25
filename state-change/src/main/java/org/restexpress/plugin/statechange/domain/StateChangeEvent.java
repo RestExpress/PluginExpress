@@ -15,12 +15,12 @@
  */
 package org.restexpress.plugin.statechange.domain;
 
-public class StateChangeEvent
+public class StateChangeEvent<T>
 {
-	public Object data;
+	public T data;
 	public StateChange changeType;
 	
-	public StateChangeEvent(StateChange changeType, Object data)
+	public StateChangeEvent(StateChange changeType, T data)
 	{
 		this.data = data;
 		this.changeType = changeType;

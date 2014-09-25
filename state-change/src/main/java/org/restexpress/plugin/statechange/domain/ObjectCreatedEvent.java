@@ -15,10 +15,10 @@
  */
 package org.restexpress.plugin.statechange.domain;
 
-public class ObjectCreatedEvent
-extends StateChangeEvent
+public class ObjectCreatedEvent<T>
+extends StateChangeEvent<T>
 {
-	public ObjectCreatedEvent(Object data)
+	public ObjectCreatedEvent(T data)
 	{
 		super(StateChange.CREATED, data);
 	}

@@ -15,10 +15,10 @@
  */
 package org.restexpress.plugin.statechange.domain;
 
-public class ObjectDeletedEvent
-extends StateChangeEvent
+public class ObjectDeletedEvent<T>
+extends StateChangeEvent<T>
 {
-	public ObjectDeletedEvent(Object data)
+	public ObjectDeletedEvent(T data)
 	{
 		super(StateChange.DELETED, data);
 	}
