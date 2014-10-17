@@ -44,12 +44,45 @@ public class ApiDeclarations
 	private transient Map<String, ApiDeclaration> apisByPath = new LinkedHashMap<String, ApiDeclaration>();
 	private Map<String, ApiModel> models = new HashMap<String, ApiModel>();
 
+	public ApiDeclarations(ApiDeclarations that)
+	{
+		this.apiVersion = that.apiVersion;
+		this.swaggerVersion = that.swaggerVersion;
+		this.basePath = that.basePath;
+		this.resourcePath = that.resourcePath;
+		this.consumes = that.consumes;
+		this.produces = that.produces;
+		this.apis = that.apis;
+		this.apisByPath = that.apisByPath;
+		this.models = that.models;
+	}
+
 	public ApiDeclarations(ApiResources api, RestExpress server, String path)
 	{
 		this.apiVersion = api.getApiVersion();
 		this.swaggerVersion = api.getSwaggerVersion();
-		this.basePath = server.getBaseUrl();
+		this.basePath = computeBasePath(server.getBaseUrl());
 		this.resourcePath = path;
+	}
+
+	private String computeBasePath(String baseUrl)
+    {
+		return ((baseUrl == null || (baseUrl.startsWith("{") && baseUrl.endsWith("}"))) ? null : baseUrl);
+    }
+
+	public String getBasePath()
+	{
+		return basePath;
+	}
+
+	public boolean hasBasePath()
+	{
+		return (basePath != null);
+	}
+
+	public void setBasePath(String basePath)
+	{
+		this.basePath = basePath;
 	}
 
 	public void addApi(ApiDeclaration api)

@@ -77,6 +77,13 @@ implements Callback<RouteBuilder>
 
 		if (api == null) throw new NotFoundException(path);
 
+		if (!api.hasBasePath())
+		{
+			ApiDeclarations apid = new ApiDeclarations(api);
+			apid.setBasePath(request.getBaseUrl());
+			return apid;
+		}
+
 		return api;
 	}
 

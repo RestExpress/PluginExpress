@@ -15,16 +15,12 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
-import org.restexpress.plugin.AbstractPlugin;
+import org.restexpress.plugin.RoutePlugin;
 import org.restexpress.route.RouteBuilder;
 
 /**
@@ -32,7 +28,7 @@ import org.restexpress.route.RouteBuilder;
  * @since Nov 21, 2013
  */
 public class SwaggerPlugin
-extends AbstractPlugin
+extends RoutePlugin
 {
 	private static final String SWAGGER_VERSION = "1.2";
 
@@ -40,8 +36,6 @@ extends AbstractPlugin
 	private String urlPath;
 	private String apiVersion;
 	private String swaggerVersion = SWAGGER_VERSION;
-	private List<String> flags = new ArrayList<String>();
-	private Map<String, Object> parameters = new HashMap<String, Object>();
 
 	public SwaggerPlugin()
 	{
@@ -81,13 +75,13 @@ extends AbstractPlugin
 		RouteBuilder apis = server.uri(urlPath + "/{path}", controller)
 		    .method(HttpMethod.GET).name("swagger.apis").format(Format.JSON);
 
-		for (String flag : flags)
+		for (String flag : flags())
 		{
 			resources.flag(flag);
 			apis.flag(flag);
 		}
 
-		for (Entry<String, Object> entry : parameters.entrySet())
+		for (Entry<String, Object> entry : parameters().entrySet())
 		{
 			resources.parameter(entry.getKey(), entry.getValue());
 			apis.parameter(entry.getKey(), entry.getValue());
@@ -100,27 +94,5 @@ extends AbstractPlugin
 	public void bind(RestExpress server)
 	{
 		controller.initialize(urlPath, server);
-	}
-
-	// RouteBuilder route augmentation delegates.
-
-	public SwaggerPlugin flag(String flagValue)
-	{
-		if (!flags.contains(flagValue))
-		{
-			flags.add(flagValue);
-		}
-
-		return this;
-	}
-
-	public SwaggerPlugin parameter(String name, Object value)
-	{
-		if (!parameters.containsKey(name))
-		{
-			parameters.put(name, value);
-		}
-
-		return this;
 	}
 }
