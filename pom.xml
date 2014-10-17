@@ -23,13 +23,14 @@
 		<module>swagger</module>
 		<module>state-change</module>
         <module>x-security</module>
+        <module>version</module>
 	</modules>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.strategicgains</groupId>
 			<artifactId>RestExpress</artifactId>
-			<version>0.10.4</version>
+			<version>0.10.5-SNAPSHOT</version>
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
