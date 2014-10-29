@@ -15,9 +15,15 @@
 */
 package org.restexpress.plugin.statechange;
 
+import static org.restexpress.plugin.statechange.StateChangePlugin.EFFECTIVE_HTTP_METHOD;
+import static org.restexpress.plugin.statechange.StateChangePlugin.HREF;
+import static org.restexpress.plugin.statechange.StateChangePlugin.HTTP_METHOD;
+import static org.restexpress.plugin.statechange.StateChangePlugin.TOKEN;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.restexpress.Request;
 import org.restexpress.pipeline.Preprocessor;
 
@@ -39,15 +45,20 @@ implements Preprocessor
 	@Override
 	public void process(Request request)
 	{
-		StateContext.put("httpMethod", request.getHttpMethod());
-		StateContext.put("href", request.getUrl());
-		StateContext.put("effectiveHttpMethod", request.getEffectiveHttpMethod());
+		StateContext.put(HTTP_METHOD, request.getHttpMethod());
+		StateContext.put(HREF, request.getUrl());
+		StateContext.put(EFFECTIVE_HTTP_METHOD, request.getEffectiveHttpMethod());
 
-		String token = request.getHeader("Authorization");
+		String token = request.getHeader(HttpHeaders.Names.AUTHORIZATION);
+
+		if (token == null)
+		{
+			token = request.getHeader("X-Authorization");
+		}
 
 		if (token != null)
 		{
-			StateContext.put("authorization", token);
+			StateContext.put(TOKEN, token);
 		}
 
 		for (Enricher enricher : enrichers)

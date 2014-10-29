@@ -35,6 +35,11 @@ import org.restexpress.plugin.AbstractPlugin;
 public class StateChangePlugin
 extends AbstractPlugin
 {
+	public static final String EFFECTIVE_HTTP_METHOD = "effectiveHttpMethod";
+	public static final String HREF = "href";
+	public static final String HTTP_METHOD = "httpMethod";
+	public static final String TOKEN = "token";
+
 	private StateChangePreprocessor preprocessor = new StateChangePreprocessor();
 
 	@Override
