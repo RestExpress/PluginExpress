@@ -56,6 +56,11 @@ public class SwaggerPluginTest
 
 		DummyController controller = new DummyController();
 		SERVER.setBaseUrl(BASE_URL);
+
+		SERVER.uri("/", controller)
+			.action("health", HttpMethod.GET)
+			.name("root");
+
 		SERVER.uri("/anothers/{userId}", controller)
 			.action("readAnother", HttpMethod.GET);
 
@@ -158,6 +163,7 @@ public class SwaggerPluginTest
 		System.out.println(r.asString());
 		SwaggerAssert.common(r);
 		r.then()
+			.body("apis", not(hasItem(hasEntry("path", "/"))))
 			.body("apis", hasItem(hasEntry("path", "/anothers")))
 			.body("apis", hasItem(hasEntry("path", "/users")))
 			.body("apis", hasItem(hasEntry("path", "/orders")))
