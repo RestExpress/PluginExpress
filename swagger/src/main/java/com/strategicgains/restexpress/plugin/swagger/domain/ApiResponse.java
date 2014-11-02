@@ -13,12 +13,12 @@ extends DataType
 	private int code;
 
 	// Reason for the response code used.
-	private String reason;
+	private String message;
 
 	public ApiResponse(int code, String message)
 	{
 		this.code = code;
-		this.reason = message;
+		this.message = message;
 	}
 
 	public int getCode()
@@ -26,8 +26,8 @@ extends DataType
 		return code;
 	}
 
-	public String getReason()
+	public String getMessage()
 	{
-		return reason;
+		return message;
 	}
 }

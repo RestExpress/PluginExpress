@@ -275,7 +275,20 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"resourcePath\":\"/health\""));
 		request.releaseConnection();
 	}
-	
+
+	@Test
+	public void testParametersArrayAlwaysExist()
+	throws ClientProtocolException, IOException
+	{
+		HttpGet request = new HttpGet("http://localhost:9001/api-docs/health");
+		HttpResponse response = (HttpResponse) http.execute(request);
+		HttpEntity entity = response.getEntity();
+		String json = EntityUtils.toString(entity);
+//		System.out.println(json);
+		assertTrue(json.contains("\"parameters\":[]"));
+		request.releaseConnection();
+	}
+
 	/**
 	 * Test controller methods with Swagger annotations return the
 	 * expected json values.
@@ -303,11 +316,11 @@ public class SwaggerPluginTest
 		r.then()
 			.root("apis[1].operations[0].responseMessages[%s].%s")
 			.body(withArgs(0, "code"), is(204))
-			.body(withArgs(0, "reason"), is("Successful update"))
+			.body(withArgs(0, "message"), is("Successful update"))
 			.body(withArgs(1, "code"), is(404))
-			.body(withArgs(1, "reason"), is("Item not found"))
+			.body(withArgs(1, "message"), is("Item not found"))
 			.body(withArgs(2, "code"), is(400))
-			.body(withArgs(2, "reason"), is("Item id incorrect format"));
+			.body(withArgs(2, "message"), is("Item id incorrect format"));
 		
 		// For third api verify the parameters are being returned correctly.
 		r.then()
