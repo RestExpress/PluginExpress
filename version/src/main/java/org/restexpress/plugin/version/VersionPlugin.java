@@ -20,6 +20,7 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.plugin.RoutePlugin;
+import org.restexpress.route.RouteBuilder;
 
 /**
  * Provides a '/version' route URL in your API to provide the version.
@@ -52,9 +53,16 @@ extends RoutePlugin
 	@Override
 	public VersionPlugin register(RestExpress restExpress)
 	{
-		restExpress.uri(path, this)
+		if (isRegistered()) return this;
+
+		super.register(restExpress);
+
+		RouteBuilder rb = restExpress.uri(path, this)
 		    .method(HttpMethod.GET)
 		    .name("PluginExpress.version");
+
+		applyFlags(rb);
+		applyParameters(rb);
 
 		return this;
 	}
