@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>Auth0 Plugin</name>
+	<description>Auth0 functionality for RestExpress</description>
+	<url>https://github.com/RestExpress/PluginExpress</url>
+	<artifactId>Auth0Plugin</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>com.strategicgains.plugin-express</groupId>
+		<artifactId>PluginExpress-Parent</artifactId>
+		<version>0.2.6-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+	    <groupId>com.auth0</groupId>
+	    <artifactId>java-jwt</artifactId>
+	    <version>0.5</version>
+	</dependency>
+	</dependencies>
+</project>
