@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.restexpress.Flags;
 import org.restexpress.Request;
 import org.restexpress.exception.UnauthorizedException;
 import org.restexpress.pipeline.Preprocessor;
@@ -53,6 +54,9 @@ implements Preprocessor
 	@Override
 	public void process(Request request)
 	{
+		if (request.isFlagged(Flags.Auth.PUBLIC_ROUTE)
+			|| request.isFlagged(Flags.Auth.NO_AUTHENTICATION)) return;
+			
 		String token = getToken(request);
 
 		try
