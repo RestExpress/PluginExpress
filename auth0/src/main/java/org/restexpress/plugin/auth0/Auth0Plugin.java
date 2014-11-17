@@ -35,20 +35,6 @@ extends AbstractPlugin
 		this.auth0 = new Auth0Preprocessor(clientId, secrect);
 	}
 
-	/**
-	 * After Auth0 authenticates the JWT, extract the 'from' properties
-	 * attaching them to the Request (as attachments) using the 'to' name.
-	 * 
-	 * @param from the name of a JWT property to extract.
-	 * @param to the name to give the Request attachment.
-	 * @return this plugin.
-	 */
-	public Auth0Plugin extractJwt(String from, String to)
-	{
-		auth0.map(from, to);
-		return this;
-	}
-
 	@Override
 	public Auth0Plugin register(RestExpress server)
 	{

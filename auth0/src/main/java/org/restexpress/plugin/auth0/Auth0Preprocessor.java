@@ -15,9 +15,7 @@
  */
 package org.restexpress.plugin.auth0;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,25 +28,29 @@ import org.restexpress.pipeline.Preprocessor;
 import com.auth0.jwt.JWTVerifier;
 
 /**
+ * Extracts the Auth0 JWT token, decodes it and places it as an attachment on the request.
+ * Supports use of Flags.Auth.PUBLIC_ROUTE and Flags.Auth.NO_AUTHENTICATION, which both
+ * cause all Auth0 processing to be skipped: no token is attached to the request.
+ * 
  * @author toddf
  * @since Nov 16, 2014
  */
 public class Auth0Preprocessor
 implements Preprocessor
 {
+	/*
+	 * Name given to the Request attachment that may be used to retrieve the decoded JWT.
+	 * <p/>
+	 * For example: Map<String, Object> jwt = request.getAttachment(Auth0Preprocessor.AUTH0_JWT);
+	 */
+	public static final String AUTH0_JWT = "auth0.jwt";
 	private static final Pattern PATTERN = Pattern.compile("^Bearer (.*)$", Pattern.CASE_INSENSITIVE);
 
 	private JWTVerifier jwtVerifier;
-	private Map<String, String> tokenMap = new HashMap<String, String>();
 
 	public Auth0Preprocessor(String clientId, String secret)
 	{
 		jwtVerifier = new JWTVerifier(clientId, secret);
-	}
-
-	public void map(String from, String to)
-	{
-		tokenMap.put(from, to);
 	}
 
 	@Override
@@ -62,7 +64,7 @@ implements Preprocessor
 		try
 		{
 			Map<String, Object> decoded = jwtVerifier.verify(token);
-			mapTokenValues(decoded, request);
+			request.putAttachment(AUTH0_JWT, decoded);
 		}
 		catch (Exception e)
 		{
@@ -91,17 +93,4 @@ implements Preprocessor
 			throw new UnauthorizedException("Format is Authorization: Bearer [token]");
 		}
 	}
-
-	private void mapTokenValues(Map<String, Object> jwt, Request request)
-    {
-		for (Entry<String, String> entry : tokenMap.entrySet())
-		{
-			Object value = jwt.get(entry.getKey());
-
-			if (value != null)
-			{
-				request.putAttachment(entry.getValue(), value);
-			}
-		}
-    }
 }
