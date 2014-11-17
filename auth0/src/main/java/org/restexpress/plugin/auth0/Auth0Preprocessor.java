@@ -68,7 +68,7 @@ implements Preprocessor
 		}
 		catch (Exception e)
 		{
-			throw new UnauthorizedException("Token validation failed", e);
+			throw new UnauthorizedException("Token validation failed");
 		}
 	}
 
