@@ -10,6 +10,7 @@ import org.restexpress.common.exception.ConfigurationException;
  * <ul>
  * <li>auth0.clientId - the Auth0 client ID assigned to your account</li>
  * <li>auth0.secret - the Auth0 secret assigned to your account</li>
+ * <li>auth0.domain - the Auth0 domain name assigned to your account (not required)</li>
  * </ul>
  * A sample configuration looks something like the following:
  * <p/>
@@ -23,11 +24,13 @@ import org.restexpress.common.exception.ConfigurationException;
  */
 public class Auth0Config
 {
-	private static final String CLIENT_ID_PROPERTY = "cors.clientId";
-	private static final String CLIENT_SECRET_PROPERTY = "cors.secret";
+	private static final String CLIENT_ID_PROPERTY = "auth0.clientId";
+	private static final String CLIENT_SECRET_PROPERTY = "auth0.clientSecret";
+	private static final String AUTH0_DOMAIN_PROPERTY = "auth0.domain";
 
 	private String clientId;
 	private String secret;
+	private String domain;
 
 	public Auth0Config(Properties p)
 	{
@@ -44,6 +47,8 @@ public class Auth0Config
 		{
 			throw new ConfigurationException("Please define Auth0 secret for property: " + CLIENT_SECRET_PROPERTY);
 		}
+
+		domain = p.getProperty(AUTH0_DOMAIN_PROPERTY);
 	}
 
 	public String getClientId()
@@ -54,5 +59,10 @@ public class Auth0Config
 	public String getSecret()
 	{
 		return secret;
+	}
+
+	public String getDomain()
+	{
+		return domain;
 	}
 }
