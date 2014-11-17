@@ -50,7 +50,7 @@ implements Preprocessor
 
 	public Auth0Preprocessor(String clientId, String secret)
 	{
-		jwtVerifier = new JWTVerifier(clientId, secret);
+		jwtVerifier = new JWTVerifier(secret, clientId);
 	}
 
 	@Override
