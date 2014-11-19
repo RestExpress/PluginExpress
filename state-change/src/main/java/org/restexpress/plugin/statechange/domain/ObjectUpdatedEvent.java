@@ -20,6 +20,6 @@ extends StateChangeEvent<T>
 {
 	public ObjectUpdatedEvent(T after)
 	{
-		super(StateChange.UPDATED, after);
+		super(after);
 	}
 }

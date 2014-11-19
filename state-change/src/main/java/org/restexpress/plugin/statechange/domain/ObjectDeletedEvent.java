@@ -20,6 +20,6 @@ extends StateChangeEvent<T>
 {
 	public ObjectDeletedEvent(T data)
 	{
-		super(StateChange.DELETED, data);
+		super(data);
 	}
 }
