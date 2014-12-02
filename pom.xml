@@ -6,7 +6,7 @@
 	<url>https://github.com/RestExpress/PluginExpress</url>
 	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>PluginExpress-Parent</artifactId>
-	<version>0.2.6</version>
+	<version>0.2.7-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
