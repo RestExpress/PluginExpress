@@ -25,6 +25,7 @@
         <module>x-security</module>
         <module>version</module>
         <module>auth0</module>
+		<module>logging</module>
 	</modules>
 
 	<dependencies>
