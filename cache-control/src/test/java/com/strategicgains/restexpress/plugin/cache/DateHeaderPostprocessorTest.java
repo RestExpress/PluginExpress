@@ -15,24 +15,23 @@
 */
 package com.strategicgains.restexpress.plugin.cache;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.text.ParseException;
-import java.util.Date;
-
-import io.netty.handler.codec.http.DefaultHttpRequest;
+import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import org.junit.Test;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
 
-import com.strategicgains.util.date.HttpHeaderTimestampAdapter;
+import java.text.ParseException;
+import java.util.Date;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author toddf
@@ -46,8 +45,8 @@ public class DateHeaderPostprocessorTest
 	public void shouldAddDateHeaderOnGet()
 	throws ParseException
 	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
+		FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.headers().add("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
 		assertTrue(response.hasHeaders());
@@ -61,8 +60,8 @@ public class DateHeaderPostprocessorTest
 	public void shouldAddDateHeaderOnHead()
 	throws ParseException
 	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.HEAD, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.HEAD, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.headers().add("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
 		assertTrue(response.hasHeaders());
@@ -75,8 +74,8 @@ public class DateHeaderPostprocessorTest
 	@Test
 	public void shouldNotAddDateHeaderOnPost()
 	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.headers().add("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
 		assertFalse(response.hasHeader(HttpHeaders.Names.DATE));
@@ -85,8 +84,8 @@ public class DateHeaderPostprocessorTest
 	@Test
 	public void shouldNotAddDateHeaderOnPut()
 	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.PUT, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.headers().add("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
 		assertFalse(response.hasHeader(HttpHeaders.Names.DATE));
@@ -95,8 +94,8 @@ public class DateHeaderPostprocessorTest
 	@Test
 	public void shouldNotAddDateHeaderOnDelete()
 	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.DELETE, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.headers().add("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
 		assertFalse(response.hasHeader(HttpHeaders.Names.DATE));
@@ -105,8 +104,8 @@ public class DateHeaderPostprocessorTest
 	@Test
 	public void shouldNotAddDateHeaderOnOptions()
 	{
-		HttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.OPTIONS, "/foo?param1=bar&param2=blah&yada");
-		httpRequest.addHeader("Host", "testing-host");
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.OPTIONS, "/foo?param1=bar&param2=blah&yada");
+		httpRequest.headers().add("Host", "testing-host");
 		Response response = new Response();
 		processor.process(new Request(httpRequest, null), response);
 		assertFalse(response.hasHeader(HttpHeaders.Names.DATE));
