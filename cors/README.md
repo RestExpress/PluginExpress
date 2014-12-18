@@ -77,7 +77,7 @@ new CorsHeaderPlugin("*")							// Array of domain strings.
 
 To be more specific, my common CORS configuration is:
 ```java
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static org.restexpress.Flags.Auth.PUBLIC_ROUTE;
 
 new CorsHeaderPlugin("*")
