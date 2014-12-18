@@ -15,13 +15,13 @@
 */
 package com.strategicgains.restexpress.plugin.cache;
 
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.PRAGMA;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
+import static io.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
+import static io.netty.handler.codec.http.HttpHeaders.Names.PRAGMA;
 
 import java.util.Date;
 
-import org.jboss.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Flags;
 import org.restexpress.Parameters;
 import org.restexpress.Request;
