@@ -76,7 +76,7 @@ public class LogOutputFactory
 		builder.append("Time=" + ((DateFormat) DATE_FORMAT.clone()).format(new Date()));
 		builder.append(" RequestTime=" + duration);
 		builder.append(" URL=" + request.getUrl());
-		builder.append(" Method=" + request.getHttpMethod().getName());
+		builder.append(" Method=" + request.getHttpMethod().name());
 		builder.append(" Format=" + request.getFormat());
 		
 		if (request.getResolvedRoute() != null)
@@ -90,7 +90,7 @@ public class LogOutputFactory
 		}
 
 		builder.append(" CorrelationId=" + request.getCorrelationId());
-		builder.append(" Status=" + response.getResponseStatus().getCode());
+		builder.append(" Status=" + response.getResponseStatus().code());
 
 		if (request.getHeader("User-Agent") != null)
 		{

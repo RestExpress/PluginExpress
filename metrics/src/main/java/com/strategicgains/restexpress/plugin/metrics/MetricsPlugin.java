@@ -18,7 +18,7 @@ package com.strategicgains.restexpress.plugin.metrics;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
@@ -178,12 +178,12 @@ implements Plugin, Preprocessor, Postprocessor
 			}
 		}
 
-		Counter responseCounter = COUNTERS_BY_RESPONSE.get(response.getResponseStatus().getCode());
+		Counter responseCounter = COUNTERS_BY_RESPONSE.get(response.getResponseStatus().code());
 		
 		if (responseCounter == null)
 		{
 			responseCounter = metrics.counter(getResponseCounterName(response.getResponseStatus()));
-			COUNTERS_BY_RESPONSE.putIfAbsent(response.getResponseStatus().getCode(), responseCounter);
+			COUNTERS_BY_RESPONSE.putIfAbsent(response.getResponseStatus().code(), responseCounter);
 		}
 
 		responseCounter.inc();
@@ -284,6 +284,6 @@ implements Plugin, Preprocessor, Postprocessor
 
 	private String getResponseCounterName(HttpResponseStatus responseStatus)
     {
-	    return responseStatus.getCode() + "-" + responseStatus.getReasonPhrase() + "-count";
+	    return responseStatus.code() + "-" + responseStatus.reasonPhrase() + "-count";
     }
 }
