@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<name>PluginExpress</name>
 	<description>RESTExpress Plugins</description>
 	<url>https://github.com/RestExpress/PluginExpress</url>
@@ -8,26 +7,24 @@
 	<artifactId>PluginExpress-Parent</artifactId>
 	<version>0.2.7-SNAPSHOT</version>
 	<packaging>pom</packaging>
-
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	
 	<modules>
+		<module>annotation</module>
 		<module>cors</module>
 		<module>routes</module>
 		<module>cache-control</module>
 		<module>metrics</module>
 		<module>swagger</module>
 		<module>state-change</module>
-        <module>x-security</module>
-        <module>version</module>
-        <module>auth0</module>
+		<module>x-security</module>
+		<module>version</module>
+		<module>auth0</module>
 		<module>logging</module>
 	</modules>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.strategicgains</groupId>
@@ -37,10 +34,10 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-		      <groupId>com.jayway.restassured</groupId>
-		      <artifactId>rest-assured</artifactId>
-		      <version>2.3.1</version>
-		      <scope>test</scope>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>2.3.1</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -59,7 +56,6 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -117,19 +113,16 @@
 			</plugin>
 		</plugins>
 	</build>
-
 	<issueManagement>
 		<system>GitHub.com</system>
 		<url>https://github.com/RestExpress/PluginExpress/issues</url>
 	</issueManagement>
-
 	<scm>
 		<url>git@github.com:RestExpress/PluginExpress.git</url>
 		<connection>scm:git:git@github.com:RestExpress/PluginExpress.git</connection>
 		<developerConnection>scm:git:git@github.com:RestExpress/PluginExpress.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -137,7 +130,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
 	<developers>
 		<developer>
 			<id>tfredrich</id>
