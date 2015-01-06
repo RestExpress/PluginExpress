@@ -34,8 +34,26 @@ new AnnotationPlugin()
 
 Configuring controllers:
 ```java
-public class UserController implements AbstractController {
-    
+public class FakeController implements AnnotationController {
+
+    public Object create(Request request, Response response) {
+        return null;
+    }
+
+    public Object read(Request request, Response response) {
+        return null;
+    }
+
+    @Route(httpMethod="GET", name="user.all", uri="/users.{format}")
+    public List<Object> readAll(Request request, Response response) {
+        return Collections.emptyList();
+    }
+
+    public void update(Request request, Response response) {
+    }
+
+    public void delete(Request request, Response response) {
+    }
 }
 ```
 
