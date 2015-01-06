@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.ContentType;
+import org.restexpress.Flags;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
@@ -229,7 +230,11 @@ extends AbstractPlugin
 	    {
 	    	rb = server.uri(pattern, corsOptionsController)
 		    	.action("options", HttpMethod.OPTIONS)
-		    	.noSerialization();
+		    	.noSerialization()
+		    	// Disable both authentication and authorization which are usually use header such as X-Authorization.
+		    	// When browser does CORS preflight with OPTIONS request, such headers are not included.
+		    	.flag(Flags.Auth.PUBLIC_ROUTE)
+		    	.flag(Flags.Auth.NO_AUTHORIZATION);
 
 	    	for (String flag : flags)
 	    	{
