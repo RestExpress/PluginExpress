@@ -24,7 +24,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>MetricsPlugin</artifactId>
-			<version>0.2.2</version>
+			<version>0.2.6</version>
 		</dependency>
 ```
 Development:
@@ -32,7 +32,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>MetricsPlugin</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 

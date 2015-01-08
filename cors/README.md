@@ -10,7 +10,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CORSPlugin</artifactId>
-			<version>0.2.2</version>
+			<version>0.2.6</version>
 		</dependency>
 ```
 Development:
@@ -18,7 +18,7 @@ Development:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CORSPlugin</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
@@ -89,6 +89,10 @@ new CorsHeaderPlugin("*")
 
 Release Notes
 =============
+Release 0.3.0-SNAPSHOT (in branch 'master')
+-------------------------------------------
+* Updated to be compatible with RestExpress 0.11.0
+
 Release 0.2.3-SNAPSHOT (in branch 'master')
 -------------------------------------------
 * Added CorsConfig bean to simplify reading configuration from Properties.
