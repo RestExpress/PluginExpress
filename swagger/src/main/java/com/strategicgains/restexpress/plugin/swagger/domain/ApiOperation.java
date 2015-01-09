@@ -52,7 +52,7 @@ extends DataType
 			if (ao.notes() != null) notes = ao.notes();
 		}
 
-		this.method = route.getMethod().getName();
+		this.method = route.getMethod().name();
 		String name = route.getName();
 		this.nickname = method + (name == null ? "" : " " + name);
 

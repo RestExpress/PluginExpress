@@ -23,7 +23,7 @@ import static org.restexpress.plugin.statechange.StateChangePlugin.TOKEN;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.restexpress.Request;
 import org.restexpress.pipeline.Preprocessor;
 
