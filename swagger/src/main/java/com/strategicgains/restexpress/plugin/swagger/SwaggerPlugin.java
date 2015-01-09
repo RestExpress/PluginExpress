@@ -17,7 +17,7 @@ package com.strategicgains.restexpress.plugin.swagger;
 
 import java.util.Map.Entry;
 
-import org.jboss.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
 import org.restexpress.plugin.RoutePlugin;

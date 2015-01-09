@@ -15,9 +15,9 @@ package com.strategicgains.restexpress.plugin.cache;
 	limitations under the License.
 */
 
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.ETAG;
+import static io.netty.handler.codec.http.HttpHeaders.Names.ETAG;
 
-import org.jboss.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.pipeline.Postprocessor;
