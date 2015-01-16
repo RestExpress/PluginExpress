@@ -13,11 +13,35 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
  */
-package org.restexpress.plugin.statechange.domain;
+package org.restexpress.plugin.auth0;
 
-public enum StateChange
+import org.restexpress.RestExpress;
+import org.restexpress.plugin.AbstractPlugin;
+
+/**
+ * Implements Auth0 token authentication.
+ * 
+ * @author toddf
+ * @since Nov 16, 2014
+ */
+public class Auth0Plugin
+extends AbstractPlugin
 {
-	CREATED,
-	UPDATED,
-	DELETED
+	private Auth0Preprocessor auth0;
+
+	public Auth0Plugin(String clientId, String secrect)
+	{
+		super();
+		this.auth0 = new Auth0Preprocessor(clientId, secrect);
+	}
+
+	@Override
+	public Auth0Plugin register(RestExpress server)
+	{
+		if (isRegistered()) return this;
+
+		server.addPreprocessor(auth0);
+
+		return this;
+	}
 }
