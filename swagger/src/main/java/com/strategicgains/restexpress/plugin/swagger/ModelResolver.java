@@ -211,6 +211,10 @@ public class ModelResolver
 			{
 				node.setType(Primitives.BYTE);
 			}
+			else if (targetClass.getSimpleName().equals("ObjectId") )
+			{
+				node.setType(Primitives.STRING);
+			}
 			else if (Date.class.equals(target))
 			{
 				node.setType(Primitives.DATE_TIME);
