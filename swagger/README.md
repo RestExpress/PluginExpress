@@ -76,12 +76,13 @@ The Swagger Plugin now supports several swagger annotations.
 ### @ApiOperation
 [Swagger doc for ApiOperation](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiOperation.java)
 
-The two parameters that are supported in ApiOperation are value and notes.  Several of the other values are determined by inspecting the Route metadata.  These include response, httpMethod, and nickname.
+The two parameters that are supported in ApiOperation are value, notes and response.  Several of the other values are determined by inspecting the Route metadata.  These include response, httpMethod, and nickname.  If response is defined in the ApiOperation annotation, that will be used, if not, the response class will be set as the return object defined in the controller method.
 
 Example Usage:
 ```java
 @ApiOperation(value = "Get a specific course item",  // Brief description of the operation
-      notes = "This operation will return a specific course item as defined in the route.") // Detailed description of the operation
+      notes = "This operation will return a specific course item as defined in the route.", // Detailed description of the operation
+      response = Item.class) // Response type returned by the method.
 public Item getItem(Request request, Response response)
 ```
 

@@ -154,8 +154,17 @@ public class ApiDeclarations
 	public void addModels(ApiOperation operation, Route route)
 	{
 		ModelResolver resolver = new ModelResolver(models);
-		DataType returnType = resolver.resolve(route.getAction().getGenericReturnType());
-
+		// Swagger defaults response to Void.class, so if response was not set in the annotation and
+		// the method has a valid response type this will get set to Void.  Do we want to default to 
+		// Reflection if response is Void?  Only issue with this is if the method returns an object,
+		// but the response is explicitly set to Void.
+		DataType returnType = null;
+		if(operation.getResponse() != null && operation.getResponse() != Void.class) {
+			//operation.setType(operation.getResponse().getSimpleName());
+			returnType = resolver.resolve(operation.getResponse());
+		} else {
+			returnType = resolver.resolve(route.getAction().getGenericReturnType());
+		}
 		if (returnType.getRef() != null)
 		{
 			operation.setType(returnType.getRef());
@@ -167,14 +176,14 @@ public class ApiDeclarations
 		}
 
 		ApiModelRequest apiModelRequest = route.getAction().getAnnotation(
-		    ApiModelRequest.class);
+				ApiModelRequest.class);
 
 		if (apiModelRequest != null)
 		{
 			DataType bodyType = resolver.resolve(apiModelRequest.model(), apiModelRequest.modelName());
 			operation.addParameter(new ApiOperationParameters("body", "body",
-			    bodyType.getRef() != null ? bodyType.getRef() : bodyType
-			        .getType(), apiModelRequest.required()));
+					bodyType.getRef() != null ? bodyType.getRef() : bodyType
+							.getType(), apiModelRequest.required()));
 		}
 	}
 }
