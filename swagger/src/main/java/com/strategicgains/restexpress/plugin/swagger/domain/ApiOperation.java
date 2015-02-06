@@ -38,6 +38,8 @@ extends DataType
 
 	public ApiOperation(Route route)
 	{
+		this.parameters = new ArrayList<ApiOperationParameters>();
+
 		// TODO: use Swagger annotation on controller method, if present.
 		// Get the method from the route
 		Method m = route.getAction();
@@ -86,11 +88,6 @@ extends DataType
 	 */
 	public void addParameter(ApiOperationParameters param)
 	{
-		if (parameters == null)
-		{
-			parameters = new ArrayList<ApiOperationParameters>();
-		}
-
 		parameters.add(param);
 	}
 

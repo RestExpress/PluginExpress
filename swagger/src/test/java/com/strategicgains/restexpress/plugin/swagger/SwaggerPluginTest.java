@@ -275,7 +275,20 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"resourcePath\":\"/health\""));
 		request.releaseConnection();
 	}
-	
+
+	@Test
+	public void testParametersArrayAlwaysExist()
+	throws ClientProtocolException, IOException
+	{
+		HttpGet request = new HttpGet("http://localhost:9001/api-docs/health");
+		HttpResponse response = (HttpResponse) http.execute(request);
+		HttpEntity entity = response.getEntity();
+		String json = EntityUtils.toString(entity);
+//		System.out.println(json);
+		assertTrue(json.contains("\"parameters\":[]"));
+		request.releaseConnection();
+	}
+
 	/**
 	 * Test controller methods with Swagger annotations return the
 	 * expected json values.
