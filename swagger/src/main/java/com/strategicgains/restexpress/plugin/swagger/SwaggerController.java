@@ -122,7 +122,7 @@ implements Callback<RouteBuilder>
 	{
 		for (Route route : routeBuilder.build())
 		{
-			if (!VALID_METHODS.contains(route.getMethod().getName())) continue;
+			if (!VALID_METHODS.contains(route.getMethod().name())) continue;
 
 			String path = getPathSegment(route.getPattern());
 

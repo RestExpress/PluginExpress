@@ -18,7 +18,7 @@ package com.strategicgains.restexpress.plugin.route;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
 import org.restexpress.domain.metadata.RouteMetadata;

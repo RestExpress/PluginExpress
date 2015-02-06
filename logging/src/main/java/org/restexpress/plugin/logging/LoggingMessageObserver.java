@@ -54,7 +54,7 @@ extends MessageObserver
 	@Override
     protected void onException(Throwable exception, Request request, Response response)
     {
-		int status = response.getResponseStatus().getCode();
+		int status = response.getResponseStatus().code();
 		String message = createExceptionMessage(exception, request, response);
 
 		if (status >= 400 && status <= 499)
