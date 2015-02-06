@@ -129,6 +129,9 @@ implements Callback<RouteBuilder>
 			// Don't report the Swagger routes...
 			if (swaggerRoot.equals(path)) continue;
 
+			// Don't report the / route. It will not be resolved.
+			if ("/".equals(path)) continue;
+
 			ApiDeclarations apis = apisByPath.get(path);
 
 			if (apis == null) // new path to document
