@@ -1,5 +1,7 @@
 package com.strategicgains.restexpress.plugin.annotation;
 
+import io.netty.handler.codec.http.HttpMethod;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
@@ -8,7 +10,6 @@ import java.util.TreeMap;
 import net.sf.extcos.ComponentQuery;
 import net.sf.extcos.ComponentScanner;
 
-import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.RestExpress;
 import org.restexpress.plugin.AbstractPlugin;
 
