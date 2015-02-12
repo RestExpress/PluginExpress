@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.strategicgains.plugin-express</groupId>
 		<artifactId>PluginExpress-Parent</artifactId>
-		<version>0.2.7</version>
+		<version>0.2.8-SNAPSHOT</version>
 	</parent>
 
     <dependencies>
