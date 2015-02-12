@@ -6,6 +6,7 @@ package com.strategicgains.restexpress.plugin.cors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,7 +64,7 @@ extends AbstractPlugin
 	private String exposeHeadersHeader;
 	private String allowHeadersHeader;
 	private Long maxAge;
-	private Map<String, Set<HttpMethod>> methodsByPattern = new HashMap<String, Set<HttpMethod>>();
+	private Map<String, Set<HttpMethod>> methodsByPattern = new LinkedHashMap<String, Set<HttpMethod>>();
 	private List<RouteBuilder> routeBuilders = new ArrayList<RouteBuilder>();
 	private boolean isPreflightSupported = true;
 	private List<String> flags = new ArrayList<String>();
