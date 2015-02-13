@@ -10,7 +10,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>CORSPlugin</artifactId>
-			<version>0.2.6</version>
+			<version>0.2.7</version>
 		</dependency>
 ```
 Development:
