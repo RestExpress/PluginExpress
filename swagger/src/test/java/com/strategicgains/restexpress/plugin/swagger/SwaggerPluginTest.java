@@ -112,10 +112,9 @@ public class SwaggerPluginTest
 			.action("health", HttpMethod.GET)
 			.name("health");
 
-
-        SERVER.uri("/nicknametest", controller)
-                .method(HttpMethod.GET)
-                .name(" |nickName sh0uld_str1p-CHARS$. ");
+		SERVER.uri("/nicknametest", controller)
+			.method(HttpMethod.GET)
+			.name(" |nickName sh0uld_str1p-CHARS$. ");
 		
 		SERVER.uri("/annotations/{userId}/users", controller)
 			.action("readWithApiOperationAnnotation", HttpMethod.GET)
@@ -287,20 +286,20 @@ public class SwaggerPluginTest
 		request.releaseConnection();
 	}
 
-    @Test
-    public void testNickname()
-            throws ClientProtocolException, IOException
-    {
-        HttpGet request = new HttpGet("http://localhost:9001/api-docs/nicknametest");
-        HttpResponse response = (HttpResponse) http.execute(request);
-        HttpEntity entity = response.getEntity();
-        String json = EntityUtils.toString(entity);
-        assertTrue(json.contains("\"apiVersion\":\"1.0\""));
-        assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
-        assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
-        assertTrue(json.contains("\"nickname\":\"GETnickNamesh0uld_str1pCHARS\""));
-        request.releaseConnection();
-    }
+	@Test
+	public void testNickname()
+	throws ClientProtocolException, IOException
+	{
+		HttpGet request = new HttpGet("http://localhost:9001/api-docs/nicknametest");
+		HttpResponse response = (HttpResponse) http.execute(request);
+		HttpEntity entity = response.getEntity();
+		String json = EntityUtils.toString(entity);
+		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
+		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
+		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
+		assertTrue(json.contains("\"nickname\":\"GETnickNamesh0uld_str1pCHARS\""));
+		request.releaseConnection();
+	}
 
 	@Test
 	public void testParametersArrayAlwaysExist()
