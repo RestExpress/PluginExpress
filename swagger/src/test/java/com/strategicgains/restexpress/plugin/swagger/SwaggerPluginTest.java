@@ -111,6 +111,10 @@ public class SwaggerPluginTest
 			.flag("somevalue")
 			.action("health", HttpMethod.GET)
 			.name("health");
+
+		SERVER.uri("/nicknametest", controller)
+			.method(HttpMethod.GET)
+			.name(" |nickName sh0uld_str1p-CHARS$. ");
 		
 		SERVER.uri("/annotations/{userId}/users", controller)
 			.action("readWithApiOperationAnnotation", HttpMethod.GET)
@@ -160,7 +164,7 @@ public class SwaggerPluginTest
 	throws Exception
 	{
 		Response r = get("/api-docs");
-		System.out.println(r.asString());
+		//System.out.println(r.asString());
 		SwaggerAssert.common(r);
 		r.then()
 			.body("apis", not(hasItem(hasEntry("path", "/"))))
@@ -177,7 +181,7 @@ public class SwaggerPluginTest
 	public void shouldReturnUsersApi()
 	{
 		Response r = get("/api-docs/users");
-		System.out.println(r.asString());
+		//System.out.println(r.asString());
 		SwaggerAssert.common(r);
 		r.then()
 			.body("basePath", equalTo(BASE_URL))
@@ -223,13 +227,13 @@ public class SwaggerPluginTest
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
 		assertTrue(json.contains("\"resourcePath\":\"/users\""));
-		assertTrue(json.contains("\"nickname\":\"GET Users Collection\""));
-		assertTrue(json.contains("\"nickname\":\"POST Users Collection\""));
-		assertFalse(json.contains("\"nickname\":\"OPTIONS Users Collection\""));
-		assertTrue(json.contains("\"nickname\":\"GET Individual User\""));
-		assertTrue(json.contains("\"nickname\":\"PUT Individual User\""));
-		assertTrue(json.contains("\"nickname\":\"DELETE Individual User\""));
-		assertFalse(json.contains("\"nickname\":\"OPTIONS Individual User\""));
+		assertTrue(json.contains("\"nickname\":\"GETUsersCollection\""));
+		assertTrue(json.contains("\"nickname\":\"POSTUsersCollection\""));
+		assertFalse(json.contains("\"nickname\":\"OPTIONSUsersCollection\""));
+		assertTrue(json.contains("\"nickname\":\"GETIndividualUser\""));
+		assertTrue(json.contains("\"nickname\":\"PUTIndividualUser\""));
+		assertTrue(json.contains("\"nickname\":\"DELETEIndividualUser\""));
+		assertFalse(json.contains("\"nickname\":\"OPTIONSIndividualUser\""));
 		assertTrue(json.contains("\"summary\":\"\""));
 		request.releaseConnection();
 	}
@@ -283,6 +287,21 @@ public class SwaggerPluginTest
 	}
 
 	@Test
+	public void testNickname()
+	throws ClientProtocolException, IOException
+	{
+		HttpGet request = new HttpGet("http://localhost:9001/api-docs/nicknametest");
+		HttpResponse response = (HttpResponse) http.execute(request);
+		HttpEntity entity = response.getEntity();
+		String json = EntityUtils.toString(entity);
+		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
+		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
+		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
+		assertTrue(json.contains("\"nickname\":\"GETnickNamesh0uld_str1pCHARS\""));
+		request.releaseConnection();
+	}
+
+	@Test
 	public void testParametersArrayAlwaysExist()
 	throws ClientProtocolException, IOException
 	{
@@ -304,7 +323,7 @@ public class SwaggerPluginTest
 	{
 		Response r = get("/api-docs/annotations");
 		String json = r.asString();
-		System.out.println(json);
+		//System.out.println(json);
 		SwaggerAssert.common(r);
 		r.then()
 			.body("basePath", equalTo(BASE_URL))
@@ -317,7 +336,7 @@ public class SwaggerPluginTest
 			.body(withArgs(0, "description"), is("Read with Annotations"))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "GET")))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("type", "Another")))
-			.body(withArgs(0, "operations"), hasItem(hasEntry("nickname", "GET Read with Annotations")))
+			.body(withArgs(0, "operations"), hasItem(hasEntry("nickname", "GETReadwithAnnotations")))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("summary", "Read with Annotations.")))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("notes", "More detailed description here.")));
 		
