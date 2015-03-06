@@ -26,6 +26,7 @@ import com.strategicgains.restexpress.plugin.swagger.domain.ApiModel;
 import com.strategicgains.restexpress.plugin.swagger.domain.DataType;
 import com.strategicgains.restexpress.plugin.swagger.domain.Items;
 import com.strategicgains.restexpress.plugin.swagger.domain.Primitives;
+import com.strategicgains.restexpress.plugin.swagger.utilities.SwaggerObjectConverter;
 import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelProperty;
 
 /**
@@ -317,6 +318,7 @@ public class ModelResolver
                         .setDescription(propertyMetadata.notes)
                         .setRequired(propertyMetadata.required)
                         .setPosition(propertyMetadata.position)
+                        .setDefaultValue(propertyMetadata.defaultValue)
                         .setProperty(field.getName());
                     properties.put(field.getName(), property);
                 }
@@ -357,7 +359,6 @@ public class ModelResolver
                 {
                     ApiModelProperty model = (ApiModelProperty) a;
                     propertyMetadata = new PropertyMetadata();
-                    propertyMetadata.value = model.value();
                     propertyMetadata.allowableValues = model.allowableValues();
                     propertyMetadata.access = model.access();
                     propertyMetadata.notes = model.notes();
@@ -367,6 +368,22 @@ public class ModelResolver
                     propertyMetadata.position = model.position();
                     propertyMetadata.hidden = model.hidden();
                     propertyMetadata.excludeFromModels = model.excludeFromModels();
+                    if(model.defaultValue() != null && model.defaultValue() != "")
+                    {
+                    	try
+                    	{
+    	        	    	if(field.getType().isArray()) {
+    	        	    		propertyMetadata.defaultValue = SwaggerObjectConverter.convertObjectTo(model.defaultValue(), field.getType().getComponentType());
+    	        	    	}
+    	        	    	else {
+    	        	    		propertyMetadata.defaultValue = SwaggerObjectConverter.convertObjectTo(model.defaultValue(), field.getType());
+    	        	    	}
+                    	}
+                    	catch(Exception ex)
+                    	{
+                    		
+                    	}
+                    }
                     break;
                 }
                 else if (a instanceof com.wordnik.swagger.annotations.ApiModelProperty)
@@ -400,6 +417,6 @@ public class ModelResolver
         int position = 0;
         boolean hidden = false;
         String[] excludeFromModels = {};
+        Object defaultValue = null;
     }
-
 }

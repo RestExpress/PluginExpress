@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApiModelProperty {
-    String value() default "";
+    String defaultValue() default "";
     String allowableValues() default "";
     String access() default "";
     String notes() default "";
