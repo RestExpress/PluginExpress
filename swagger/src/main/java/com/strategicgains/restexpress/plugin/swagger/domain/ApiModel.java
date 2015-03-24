@@ -30,6 +30,7 @@ public class ApiModel
 	private Set<String> required;
 	private Map<String, DataType> properties;
 	private String description;
+	private Object defaultValue;
 
 	public String getId()
 	{
@@ -76,6 +77,15 @@ public class ApiModel
 			properties.put(property.getProperty(), property);
 		}
 
+		return this;
+	}
+
+	public Object getDefaultValue() {
+		return defaultValue;
+	}
+
+	public ApiModel setDefaultValue(Object defaultValue) {
+		this.defaultValue = defaultValue;
 		return this;
 	}
 }
