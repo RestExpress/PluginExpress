@@ -191,7 +191,13 @@ public class ModelResolver
 			{
 				node.setType(Primitives.INTEGER);
 			}
-			else if (Long.class.equals(target) || Long.TYPE.equals(target))
+			else if (Short.class.equals(target)
+			    || Short.TYPE.equals(target))
+			{
+				node.setType(Primitives.INTEGER);
+			}
+			else if (Long.class.equals(target)
+				|| Long.TYPE.equals(target))
 			{
 				node.setType(Primitives.LONG);
 			}
@@ -200,21 +206,20 @@ public class ModelResolver
 			{
 				node.setType(Primitives.BOOLEAN);
 			}
-			else if (Float.class.equals(target) || Float.TYPE.equals(target))
+			else if (Float.class.equals(target)
+				|| Float.TYPE.equals(target))
 			{
 				node.setType(Primitives.FLOAT);
 			}
-			else if (Double.class.equals(target) || Double.TYPE.equals(target))
+			else if (Double.class.equals(target)
+				|| Double.TYPE.equals(target))
 			{
 				node.setType(Primitives.DOUBLE);
 			}
-			else if (Byte.class.equals(target) || Byte.TYPE.equals(target))
+			else if (Byte.class.equals(target)
+				|| Byte.TYPE.equals(target))
 			{
 				node.setType(Primitives.BYTE);
-			}
-			else if (targetClass.getSimpleName().equals("ObjectId") )
-			{
-				node.setType(Primitives.STRING);
 			}
 			else if (Date.class.equals(target))
 			{
@@ -236,9 +241,14 @@ public class ModelResolver
 					node.addEnum(obj.toString());
 				}
 			}
-			else if (Void.class.equals(target) || Void.TYPE.equals(target))
+			else if (Void.class.equals(target)
+				|| Void.TYPE.equals(target))
 			{
 				node.setType(Primitives.VOID);
+			}
+			else if (targetClass.getSimpleName().equals("ObjectId") )
+			{
+				node.setType(Primitives.STRING);
 			}
 			else
 			{
