@@ -33,7 +33,7 @@ public class CorsPluginTest
 	private static final String URL1 = SERVER_HOST + URL_PATH1;
 	private static final String URL2 = SERVER_HOST + URL_PATH2;
 	private static final String URL3 = SERVER_HOST + URL_PATH3;
-	private static final String URL3_ALIASED = SERVER_HOST + URL_PATH3_ALIASED;	
+	private static final String URL3_ALIASED = SERVER_HOST + URL_PATH3_ALIASED;
 
 	private RestExpress server = new RestExpress();
 	private HttpClient http = new DefaultHttpClient();
@@ -258,6 +258,56 @@ public class CorsPluginTest
 		assertFalse(methods.contains("PUT"));
 		assertFalse(methods.contains("DELETE"));
 		assertFalse(methods.contains("OPTIONS"));
+		request.releaseConnection();
+	}
+
+	@Test
+	public void shouldMatchDuplicateUrls()
+	throws ClientProtocolException, IOException
+	{
+		TestController controller = new TestController();
+
+		server.uri("/users/{userId}/courses/{courseId}/items/last", controller)
+			.method(HttpMethod.POST);
+
+		server.uri("/users/{userId}/courses/{courseId}/items/first", controller)
+			.method(HttpMethod.POST);
+
+		server.uri("/users/{userId}/courses/{courseId}/items/{itemId}", controller)
+			.method(HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE);
+
+		new CorsHeaderPlugin("*")
+			.register(server);
+		server.bind(SERVER_PORT);
+
+		HttpOptions request = new HttpOptions(SERVER_HOST + "/users/ffffffff532b3a55e4b0875ee2253e38/courses/54da4f3be4b070da7e3cab15/items/first");
+		HttpResponse response = (HttpResponse) http.execute(request);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
+		String methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		assertTrue(methods.contains("POST"));
+		assertTrue(methods.contains("OPTIONS"));
+		assertFalse(methods.contains("GET"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
+		request.releaseConnection();
+
+		request = new HttpOptions(SERVER_HOST + "/users/ffffffff532b3a55e4b0875ee2253e38/courses/54da4f3be4b070da7e3cab15/items/last");
+		response = (HttpResponse) http.execute(request);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
+		methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		assertTrue(methods.contains("POST"));
+		assertTrue(methods.contains("OPTIONS"));
+		assertFalse(methods.contains("GET"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
 		request.releaseConnection();
 	}
 

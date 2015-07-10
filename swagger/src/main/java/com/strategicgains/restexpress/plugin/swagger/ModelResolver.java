@@ -26,6 +26,7 @@ import com.strategicgains.restexpress.plugin.swagger.domain.ApiModel;
 import com.strategicgains.restexpress.plugin.swagger.domain.DataType;
 import com.strategicgains.restexpress.plugin.swagger.domain.Items;
 import com.strategicgains.restexpress.plugin.swagger.domain.Primitives;
+import com.strategicgains.restexpress.plugin.swagger.utilities.SwaggerObjectConverter;
 import com.strategicgains.restexpress.plugin.swagger.annotations.ApiModelProperty;
 
 /**
@@ -190,7 +191,13 @@ public class ModelResolver
 			{
 				node.setType(Primitives.INTEGER);
 			}
-			else if (Long.class.equals(target) || Long.TYPE.equals(target))
+			else if (Short.class.equals(target)
+			    || Short.TYPE.equals(target))
+			{
+				node.setType(Primitives.INTEGER);
+			}
+			else if (Long.class.equals(target)
+				|| Long.TYPE.equals(target))
 			{
 				node.setType(Primitives.LONG);
 			}
@@ -199,21 +206,20 @@ public class ModelResolver
 			{
 				node.setType(Primitives.BOOLEAN);
 			}
-			else if (Float.class.equals(target) || Float.TYPE.equals(target))
+			else if (Float.class.equals(target)
+				|| Float.TYPE.equals(target))
 			{
 				node.setType(Primitives.FLOAT);
 			}
-			else if (Double.class.equals(target) || Double.TYPE.equals(target))
+			else if (Double.class.equals(target)
+				|| Double.TYPE.equals(target))
 			{
 				node.setType(Primitives.DOUBLE);
 			}
-			else if (Byte.class.equals(target) || Byte.TYPE.equals(target))
+			else if (Byte.class.equals(target)
+				|| Byte.TYPE.equals(target))
 			{
 				node.setType(Primitives.BYTE);
-			}
-			else if (targetClass.getSimpleName().equals("ObjectId") )
-			{
-				node.setType(Primitives.STRING);
 			}
 			else if (Date.class.equals(target))
 			{
@@ -238,9 +244,14 @@ public class ModelResolver
 					node.addEnum(obj.toString());
 				}
 			}
-			else if (Void.class.equals(target) || Void.TYPE.equals(target))
+			else if (Void.class.equals(target)
+				|| Void.TYPE.equals(target))
 			{
 				node.setType(Primitives.VOID);
+			}
+			else if (targetClass.getSimpleName().equals("ObjectId") )
+			{
+				node.setType(Primitives.STRING);
 			}
 			else
 			{
@@ -324,6 +335,7 @@ public class ModelResolver
                         .setDescription(propertyMetadata.notes)
                         .setRequired(propertyMetadata.required)
                         .setPosition(propertyMetadata.position)
+                        .setDefaultValue(propertyMetadata.defaultValue)
                         .setProperty(field.getName());
                     properties.put(field.getName(), property);
                 }
@@ -364,7 +376,6 @@ public class ModelResolver
                 {
                     ApiModelProperty model = (ApiModelProperty) a;
                     propertyMetadata = new PropertyMetadata();
-                    propertyMetadata.value = model.value();
                     propertyMetadata.allowableValues = model.allowableValues();
                     propertyMetadata.access = model.access();
                     propertyMetadata.notes = model.notes();
@@ -374,6 +385,22 @@ public class ModelResolver
                     propertyMetadata.position = model.position();
                     propertyMetadata.hidden = model.hidden();
                     propertyMetadata.excludeFromModels = model.excludeFromModels();
+                    if(model.defaultValue() != null && model.defaultValue() != "")
+                    {
+                    	try
+                    	{
+    	        	    	if(field.getType().isArray()) {
+    	        	    		propertyMetadata.defaultValue = SwaggerObjectConverter.convertObjectTo(model.defaultValue(), field.getType().getComponentType());
+    	        	    	}
+    	        	    	else {
+    	        	    		propertyMetadata.defaultValue = SwaggerObjectConverter.convertObjectTo(model.defaultValue(), field.getType());
+    	        	    	}
+                    	}
+                    	catch(Exception ex)
+                    	{
+                    		
+                    	}
+                    }
                     break;
                 }
                 else if (a instanceof com.wordnik.swagger.annotations.ApiModelProperty)
@@ -407,6 +434,6 @@ public class ModelResolver
         int position = 0;
         boolean hidden = false;
         String[] excludeFromModels = {};
+        Object defaultValue = null;
     }
-
 }

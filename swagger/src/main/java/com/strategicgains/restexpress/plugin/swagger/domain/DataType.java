@@ -31,6 +31,7 @@ public class DataType
 	private Boolean uniqueItems;
 	private String description;
 	private Items items;
+	private Object defaultValue;
 
 	// Note, since "enum" is a java reserved word, we have to override the
 	// serialized name
@@ -176,6 +177,15 @@ public class DataType
 	public DataType setPrimitive(boolean primitive)
 	{
 		this.primitive = primitive;
+		return this;
+	}
+
+	public Object getDefaultValue() {
+		return defaultValue;
+	}
+
+	public DataType setDefaultValue(Object defaultValue) {
+		this.defaultValue = defaultValue;
 		return this;
 	}
 }
