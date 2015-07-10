@@ -66,7 +66,7 @@ extends RoutePlugin
 		if (isRegistered()) return this;
 
 		super.register(server);
-		controller = new SwaggerController(server, apiVersion, swaggerVersion);
+		controller = new SwaggerController(server, apiVersion, swaggerVersion, true);
 
 		RouteBuilder resources = server.uri(urlPath, controller)
 		    .action("readAll", HttpMethod.GET).name("swagger.resources")

@@ -87,12 +87,11 @@ public class ModelResolverTest
 //		assertEquals(Another.class.getSimpleName(), n.getItems().getRef());
 //	}
 
-//	@Test
-//	public void shouldResolveAnotherMap()
-//	{
-//		DataType n = builder.resolve(new HashMap<String, Another>().getClass());
-//		assertNotNull(n);
-//		assertEquals("array", n.getType());
-//		assertEquals(Another.class.getSimpleName(), n.getItems().getRef());
-//	}
+	@Test
+	public void shouldResolveAnotherMap()
+	{
+		DataType n = builder.resolve(new HashMap<String, Another>().getClass());
+		assertNotNull(n);
+		assertEquals("object", n.getType()); 
+	}
 }
