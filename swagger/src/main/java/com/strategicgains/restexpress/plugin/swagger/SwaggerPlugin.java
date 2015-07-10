@@ -36,6 +36,9 @@ extends RoutePlugin
 	private String urlPath;
 	private String apiVersion;
 	private String swaggerVersion = SWAGGER_VERSION;
+	private boolean defaultToHidden = false;
+
+	
 
 	public SwaggerPlugin()
 	{
@@ -66,7 +69,7 @@ extends RoutePlugin
 		if (isRegistered()) return this;
 
 		super.register(server);
-		controller = new SwaggerController(server, apiVersion, swaggerVersion, true);
+		controller = new SwaggerController(server, apiVersion, swaggerVersion, isDefaultToHidden());
 
 		RouteBuilder resources = server.uri(urlPath, controller)
 		    .action("readAll", HttpMethod.GET).name("swagger.resources")
@@ -94,5 +97,20 @@ extends RoutePlugin
 	public void bind(RestExpress server)
 	{
 		controller.initialize(urlPath, server);
+	}
+	
+	public boolean isDefaultToHidden() {
+		return defaultToHidden;
+	}
+
+	/**
+	 * when set to true the swagger documentation is not visible unless an ApiOperation annotation exists for the controller method.
+	 * This allows control over which apis are advertised and which are not visible to the public 
+	 * @param defaultToHidden
+	 * @return returns this (in order to chain commands)
+	 */
+	public SwaggerPlugin setDefaultToHidden(boolean defaultToHidden) {
+		this.defaultToHidden = defaultToHidden;
+		return this;
 	}
 }

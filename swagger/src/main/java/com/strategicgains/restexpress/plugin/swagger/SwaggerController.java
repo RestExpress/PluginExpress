@@ -52,7 +52,7 @@ implements Callback<RouteBuilder>
 	// if set to true then route must be explicitly annotated with ApiOperation to show in swagger
 	// if false then all routes will show in swagger unless ApiOperation.hidden is set to true
 	//(backward compatiblility means this should be false unless explicitly set)
-	private static  boolean HIDDEN_UNLESS_ANNOTATION_IS_PRESENT = false;
+	private   boolean HIDDEN_UNLESS_ANNOTATION_IS_PRESENT = false;
 
 	private RestExpress server;
 	private ApiResources resources;
