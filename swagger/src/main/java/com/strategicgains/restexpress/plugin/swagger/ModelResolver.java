@@ -423,17 +423,18 @@ public class ModelResolver
         return propertyMetadata;
     }
 
-    private class PropertyMetadata {
-        String value =  "";
-        String allowableValues = "";
-        String access = "";
-        String notes = "";
-        String dataType = "";
-        String format = "";
-        boolean required = false;
-        int position = 0;
-        boolean hidden = false;
-        String[] excludeFromModels = {};
-        Object defaultValue = null;
-    }
+	private class PropertyMetadata
+	{
+		String value = "";
+		String allowableValues = "";
+		String access = "";
+		String notes = "";
+		String dataType = "";
+		String format = "";
+		boolean required = false;
+		int position = 0;
+		boolean hidden = false;
+		String[] excludeFromModels = {};
+		Object defaultValue = null;
+	}
 }

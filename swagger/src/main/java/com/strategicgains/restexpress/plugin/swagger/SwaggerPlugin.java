@@ -98,18 +98,23 @@ extends RoutePlugin
 	{
 		controller.initialize(urlPath, server);
 	}
-	
-	public boolean isDefaultToHidden() {
+
+	public boolean isDefaultToHidden()
+	{
 		return defaultToHidden;
 	}
 
 	/**
-	 * when set to true the swagger documentation is not visible unless an ApiOperation annotation exists for the controller method.
-	 * This allows control over which apis are advertised and which are not visible to the public 
+	 * When set to true the swagger documentation is not visible unless an
+	 * ApiOperation annotation exists for the controller method. This allows
+	 * control over which apis are advertised and which are not visible to the
+	 * public
+	 * 
 	 * @param defaultToHidden
 	 * @return returns this (in order to chain commands)
 	 */
-	public SwaggerPlugin setDefaultToHidden(boolean defaultToHidden) {
+	public SwaggerPlugin setDefaultToHidden(boolean defaultToHidden)
+	{
 		this.defaultToHidden = defaultToHidden;
 		return this;
 	}
