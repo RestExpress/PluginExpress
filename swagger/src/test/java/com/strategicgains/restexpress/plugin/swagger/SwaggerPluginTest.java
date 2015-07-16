@@ -121,6 +121,11 @@ public class SwaggerPluginTest
 			.method(HttpMethod.GET)
 			.name("Read with Annotations");
 		
+		SERVER.uri("/annotations/hidden", controller)
+		.action("thisIsAHiddenAPI", HttpMethod.GET)
+		.method(HttpMethod.GET)
+		.name("thisIsAHiddenAPI");
+		
 		SERVER.uri("/annotations/{userId}", controller)
 			.action("updateWithApiResponse", HttpMethod.PUT)
 			.method(HttpMethod.PUT)
@@ -314,6 +319,19 @@ public class SwaggerPluginTest
 		request.releaseConnection();
 	}
 
+	/**
+	 * Test controller methods with Swagger annotations return the
+	 * expected json values.
+	 */
+	@Test
+	public void shouldNotShowHiddenApi()
+	{
+		Response r = get("/api-docs/annotations");
+		String json = r.asString();
+		System.out.println(json); 
+//		System.out.println(json);
+		assertFalse(json.contains("hidden")); 
+	}
 	/**
 	 * Test controller methods with Swagger annotations return the
 	 * expected json values.

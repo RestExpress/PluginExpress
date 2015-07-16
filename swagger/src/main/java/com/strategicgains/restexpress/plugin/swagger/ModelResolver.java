@@ -232,6 +232,9 @@ public class ModelResolver
 				    .getComponentType(), null, null, null);
 				node.setItems(new Items(componentModel));
 			}
+			else if (Map.class.isAssignableFrom(targetClass)) {
+				node.setType("object"); 
+			}
 			else if (targetClass.isEnum())
 			{
 				node.setType(Primitives.STRING);
@@ -261,6 +264,10 @@ public class ModelResolver
 			ParameterizedType parameterizedType = (ParameterizedType) target;
 			Class<?> rawType = (Class<?>) parameterizedType.getRawType();
 
+			if (Map.class.isAssignableFrom(rawType)) {
+				node.setType("object"); 
+			}
+			
 			if (Collection.class.isAssignableFrom(rawType))
 			{
 				node.setType("array");

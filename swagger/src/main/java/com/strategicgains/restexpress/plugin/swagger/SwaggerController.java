@@ -15,6 +15,7 @@
  */
 package com.strategicgains.restexpress.plugin.swagger;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,11 +47,26 @@ implements Callback<RouteBuilder>
 	        "GET", "PUT", "POST", "DELETE", "HEAD"
 	    }));
 
+	
+	// determines if the route will show in swagger if it is not annotated
+	// if set to true then route must be explicitly annotated with ApiOperation to show in swagger
+	// if false then all routes will show in swagger unless ApiOperation.hidden is set to true
+	//(backward compatiblility means this should be false unless explicitly set)
+	private   boolean HIDDEN_UNLESS_ANNOTATION_IS_PRESENT = false;
+
 	private RestExpress server;
 	private ApiResources resources;
 	private Map<String, ApiDeclarations> apisByPath = new HashMap<String, ApiDeclarations>();
 	private String swaggerRoot;
 
+	
+	public SwaggerController(RestExpress server, String apiVersion,
+		    String swaggerVersion, boolean defaultToHidden)
+		{
+			this(server,apiVersion,swaggerVersion);
+			HIDDEN_UNLESS_ANNOTATION_IS_PRESENT = defaultToHidden;
+		}
+	
 	public SwaggerController(RestExpress server, String apiVersion,
 	    String swaggerVersion)
 	{
@@ -132,6 +148,8 @@ implements Callback<RouteBuilder>
 			// Don't report the / route. It will not be resolved.
 			if ("/".equals(path)) continue;
 
+			if(isRouteHidden(route)) continue;
+			
 			ApiDeclarations apis = apisByPath.get(path);
 
 			if (apis == null) // new path to document
@@ -146,5 +164,15 @@ implements Callback<RouteBuilder>
 			ApiOperation operation = apis.addOperation(route);
 			apis.addModels(operation, route);
 		}
+	}
+	
+	private boolean isRouteHidden(Route route) {
+		Method method = route.getAction();
+		if (method.isAnnotationPresent(com.wordnik.swagger.annotations.ApiOperation.class))	{
+			com.wordnik.swagger.annotations.ApiOperation annotation = method
+			    .getAnnotation(com.wordnik.swagger.annotations.ApiOperation.class);
+			return annotation.hidden();
+		}
+		return HIDDEN_UNLESS_ANNOTATION_IS_PRESENT;
 	}
 }

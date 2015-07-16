@@ -65,6 +65,7 @@ For example:
 RestExpress server = new RestExpress()...
 
 new SwaggerPlugin("/api-docs")				// URL path is optional. Defaults to '/api-docs'
+	.setDefaultToHidden(true)				// if this is set to true then only annotated apis will be shown
 	.flag("public-route")					// optional. Set a flag on the request for this route.
 	.register(server);
 ```
@@ -76,13 +77,13 @@ The Swagger Plugin now supports several swagger annotations.
 ### @ApiOperation
 [Swagger doc for ApiOperation](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiOperation.java)
 
-The three parameters that are supported in ApiOperation are value, notes and response.  Several of the other values are determined by inspecting the Route metadata.  These include response, httpMethod, and nickname.  If response is defined in the ApiOperation annotation, that will be used, if not, the response class will be set as the return object defined in the controller method.
+The four parameters that are supported in ApiOperation are value, notes, response, and hidden.  Several of the other values are determined by inspecting the Route metadata.  These include response, httpMethod, and nickname.  If response is defined in the ApiOperation annotation, that will be used, if not, the response class will be set as the return object defined in the controller method.  if the parameter "hidden" is set to true then the API will not appear in the swagger documentation.  The default for "hidden" is set to false (unless specified differently, See Usage above).
 
 Example Usage:
 ```java
 @ApiOperation(value = "Get a specific course item",  // Brief description of the operation
       notes = "This operation will return a specific course item as defined in the route.", // Detailed description of the operation
-      response = Item.class) // Response type returned by the method.
+      response = Item.class, hidden = false) // Response type returned by the method.
 public Item getItem(Request request, Response response)
 ```
 

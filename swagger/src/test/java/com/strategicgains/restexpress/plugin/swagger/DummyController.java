@@ -72,6 +72,14 @@ public class DummyController
 		return null;
 	}
 	
+	@ApiOperation(value = "hidden.", hidden = true, 
+			notes = "More detailed description here. hidden",
+			response = Another.class)
+		public AnotherReturnType thisIsAHiddenAPI(Request request, Response response) 
+		{
+			return null;
+		}
+	
 	@ApiOperation(value = "Read with Annotations.", 
 		notes = "More detailed description here.",
 		response = Another.class)

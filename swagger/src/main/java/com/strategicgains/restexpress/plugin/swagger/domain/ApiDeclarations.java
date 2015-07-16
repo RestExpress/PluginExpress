@@ -181,9 +181,15 @@ public class ApiDeclarations
 		if (apiModelRequest != null)
 		{
 			DataType bodyType = resolver.resolve(apiModelRequest.model(), apiModelRequest.modelName());
-			operation.addParameter(new ApiOperationParameters("body", "body",
-					bodyType.getRef() != null ? bodyType.getRef() : bodyType
-							.getType(), apiModelRequest.required()));
+			String type =bodyType.getRef() != null ? bodyType.getRef() : bodyType.getType(); 
+			ApiOperationParameters bodyParam = new ApiOperationParameters("body", "body",
+					type, apiModelRequest.required());
+			// if the body is an array then we need to set items
+			if("array".equals(bodyParam .getType())) {
+				bodyParam.setItems(bodyType.getItems()); 
+			}
+						operation.addParameter(bodyParam);
+		
 		}
 	}
 }
