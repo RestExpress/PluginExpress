@@ -29,6 +29,7 @@ import org.restexpress.route.RouteBuilder;
 /**
  * @author toddf
  * @since Jul 20, 2011
+ * @deprecated Consider using SwaggerPlugin instead.
  */
 public class RoutesMetadataPlugin
 extends AbstractPlugin
