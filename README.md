@@ -15,15 +15,15 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>* plugin name here *</artifactId>
-			<version>0.3.0</version>
+			<version>0.3.1</version>
 		</dependency>
 ```
 Development:
 ```xml
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
-			<artifactId>PluginExpress</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<artifactId>* plugin name here *</artifactId>
+			<version>0.3.2-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 

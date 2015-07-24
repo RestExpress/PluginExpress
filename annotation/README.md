@@ -3,6 +3,14 @@ Annotation Plugin
 
 Plugin to support annotation in controllers.
 
+NOTE!
+=====
+Annotation dependency, extcos, causes tests to hang and hasn't be updated since 2012. It
+doesn't appear to run correctly on Java 1.8.
+
+Removed Annotation plugin from PluginExpress release 0.3.1. So, while source is here
+this plugin is now defunct!
+
 Maven Usage
 ===========
 Stable:
@@ -10,7 +18,7 @@ Stable:
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
 			<artifactId>AnnotationPlugin</artifactId>
-			<version>0.0.1</version>
+			<version>0.3.1-SNAPSHOT</version>
 		</dependency>
 ```
 
