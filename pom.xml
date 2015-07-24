@@ -5,7 +5,7 @@
 	<url>https://github.com/RestExpress/PluginExpress</url>
 	<groupId>com.strategicgains.plugin-express</groupId>
 	<artifactId>PluginExpress-Parent</artifactId>
-	<version>0.3.1</version>
+	<version>0.3.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
