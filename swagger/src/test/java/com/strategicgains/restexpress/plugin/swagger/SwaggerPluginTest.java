@@ -169,7 +169,6 @@ public class SwaggerPluginTest
 	throws Exception
 	{
 		Response r = get("/api-docs");
-		//System.out.println(r.asString());
 		SwaggerAssert.common(r);
 		r.then()
 			.body("apis", not(hasItem(hasEntry("path", "/"))))
@@ -186,7 +185,6 @@ public class SwaggerPluginTest
 	public void shouldReturnUsersApi()
 	{
 		Response r = get("/api-docs/users");
-		//System.out.println(r.asString());
 		SwaggerAssert.common(r);
 		r.then()
 			.body("basePath", equalTo(BASE_URL))
@@ -194,7 +192,6 @@ public class SwaggerPluginTest
 
 		r.then()
 			.root("apis[%s].%s")
-//			.body(withArgs(0, "path"), is("/users.{format}"))
 			.body(withArgs(0, "path"), is("/users"))
 			.body(withArgs(0, "description"), is("Users Collection"))
 			.body(withArgs(0, "operations"), hasItem(hasEntry("method", "GET")))			
@@ -227,7 +224,6 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
@@ -251,7 +247,6 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
@@ -267,7 +262,6 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
@@ -283,7 +277,6 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-//		System.out.println(json);
 		assertTrue(json.contains("\"apiVersion\":\"1.0\""));
 		assertTrue(json.contains("\"swaggerVersion\":\"1.2\""));
 		assertTrue(json.contains("\"basePath\":\"http://localhost:9001\""));
@@ -314,7 +307,6 @@ public class SwaggerPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		HttpEntity entity = response.getEntity();
 		String json = EntityUtils.toString(entity);
-//		System.out.println(json);
 		assertTrue(json.contains("\"parameters\":[]"));
 		request.releaseConnection();
 	}
@@ -328,8 +320,6 @@ public class SwaggerPluginTest
 	{
 		Response r = get("/api-docs/annotations");
 		String json = r.asString();
-		System.out.println(json); 
-//		System.out.println(json);
 		assertFalse(json.contains("hidden")); 
 	}
 	/**
@@ -341,7 +331,6 @@ public class SwaggerPluginTest
 	{
 		Response r = get("/api-docs/annotations");
 		String json = r.asString();
-		//System.out.println(json);
 		SwaggerAssert.common(r);
 		r.then()
 			.body("basePath", equalTo(BASE_URL))

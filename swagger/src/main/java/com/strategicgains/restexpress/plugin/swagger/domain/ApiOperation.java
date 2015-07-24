@@ -60,7 +60,7 @@ extends DataType
 
 		this.method = route.getMethod().name();
 		String name = route.getName();
-		this.nickname = method + (name == null ? "" : " " + name);
+		this.nickname = method + (name == null ? "" : name);
 		this.nickname = nickname.replaceAll("[^a-zA-Z0-9_]","");
 
 		if (route.getUrlParameters() == null) return;
