@@ -13,7 +13,8 @@
 		<version>7</version>
 	</parent>
 	<modules>
-		<module>annotation</module>
+		<!-- Annotation plugin doesn't build under 1.8 due to extcos lib problem -->
+		<!-- module>annotation</module -->
 		<module>cors</module>
 		<module>routes</module>
 		<module>cache-control</module>
@@ -29,7 +30,7 @@
 		<dependency>
 			<groupId>com.strategicgains</groupId>
 			<artifactId>RestExpress</artifactId>
-			<version>0.11.0</version>
+			<version>0.11.1</version>
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
@@ -63,8 +64,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
