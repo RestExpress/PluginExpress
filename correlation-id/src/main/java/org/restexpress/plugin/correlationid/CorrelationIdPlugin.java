@@ -30,10 +30,10 @@ import org.restexpress.util.RequestContext;
  * and adds it to the global, thread-safe RequestContext to be available in deeper
  * levels of the application.
  * 
- * If the Correlation-ID header does not exist on the request, one is assigned
+ * If the Correlation-Id header does not exist on the request, one is assigned
  * using a UUID string.
  * 
- * The Correlation-ID header is assigned to the response on its way out, also.
+ * The Correlation-Id header is assigned to the response on its way out, also.
  * 
  * @author tfredrich
  * @since Jul 25, 2015
@@ -42,7 +42,7 @@ public class CorrelationIdPlugin
 extends AbstractPlugin
 implements Preprocessor, Postprocessor
 {
-	public static final String CORRELATION_ID = "Correlation-ID";
+	public static final String CORRELATION_ID = "Correlation-Id";
 
 	@Override
     public AbstractPlugin register(RestExpress server)
@@ -56,7 +56,7 @@ implements Preprocessor, Postprocessor
     }
 
 	/**
-	 * Preprocessor method to pull the Correlation-ID header or assign one
+	 * Preprocessor method to pull the Correlation-Id header or assign one
 	 * as well as placing it in the RequestContext.
 	 * 
 	 * @param request the incoming Request.
@@ -80,7 +80,7 @@ implements Preprocessor, Postprocessor
 	}
 
 	/**
-	 * Postprocessor method that assigns the Correlation-ID from the
+	 * Postprocessor method that assigns the Correlation-Id from the
 	 * request to a header on the Response.
 	 * 
 	 * @param request the incoming Request.

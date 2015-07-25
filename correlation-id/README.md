@@ -1,14 +1,14 @@
 Correlation ID Plugin
 =====================
 
-This RestExpress plugin retrieves the Correlation-ID header from the request
+This RestExpress plugin retrieves the Correlation-Id header from the request
 and adds it to the global, thread-safe RequestContext to be available in deeper
 levels of the application.
 
-If the Correlation-ID header does not exist on the request, one is assigned
+If the Correlation-Id header does not exist on the request, one is assigned
 using a UUID string.
 
-The Correlation-ID header is assigned to the response on its way out, also.
+The Correlation-Id header is assigned to the response on its way out, also.
 
 Maven Usage
 ===========
@@ -57,11 +57,11 @@ new CorrelationIdPlugin()
 	.register(server);
 ```
 
-Then in controller methods, the Correlation-ID is available as a header on the request. It is accessed
+Then in controller methods, the correlation id is available as a header on the request. It is accessed
 as follows:
 
 ```java
-String correlationID = request.getHeader(CorrelationIdPlugin.CORRELATION_ID);
+String correlationId = request.getHeader(CorrelationIdPlugin.CORRELATION_ID);
 ```
 
 Because the plugin also sets the correlation id on the RequestContext object, a thread-safe, global
