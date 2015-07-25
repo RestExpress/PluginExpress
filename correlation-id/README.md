@@ -12,7 +12,7 @@ The Correlation-Id header is assigned to the response on its way out, also.
 
 Maven Usage
 ===========
-Stable:
+
 Development:
 ```xml
 		<dependency>
