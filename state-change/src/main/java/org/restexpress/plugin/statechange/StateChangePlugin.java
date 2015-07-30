@@ -61,10 +61,4 @@ extends AbstractPlugin
 		preprocessor.enrichedBy(enricher);
 		return this;
 	}
-
-	@Override
-	public void bind(RestExpress server)
-	{
-		server.addFinallyProcessor(new StateChangePostprocessor());
-	}
 }
