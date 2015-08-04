@@ -13,12 +13,21 @@ The Correlation-Id header is assigned to the response on its way out, also.
 Maven Usage
 ===========
 
+Stable:
+```xml
+		<dependency>
+			<groupId>com.strategicgains.plugin-express</groupId>
+			<artifactId>CorrelationIdPlugin</artifactId>
+			<version>0.3.2</version>
+		</dependency>
+```
+
 Development:
 ```xml
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
-			<artifactId>CORSPlugin</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
+			<artifactId>CorrelationIdPlugin</artifactId>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 ```
 Or download the jar directly from: 
