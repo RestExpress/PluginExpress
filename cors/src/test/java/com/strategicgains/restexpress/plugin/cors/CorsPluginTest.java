@@ -28,12 +28,14 @@ public class CorsPluginTest
 	private static final String URL_PATTERN3_ALIAS = "/c/{type}/t/{id}.{format}";
 	private static final String URL_PATH3 = "/cors/plugin/test3/42";
 	private static final String URL_PATH3_ALIASED = "/c/plugin/t/42";
+	private static final String URL_CODE_PATH = "/code";
 	private static final int SERVER_PORT = 8888;
 	private static final String SERVER_HOST = "http://localhost:" + SERVER_PORT;
 	private static final String URL1 = SERVER_HOST + URL_PATH1;
 	private static final String URL2 = SERVER_HOST + URL_PATH2;
 	private static final String URL3 = SERVER_HOST + URL_PATH3;
 	private static final String URL3_ALIASED = SERVER_HOST + URL_PATH3_ALIASED;
+	private static final String URL_CODE = SERVER_HOST + URL_CODE_PATH;
 
 	private RestExpress server = new RestExpress();
 	private HttpClient http = new DefaultHttpClient();
@@ -41,7 +43,7 @@ public class CorsPluginTest
 	@Before
 	public void createServer()
 	{
-		RestExpress.getSerializationProvider();
+		RestExpress.getDefaultSerializationProvider();
 
 		server.uri(URL_PATH1, new TestController());
 		server.uri(URL_PATH2, new TestController())
@@ -52,6 +54,14 @@ public class CorsPluginTest
 			.alias(URL_PATTERN3_ALIAS)
 			.action("readAll", HttpMethod.GET)
 			.method(HttpMethod.POST);
+
+		server.uri(URL_CODE_PATH, new TestController())
+			.method(HttpMethod.GET);
+		server.uri(URL_CODE_PATH, new TestController())
+			.method(HttpMethod.PUT);
+		server.uri(URL_CODE_PATH, new TestController())
+			.method(HttpMethod.DELETE);
+
 		server.addMessageObserver(new SimpleConsoleLogMessageObserver());
 		server.enforceHttpSpec();
 	}
@@ -113,6 +123,34 @@ public class CorsPluginTest
 		assertTrue(methods.contains("OPTIONS"));
 		assertFalse(methods.contains("PUT"));
 		assertFalse(methods.contains("DELETE"));
+		request.releaseConnection();
+	}
+
+	@Test
+	public void shouldMergeDuplicateRoutes()
+	throws ClientProtocolException, IOException
+	{
+		new CorsHeaderPlugin("*")
+			.allowHeaders("Location")
+			.exposeHeaders("Accept", "Content-Type")
+			.maxAge(42)
+			.register(server);
+		server.bind(SERVER_PORT);
+
+		HttpOptions request = new HttpOptions(URL_CODE);
+		HttpResponse response = (HttpResponse) http.execute(request);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		assertEquals("Accept,Content-Type", response.getHeaders("Access-Control-Expose-Headers")[0].getValue());
+		assertEquals("Location", response.getHeaders("Access-Control-Allow-Headers")[0].getValue());
+		assertEquals("42", response.getHeaders("Access-Control-Max-Age")[0].getValue());
+		assertEquals("*", response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		String methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		System.out.println("*****************************************" + methods);
+		assertTrue(methods.contains("GET"));
+		assertTrue(methods.contains("OPTIONS"));
+		assertTrue(methods.contains("PUT"));
+		assertTrue(methods.contains("DELETE"));
+		assertFalse(methods.contains("POST"));
 		request.releaseConnection();
 	}
 
