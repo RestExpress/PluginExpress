@@ -51,7 +51,7 @@ implements Preprocessor, Postprocessor
 
 		super.register(server);
 		server.addPreprocessor(this);
-		
+		server.addPostprocessor(this);
 		return this;
     }
 
