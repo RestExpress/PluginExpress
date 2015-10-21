@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpMethod;
 
 import java.util.UUID;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -110,5 +111,19 @@ public class CorrelationIdPluginTest
 		{
 			return req.getHeader(CorrelationIdPlugin.CORRELATION_ID);
 		}
+	}
+
+	@Test
+	public void shouldSetCorrelationIdToResponse()
+	throws Exception
+	{
+		String myCorrelationId = "myArbitrarilyAssignedCorrelationId";
+		HttpGet request = new HttpGet("http://localhost:8081/test");
+		request.addHeader(CorrelationIdPlugin.CORRELATION_ID, myCorrelationId);
+		HttpResponse response = (HttpResponse) http.execute(request);
+		Header[] headers = response.getHeaders(CorrelationIdPlugin.CORRELATION_ID);
+		assertEquals(1, headers.length);
+		String header = headers[0].getValue();
+		assertEquals(myCorrelationId, header);
 	}
 }
