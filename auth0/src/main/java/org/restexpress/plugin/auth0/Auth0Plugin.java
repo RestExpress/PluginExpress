@@ -29,10 +29,10 @@ extends AbstractPlugin
 {
 	private Auth0Preprocessor auth0;
 
-	public Auth0Plugin(String clientId, String secrect)
+	public Auth0Plugin(String clientId, String secret)
 	{
 		super();
-		this.auth0 = new Auth0Preprocessor(clientId, secrect);
+		this.auth0 = new Auth0Preprocessor(clientId, secret);
 	}
 
 	@Override
