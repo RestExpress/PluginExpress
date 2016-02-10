@@ -19,13 +19,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import org.apache.commons.codec.binary.Base64;
 import org.restexpress.Flags;
 import org.restexpress.Request;
 import org.restexpress.exception.UnauthorizedException;
 import org.restexpress.pipeline.Preprocessor;
 
 import com.auth0.jwt.JWTVerifier;
+
+import io.netty.handler.codec.http.HttpHeaders;
 
 /**
  * Extracts the Auth0 JWT token, decodes it and places it as an attachment on the request.
@@ -50,7 +52,7 @@ implements Preprocessor
 
 	public Auth0Preprocessor(String clientId, String secret)
 	{
-		jwtVerifier = new JWTVerifier(secret, clientId);
+		jwtVerifier = new JWTVerifier(new Base64(true).decode(secret), clientId);
 	}
 
 	@Override
