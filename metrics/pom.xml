@@ -10,19 +10,19 @@
 	<parent>
 		<groupId>com.strategicgains.plugin-express</groupId>
 		<artifactId>PluginExpress-Parent</artifactId>
-		<version>0.3.3-SNAPSHOT</version>
+		<version>0.3.3</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-core</artifactId>
-			<version>3.1.0</version>
+			<version>3.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.2</version>
+			<version>1.7.15</version>
 		</dependency>
 	</dependencies>
 </project>
