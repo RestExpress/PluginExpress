@@ -13,7 +13,7 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
  */
-package com.strategicgains.restexpress.plugin.swagger;
+package com.strategicgains.restexpress.plugin.openapi;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import org.restexpress.route.Route;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
 
+import com.strategicgains.restexpress.plugin.openapi.domain.InfoObject;
 import com.strategicgains.restexpress.plugin.swagger.domain.ApiDeclarations;
 import com.strategicgains.restexpress.plugin.swagger.domain.ApiOperation;
 import com.strategicgains.restexpress.plugin.swagger.domain.ApiResources;
@@ -38,7 +39,7 @@ import com.strategicgains.restexpress.plugin.swagger.domain.ApiResources;
  * @author toddf
  * @since Nov 21, 2013
  */
-public class SwaggerController
+public class OpenApiController
 implements Callback<RouteBuilder>
 {
 	public static final List<String> VALID_METHODS = new ArrayList<String>(
@@ -53,20 +54,20 @@ implements Callback<RouteBuilder>
 	 * if false then all routes will show in swagger unless ApiOperation.hidden is set to true
 	 * (backward compatibility means this should be false unless explicitly set)
 	 */
-	private boolean shouldShowAnnotatedOnly = false;
+	private boolean showAnnotatedOnly = false;
 
 	private RestExpress server;
 	private ApiResources resources;
 	private Map<String, ApiDeclarations> apisByPath = new HashMap<String, ApiDeclarations>();
 	private String swaggerRoot;
 
-	public SwaggerController(RestExpress server, String apiVersion, String swaggerVersion, boolean shouldShowAnnotatedOnly)
-		{
-			this(server,apiVersion,swaggerVersion);
-			this.shouldShowAnnotatedOnly = shouldShowAnnotatedOnly;
-		}
+	public OpenApiController(RestExpress server, String apiVersion, InfoObject info, boolean shouldShowAnnotatedOnly)
+	{
+		this(server,apiVersion,info);
+		this.showAnnotatedOnly = shouldShowAnnotatedOnly;
+	}
 	
-	public SwaggerController(RestExpress server, String apiVersion, String swaggerVersion)
+	public OpenApiController(RestExpress server, String apiVersion, String swaggerVersion)
 	{
 		super();
 		this.resources = new ApiResources(apiVersion, swaggerVersion);
@@ -173,6 +174,6 @@ implements Callback<RouteBuilder>
 			return annotation.hidden();
 		}
 
-		return shouldShowAnnotatedOnly;
+		return showAnnotatedOnly;
 	}
 }

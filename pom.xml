@@ -19,8 +19,6 @@
 		<version>7</version>
 	</parent>
 	<modules>
-		<!-- Annotation plugin doesn't build under 1.8 due to extcos lib problem -->
-		<module>annotation</module>
 		<module>cors</module>
 		<module>routes</module>
 		<module>cache-control</module>

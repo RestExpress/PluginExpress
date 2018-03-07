@@ -17,11 +17,11 @@ package com.strategicgains.restexpress.plugin.swagger;
 
 import java.util.Map.Entry;
 
-import io.netty.handler.codec.http.HttpMethod;
-import org.restexpress.Format;
 import org.restexpress.RestExpress;
 import org.restexpress.plugin.RoutePlugin;
 import org.restexpress.route.RouteBuilder;
+
+import io.netty.handler.codec.http.HttpMethod;
 
 /**
  * @author toddf
@@ -72,11 +72,12 @@ extends RoutePlugin
 		controller = new SwaggerController(server, apiVersion, swaggerVersion, isDefaultToHidden());
 
 		RouteBuilder resources = server.uri(urlPath, controller)
-		    .action("readAll", HttpMethod.GET).name("swagger.resources")
-		    .format(Format.JSON);
+		    .action("readAll", HttpMethod.GET)
+		    .name("swagger.resources");
 
 		RouteBuilder apis = server.uri(urlPath + "/{path}", controller)
-		    .method(HttpMethod.GET).name("swagger.apis").format(Format.JSON);
+		    .method(HttpMethod.GET)
+		    .name("swagger.apis");
 
 		for (String flag : flags())
 		{
