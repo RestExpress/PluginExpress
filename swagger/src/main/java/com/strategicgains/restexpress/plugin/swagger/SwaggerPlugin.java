@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpMethod;
 /**
  * @author toddf
  * @since Nov 21, 2013
+ * @deprecated Use the {@link OpenApiPlugin} instead.
  */
 public class SwaggerPlugin
 extends RoutePlugin

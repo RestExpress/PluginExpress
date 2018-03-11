@@ -30,6 +30,7 @@
 		<module>auth0</module>
 		<module>logging</module>
 		<module>correlation-id</module>
+		<module>openapi</module>
 	</modules>
 	<dependencies>
 		<dependency>

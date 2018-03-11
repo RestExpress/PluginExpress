@@ -1,13 +1,15 @@
-Swagger Plugin
-==============
+Open API Plugin
+===============
 
-THIS PLUGIN IS DEPRECATED. Please use the OpenApiPlugin instead.
+*Help Us Out!* This plugin is not quite ready for prime time. While it honors many of the Swagger-provided annotations, when they are absent,
+it provides defaults by simply introspects your object models, exposing every non-static, non-transient property.  This may not be desired.  Additionally, it doesn't
+yet support annotations for the 'authorizations' and 'info' Swagger models.  Help us get it to prime time by sending a pull request!
 
-The Swagger plugin gathers metadata about the routes in your RestExpress service suite
+The Open API plugin gathers metadata about the routes in your RestExpress service suite
 to render live documentation, so it's never out of date.
 
-Adds routes within your service suite to facilitate Swagger documentation and usage.
-By default, it add a route, /api-docs, but is configurable when instantiating the plugin.
+Adds routes within your service suite to facilitate OpenAPI documentation and usage.
+By default, it add a route, /openapi.json, but is configurable when instantiating the plugin.
 
 It is possible to set flags and parameters on the plugin, so that preprocessors and postprocessors
 handle them correctly.  For example, making the /api-docs route public so that it doesn't
@@ -19,7 +21,7 @@ Stable:
 ```xml
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
-			<artifactId>SwaggerPlugin</artifactId>
+			<artifactId>OpenApiPlugin</artifactId>
 			<version>0.2.6</version>
 		</dependency>
 ```
@@ -27,12 +29,12 @@ Development:
 ```xml
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
-			<artifactId>SwaggerPlugin</artifactId>
+			<artifactId>OpenApiPlugin</artifactId>
 			<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 ```
-Or download the jar directly from: 
-http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22SwaggerPlugin%22
+Or download the jar directly from:
+http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22OpenApiPlugin%22
 
 Note that to use the SNAPSHOT version, you must enable snapshots and a repository in your pom (or settings.xml) file as follows:
 ```xml
@@ -62,18 +64,18 @@ For example:
 ```java
 RestExpress server = new RestExpress()...
 
-new SwaggerPlugin("/api-docs")				// URL path is optional. Defaults to '/api-docs'
-	.setDefaultToHidden(true)				// if this is set to true then only annotated apis will be shown
+new OpenApiPlugin("/openapi.json")			// URL path is optional. Defaults to '/openapi.json'
+	.showAnnotatedOnly(true)				// if this is set to true then only annotated apis will be shown
 	.flag("public-route")					// optional. Set a flag on the request for this route.
 	.register(server);
 ```
 
 Swagger Annotations
 ===================
-The Swagger Plugin now supports several swagger annotations.
+The OpenAPI Plugin now supports several swagger annotations.
 
 ### @ApiOperation
-[Swagger doc for ApiOperation](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiOperation.java)
+[OpenAPI doc for ApiOperation](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiOperation.java)
 
 The four parameters that are supported in ApiOperation are value, notes, response, and hidden.  Several of the other values are determined by inspecting the Route metadata.  These include response, httpMethod, and nickname.  If response is defined in the ApiOperation annotation, that will be used, if not, the response class will be set as the return object defined in the controller method.  if the parameter "hidden" is set to true then the API will not appear in the swagger documentation.  The default for "hidden" is set to false (unless specified differently, See Usage above).
 
@@ -86,7 +88,7 @@ public Item getItem(Request request, Response response)
 ```
 
 ### @ApiParam
-[Swagger doc for ApiParam](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiParam.java)
+[OpenAPI doc for ApiParam](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiParam.java)
 
 This represents a single parameter for an api operation.
 
@@ -97,11 +99,11 @@ required = true, // Whether the parameter is required or not
 value = "(Required) Title of the item.", // Description of the parameter
 defaultValue = "Title placeholder", // Default value if none is assigned.
 allowableValues = "Any String") // Description of all allowable values for the parameter.
-  public void createWithApiParam(Request request, Response response) 
+  public void createWithApiParam(Request request, Response response)
 ```
 
 ### @ApiImplicitParam
-[Swagger doc for ApiImplicitParam](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiImplicitParam.java)
+[OpenAPI doc for ApiImplicitParam](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiImplicitParam.java)
 
 This represents a single parameter for an api operation.
 
@@ -117,7 +119,7 @@ public void createWithApiImplicitParams(Request request, Response response)
 ```
 
 ### @ApiImplicitParams
-[Swagger doc for ApiImplicitParams](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiImplicitParams.java)
+[OpenAPI doc for ApiImplicitParams](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiImplicitParams.java)
 
 Collection of ApiImplicitParam annotations.  This allows one method to define multiple ApiImplicitParam annotations.
 
@@ -132,7 +134,7 @@ public Item getItem(Request request, Response response)
 ```
 
 ### @ApiResponse
-[Swagger doc for ApiResponse](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiResponse.java)
+[OpenAPI doc for ApiResponse](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiResponse.java)
 
 Defines a response code that can be returned from this api operation.
 
@@ -144,7 +146,7 @@ public Item getItem(Request request, Response response)
 ```
 
 ### @ApiResponses
-[Swagger doc for ApiResponses](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiResponses.java)
+[OpenAPI doc for ApiResponses](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiResponses.java)
 
 Collection of Api Response annotations allowing one method to define multiple ApiResponse annotations.
 
@@ -160,7 +162,7 @@ public Item getItem(Request request, Response response)
 ```
 
 ### @ApiModel
-[Swagger doc for ApiModel](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiModel.java)
+[OpenAPI doc for ApiModel](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiModel.java)
 
 Provides information a model class, including description, as well as inheritance and subtype information.
 
@@ -174,7 +176,7 @@ public class Item {
 ```
 
 ### @ApiModelProperty
-[Swagger doc for ApiModelProperty](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiModelProperty.java)
+[OpenAPI doc for ApiModelProperty](https://github.com/wordnik/swagger-core/blob/master/modules/swagger-annotations/src/main/java/com/wordnik/swagger/annotations/ApiModelProperty.java)
 
 Information on a particular property in the model.
 

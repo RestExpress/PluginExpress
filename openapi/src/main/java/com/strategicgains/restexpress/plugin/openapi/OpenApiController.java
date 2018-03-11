@@ -30,10 +30,10 @@ import org.restexpress.route.Route;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
 
+import com.strategicgains.restexpress.plugin.openapi.domain.ApiDeclarations;
+import com.strategicgains.restexpress.plugin.openapi.domain.ApiOperation;
+import com.strategicgains.restexpress.plugin.openapi.domain.ApiResources;
 import com.strategicgains.restexpress.plugin.openapi.domain.InfoObject;
-import com.strategicgains.restexpress.plugin.swagger.domain.ApiDeclarations;
-import com.strategicgains.restexpress.plugin.swagger.domain.ApiOperation;
-import com.strategicgains.restexpress.plugin.swagger.domain.ApiResources;
 
 /**
  * @author toddf
@@ -67,10 +67,10 @@ implements Callback<RouteBuilder>
 		this.showAnnotatedOnly = shouldShowAnnotatedOnly;
 	}
 	
-	public OpenApiController(RestExpress server, String apiVersion, String swaggerVersion)
+	public OpenApiController(RestExpress server, String apiVersion, InfoObject info)
 	{
 		super();
-		this.resources = new ApiResources(apiVersion, swaggerVersion);
+		this.resources = new ApiResources(apiVersion, info);
 		this.server = server;
 	}
 
