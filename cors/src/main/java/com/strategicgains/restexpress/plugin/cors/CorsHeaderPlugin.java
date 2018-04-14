@@ -3,6 +3,7 @@
  */
 package com.strategicgains.restexpress.plugin.cors;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
 import java.util.ArrayList;
@@ -34,16 +35,19 @@ import org.restexpress.util.Callback;
  * <p/>
  * Usage requires passing in the appropriate domain names that are allowed to
  * perform cross-domain behaviors. To support cross-domain behavior globally
- * (not recommended) send in '*'.
+ * (not recommended) send in '*' (wildcard). Or, arguably more secure, use '{referrer}',
+ * which will cause the plugin to return the Access-Control-Allow-Origin set
+ * to the incoming Referrer header (or the request Base URL, if no Referrer
+ * header is present).
  * <p/>
  * Usage: RestExpress server = new RestExpress(); ... new
- * CorsHeaderPlugin("*").register(server);
- * or... server.registerPlugin(new CorsHeaderPlugin("*"));
+ * CorsHeaderPlugin("{referrer}").register(server);
+ * or... server.registerPlugin(new CorsHeaderPlugin("{referrer}"));
  * <p/>
  * You can also disable the OPTIONS route that gets automatically generated
  * to support the pre-flight CORS request by calling .noPreflightSupport()
  * before calling register() as follows:<br/>
- * new CorsHeaderPlugin("*").noPreflightSupport().register();
+ * new CorsHeaderPlugin("{referrer}").noPreflightSupport().register();
  * <p/>
  * Additionally, you can set flag() and parameter() values on the OPTIONS
  * preflight route (just like normal RestExpress routes) by calling .flag(String)
@@ -292,6 +296,7 @@ extends AbstractPlugin
 		private Map<String, String> allowedMethodsByPattern = new HashMap<String, String>();
 		private Long maxAge;
 		private String allowHeadersHeader;
+		private boolean usesReferrer;
 
 		public CorsOptionsController(String allowOriginsHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern, String allowHeadersHeader)
 		{
@@ -299,7 +304,7 @@ extends AbstractPlugin
 			this.allowOriginsHeader = allowOriginsHeader;
 			this.maxAge = (maxAge == null ? null : Long.valueOf(maxAge));
 			this.allowHeadersHeader = allowHeadersHeader;
-
+			this.usesReferrer = allowOriginsHeader.contains("{referrer}");
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())
 			{
 				String pathPattern = entry.getKey().replaceFirst("\\.\\{format\\}", "");
@@ -310,7 +315,14 @@ extends AbstractPlugin
 		@SuppressWarnings("unused")
         public void options(Request request, Response response)
 		{
-			response.addHeader(CORS_ALLOW_ORIGIN_HEADER, allowOriginsHeader);
+			String origin = computeAllowedOrigins(request);
+
+			if (!isWildcard(origin))
+			{
+				response.addHeader(HttpHeaders.Names.VARY, "origin");
+			}
+
+			response.addHeader(CORS_ALLOW_ORIGIN_HEADER, origin);
 			response.addHeader(CORS_ALLOW_METHODS_HEADER, allowedMethodsByPattern.get(request.getResolvedRoute().getPattern()));
 			response.addHeader("Content-Length","0");
 			response.setContentType(ContentType.TEXT_PLAIN);
@@ -325,6 +337,35 @@ extends AbstractPlugin
 			{
 				response.addHeader(CORS_ALLOW_HEADERS_HEADER, allowHeadersHeader);
 			}
+		}
+
+		private boolean isWildcard(String origin)
+		{
+			return (origin != null ? origin.trim().equals("*") : false);
+		}
+
+		private String computeAllowedOrigins(Request request)
+		{
+			if (usesReferrer)
+			{
+				return allowOriginsHeader.replaceAll("\\{referrer\\}", getReferrerValue(request));
+			}
+			else
+			{
+				return allowOriginsHeader;
+			}
+		}
+
+		private String getReferrerValue(Request request)
+		{
+			String referrer = request.getHeader(HttpHeaders.Names.REFERER);
+
+			if (referrer == null)
+			{
+				referrer = request.getBaseUrl();
+			}
+
+			return referrer;
 		}
 	}
 }
