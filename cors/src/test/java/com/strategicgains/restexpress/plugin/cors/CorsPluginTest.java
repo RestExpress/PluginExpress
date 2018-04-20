@@ -280,10 +280,10 @@ public class CorsPluginTest
 	}
 
 	@Test
-	public void shouldReturnReferrer()
+	public void shouldReturnOrigin()
 	throws ClientProtocolException, IOException
 	{
-		new CorsHeaderPlugin("{referrer}")
+		new CorsHeaderPlugin("{origin}")
 			.register(server);
 		server.bind(SERVER_PORT);
 

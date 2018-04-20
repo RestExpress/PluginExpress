@@ -49,10 +49,10 @@ Usage of the CORS Plugin is basically the same as the other plugins in this regi
 Simply create a new plugin and register it with the RestExpress server, setting options
 as necessary, using method chaining if desired.
 
-The plugin supports a magic origin name of '{referrer}' where the Referrer HTTP header will be used to populate the returned Access-Control-Allow-Origin header.
-This is for cases where the service might support multiple unknown domains: such as a B2B2C SaaS model,
-where the service is supporting 3rd party applications and the origin is unknown a priory. This is arguably more secure than the wildcard ("*") as the browser
-enforces that the Access-Control-Allow-Origin matches the Referrer header it sent instead of everything. BTW, it's what Big-A and Big-G (among others) do.
+The plugin supports a magic origin name of '{origin}' where the Origin HTTP header (set by the browser) will be used to populate the returned
+Access-Control-Allow-Origin header. This is for cases where the service might support multiple unknown domains: such as a B2B2C SaaS model,
+where the service is supporting 3rd party applications and the origin is unknown a priory. This is arguably more secure than the wildcard ("*")
+as the browser enforces that the Access-Control-Allow-Origin matches the Origin header it sent instead of everything. BTW, it's what Big-A and Big-G (among others) do.
 
 *NOTE* It's recommended to make this the LAST plugin registered as it iterates all routes defined in your service suite and 
 adds an OPTIONS route, if configured to support the CORS OPTIONS pre-flight request.
@@ -61,11 +61,11 @@ To support the CORS OPTIONS Preflight request:
 ```java
 RestExpress server = new RestExpress()...
 
-new CorsHeaderPlugin("{referrer}")					// Array of domain strings.
-	.exposeHeaders("Location")						// Array of header names (Optional).
+new CorsHeaderPlugin("{origin}")					// Array of domain strings.
+	.exposeHeaders("Location")					// Array of header names (Optional).
 	.allowHeaders("Content-Type", "Accept", "Authorization")	// Array of header names (Optional).
 	.maxAge(2592000)								// Seconds to cache (Optional).
-	.flag("flag value")								// Just like flag() on Routes (Optional).
+	.flag("flag value")							// Just like flag() on Routes (Optional).
 	.parameter("string", object)					// Just like parameter() on Routes (Optional).
 	.register(server);
 ```
@@ -85,9 +85,9 @@ To be more specific, my common CORS configuration is:
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static org.restexpress.Flags.Auth.PUBLIC_ROUTE;
 
-new CorsHeaderPlugin("{referrer}")
+new CorsHeaderPlugin("{origin}")
 	.flag(PUBLIC_ROUTE)
-	.allowHeaders(CONTENT_TYPE, ACCEPT, AUTHORIZATION, REFERRER)
+	.allowHeaders(CONTENT_TYPE, ACCEPT, AUTHORIZATION, ORIGIN)
 	.exposeHeaders(LOCATION, VARY)
 	.register(server);
 ```
@@ -97,8 +97,8 @@ Release Notes
 Release 0.3.0-SNAPSHOT (in branch 'master')
 -------------------------------------------
 * Updated to be compatible with RestExpress 0.11.0
-* Updated to support use of "{referrer}" as the the origin string, which will substitute either the Referrer HTTP header (or the base URL from the request, if no Referrer header is present) in the Access-Control-Allow-Origin response header.
-* Adds Vary header to response if CORS origin is NOT a wildcard ("*") for caching.
+* Updated to support use of "{origin}" as the the origin string, which will substitute the Origin HTTP header in the Access-Control-Allow-Origin response header.  Returns the base URL from the request, if no Origin header is present to facilitate local testing.
+* Adds Vary header to response if CORS origin is NOT a wildcard ("*") for caching (as recommened by CORS).
 
 Release 0.2.3-SNAPSHOT (in branch 'master')
 -------------------------------------------
