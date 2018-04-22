@@ -3,9 +3,6 @@
  */
 package com.strategicgains.restexpress.plugin.cors;
 
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,10 +19,12 @@ import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.common.util.StringUtils;
 import org.restexpress.domain.metadata.RouteMetadata;
-import org.restexpress.pipeline.Postprocessor;
 import org.restexpress.plugin.AbstractPlugin;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
+
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 
 /**
  * This RestExpress plugin supports CORS behavior by setting the
@@ -42,7 +41,7 @@ import org.restexpress.util.Callback;
  * <p/>
  * Usage: RestExpress server = new RestExpress(); ... new
  * CorsHeaderPlugin("{origin}").register(server);
- * or... server.registerPlugin(new CorsHeaderPlugin("{referrer}"));
+ * or... server.registerPlugin(new CorsHeaderPlugin("{origin}"));
  * <p/>
  * You can also disable the OPTIONS route that gets automatically generated
  * to support the pre-flight CORS request by calling .noPreflightSupport()
@@ -158,8 +157,6 @@ extends AbstractPlugin
 		if (isRegistered()) return this;
 
 		super.register(server);
-		CorsHeaderPostprocessor proc = new CorsHeaderPostprocessor(allowOriginHeader, exposeHeadersHeader);
-		server.addFinallyProcessor(proc);
 
 		server.iterateRouteBuilders(new Callback<RouteBuilder>()
 		{
@@ -229,7 +226,7 @@ extends AbstractPlugin
      */
 	private void addPreflightOptionsRequestSupport(RestExpress server)
     {
-	    CorsOptionsController corsOptionsController = new CorsOptionsController(allowOriginHeader, maxAge, methodsByPattern, allowHeadersHeader);
+	    CorsOptionsController corsOptionsController = new CorsOptionsController(allowOriginHeader, exposeHeadersHeader, maxAge, methodsByPattern, allowHeadersHeader);
 	    RouteBuilder rb;
 
 	    for (String pattern : methodsByPattern.keySet())
@@ -256,55 +253,31 @@ extends AbstractPlugin
 	    }
     }
 
-	private class CorsHeaderPostprocessor
-	implements Postprocessor
-	{
-		private static final String CORS_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
-
-		private String allowOriginHeader = null;
-		private String exposeHeadersHeader = null;
-
-		public CorsHeaderPostprocessor(String allowOriginHeader, String exposeHeadersHeader)
-		{
-			super();
-			this.allowOriginHeader = allowOriginHeader;
-			this.exposeHeadersHeader = exposeHeadersHeader;
-		}
-
-		@Override
-		public void process(Request request, Response response)
-		{
-			if (!response.hasHeader(CORS_ALLOW_ORIGIN_HEADER) && allowOriginHeader != null)
-			{
-				response.addHeader(CORS_ALLOW_ORIGIN_HEADER, allowOriginHeader);
-			}
-
-			if (!response.hasHeader(CORS_EXPOSE_HEADERS_HEADER) && exposeHeadersHeader != null)
-			{
-				response.addHeader(CORS_EXPOSE_HEADERS_HEADER, exposeHeadersHeader);
-			}
-		}
-	}
-
 	private class CorsOptionsController
 	{
-		private static final String CORS_MAX_AGE_HEADER = "Access-Control-Max-Age";
-		private static final String CORS_ALLOW_METHODS_HEADER = "Access-Control-Allow-Methods";
 		private static final String CORS_ALLOW_HEADERS_HEADER = "Access-Control-Allow-Headers";
+		private static final String CORS_ALLOW_METHODS_HEADER = "Access-Control-Allow-Methods";
+		private static final String CORS_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
+		private static final String CORS_MAX_AGE_HEADER = "Access-Control-Max-Age";
+		private static final String ORIGIN_PATTERN = "\\{origin\\}";
+		private static final String ORIGIN_PARAMETER = "{origin}";
 
 		private String allowOriginsHeader;
 		private Map<String, String> allowedMethodsByPattern = new HashMap<String, String>();
 		private Long maxAge;
 		private String allowHeadersHeader;
-		private boolean usesOriginHeader;
+		private String exposeHeadersHeader = null;
+		private boolean usesOriginParameter;
 
-		public CorsOptionsController(String allowOriginsHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern, String allowHeadersHeader)
+		public CorsOptionsController(String allowOriginsHeader, String exposeHeadersHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern, String allowHeadersHeader)
 		{
 			super();
 			this.allowOriginsHeader = allowOriginsHeader;
+			this.exposeHeadersHeader = exposeHeadersHeader;
 			this.maxAge = (maxAge == null ? null : Long.valueOf(maxAge));
 			this.allowHeadersHeader = allowHeadersHeader;
-			this.usesOriginHeader = allowOriginsHeader.contains("{origin}");
+			this.usesOriginParameter = allowOriginsHeader.contains(ORIGIN_PARAMETER);
+
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())
 			{
 				String pathPattern = entry.getKey().replaceFirst("\\.\\{format\\}", "");
@@ -317,12 +290,16 @@ extends AbstractPlugin
 		{
 			String origin = computeAllowedOrigins(request);
 
-			if (!isWildcard(origin))
+			if (origin != null)
 			{
-				response.addHeader(HttpHeaders.Names.VARY, "origin");
+				response.addHeader(CORS_ALLOW_ORIGIN_HEADER, origin);
+				
+				if (!isWildcard(origin))
+				{
+					response.addHeader(HttpHeaders.Names.VARY, "origin");
+				}
 			}
 
-			response.addHeader(CORS_ALLOW_ORIGIN_HEADER, origin);
 			response.addHeader(CORS_ALLOW_METHODS_HEADER, allowedMethodsByPattern.get(request.getResolvedRoute().getPattern()));
 			response.addHeader("Content-Length","0");
 			response.setContentType(ContentType.TEXT_PLAIN);
@@ -336,6 +313,11 @@ extends AbstractPlugin
 			{
 				response.addHeader(CORS_ALLOW_HEADERS_HEADER, allowHeadersHeader);
 			}
+
+			if (exposeHeadersHeader != null)
+			{
+				response.addHeader(CORS_EXPOSE_HEADERS_HEADER, exposeHeadersHeader);
+			}
 		}
 
 		private boolean isWildcard(String origin)
@@ -345,26 +327,21 @@ extends AbstractPlugin
 
 		private String computeAllowedOrigins(Request request)
 		{
-			if (usesOriginHeader)
+			if (usesOriginParameter)
 			{
-				return allowOriginsHeader.replaceAll("\\{origin\\}", getOriginValue(request));
+				String origin = request.getHeader(HttpHeaders.Names.ORIGIN);
+
+				if (origin != null)
+				{
+					return allowOriginsHeader.replaceAll(ORIGIN_PATTERN, origin);
+				}
+
+				return null;
 			}
 			else
 			{
 				return allowOriginsHeader;
 			}
-		}
-
-		private String getOriginValue(Request request)
-		{
-			String referrer = request.getHeader(HttpHeaders.Names.ORIGIN);
-
-			if (referrer == null)
-			{
-				referrer = request.getBaseUrl();
-			}
-
-			return referrer;
 		}
 	}
 }

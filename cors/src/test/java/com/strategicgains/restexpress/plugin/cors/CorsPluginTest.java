@@ -12,9 +12,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +19,9 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.pipeline.SimpleConsoleLogMessageObserver;
+
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 
 public class CorsPluginTest
 {
@@ -287,10 +287,12 @@ public class CorsPluginTest
 			.register(server);
 		server.bind(SERVER_PORT);
 
+		String origin = "http://foobar.xyz";
 		HttpOptions request = new HttpOptions(URL2);
+		request.addHeader(HttpHeaders.Names.ORIGIN, origin);
 		HttpResponse response = (HttpResponse) http.execute(request);
 		assertEquals(200, response.getStatusLine().getStatusCode());
-		assertEquals(SERVER_HOST, response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(origin, response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
 		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
 		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
 		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
@@ -304,23 +306,31 @@ public class CorsPluginTest
 		assertFalse(methods.contains("PUT"));
 		assertFalse(methods.contains("DELETE"));
 		request.releaseConnection();
+	}
 
-		request = new HttpOptions(URL1);
-		response = (HttpResponse) http.execute(request);
-		assertEquals(SERVER_HOST, response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+	@Test
+	public void shouldNotReturnAllowOriginHeader()
+	throws ClientProtocolException, IOException
+	{
+		new CorsHeaderPlugin("{origin}")
+			.register(server);
+		server.bind(SERVER_PORT);
+	
+		HttpOptions request = new HttpOptions(URL2);
+		HttpResponse response = (HttpResponse) http.execute(request);
+		assertEquals(0, response.getHeaders("Access-Control-Allow-Origin").length);
 		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
 		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
 		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
-		vary = response.getHeaders(HttpHeaders.Names.VARY);
-		assertEquals(1, vary.length);
-		assertEquals("origin", vary[0].getValue());
-		methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		Header[] vary = response.getHeaders(HttpHeaders.Names.VARY);
+		assertEquals(0, vary.length);
+		String methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
 		assertTrue(methods.contains("GET"));
 		assertTrue(methods.contains("POST"));
-		assertTrue(methods.contains("PUT"));
-		assertTrue(methods.contains("DELETE"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
 		assertTrue(methods.contains("OPTIONS"));
-		request.releaseConnection();
+		request.releaseConnection();		
 	}
 
 	@Test
