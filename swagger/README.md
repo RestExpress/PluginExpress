@@ -80,7 +80,7 @@ private static void configurePlugins(Configuration config, RestExpress server) {
 
 //	....    
     }
-    ```
+```
     
  add OpenApi Annotation to your controllers
 ```
