@@ -1,5 +1,6 @@
 /*
     Copyright 2013, Strategic Gains, Inc.
+    Copyright 2017, pulsIT UG
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
@@ -16,114 +17,91 @@
 package com.strategicgains.restexpress.plugin.swagger;
 
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
-import org.restexpress.exception.NotFoundException;
 import org.restexpress.route.Route;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
 
-import com.strategicgains.restexpress.plugin.swagger.domain.ApiDeclarations;
-import com.strategicgains.restexpress.plugin.swagger.domain.ApiOperation;
-import com.strategicgains.restexpress.plugin.swagger.domain.ApiResources;
+import com.strategicgains.restexpress.plugin.swagger.wrapper.OpenApi;
+import com.strategicgains.restexpress.plugin.swagger.wrapper.Operation;
+import com.strategicgains.restexpress.plugin.swagger.wrapper.PathItem;
 
-/**
- * @author toddf
- * @since Nov 21, 2013
- */
-public class SwaggerController
-implements Callback<RouteBuilder>
-{
-	public static final List<String> VALID_METHODS = new ArrayList<String>(
-	    Arrays.asList(new String[]
-	    {
-	        "GET", "PUT", "POST", "DELETE", "HEAD", "PATCH"
-	    }));
+public class SwaggerController implements Callback<RouteBuilder> {
+	public static final List<String> VALID_METHODS = new ArrayList<String>(Arrays.asList(new String[] { "GET", "PUT", "POST", "DELETE", "HEAD", "PATCH" }));
 
-	
 	// Determines if the route will show in swagger output if it is not annotated
-	// if set to true then route must be explicitly annotated with ApiOperation to show in swagger
-	// if false then all routes will show in swagger unless ApiOperation.hidden is set to true
-	//(backward compatiblility means this should be false unless explicitly set)
+	// if set to true then route must be explicitly annotated with ApiOperation to
+	// show in swagger
+	// if false then all routes will show in swagger unless ApiOperation.hidden is
+	// set to true
+	// (backward compatiblility means this should be false unless explicitly set)
 	private boolean shouldShowAnnotatedOnly = false;
 
-	private RestExpress server;
-	private ApiResources resources;
-	private Map<String, ApiDeclarations> apisByPath = new HashMap<String, ApiDeclarations>();
+	protected RestExpress server;
+	private OpenApi openApi;
+	private String basePath;
 	private String swaggerRoot;
-
-	public SwaggerController(RestExpress server, String apiVersion, String swaggerVersion, boolean shouldShowAnnotatedOnly)
-		{
-			this(server,apiVersion,swaggerVersion);
-			this.shouldShowAnnotatedOnly = shouldShowAnnotatedOnly;
-		}
 	
-	public SwaggerController(RestExpress server, String apiVersion, String swaggerVersion)
-	{
+	private String filterByTag = "";
+	private List<RouteBuilder> routes = new ArrayList<RouteBuilder>();
+
+	public SwaggerController(RestExpress server, OpenApi openApi, String basePath, String swaggerVersion, boolean shouldShowAnnotatedOnly) {
+		this(server, swaggerVersion, openApi, basePath);
+		this.shouldShowAnnotatedOnly = shouldShowAnnotatedOnly;
+	}
+
+	public SwaggerController(RestExpress server, String swaggerVersion, OpenApi openApi, String basePath) {
 		super();
-		this.resources = new ApiResources(apiVersion, swaggerVersion);
+		this.openApi = openApi;
+		this.basePath = basePath;
 		this.server = server;
 	}
 
-	public void initialize(String urlPath, RestExpress server)
-	{
+	public void initialize(String urlPath, RestExpress server) {
 		swaggerRoot = getPathSegment(urlPath);
 		server.iterateRouteBuilders(this);
 	}
 
-	public ApiResources readAll(Request request, Response response)
-	{
-		return resources;
-	}
-
-	public ApiDeclarations read(Request request, Response response)
-	{
-		String path = request.getHeader("path");
-		ApiDeclarations api = apisByPath.get("/" + path);
-
-		if (api == null) throw new NotFoundException(path);
-
-		if (!api.hasBasePath())
-		{
-			ApiDeclarations apid = new ApiDeclarations(api);
-			apid.setBasePath(request.getBaseUrl());
-			return apid;
-		}
-
-		return api;
+	public OpenApi readAll(Request request, Response response) {
+		try {
+			String filter = URLDecoder.decode(request.getQueryStringMap().getOrDefault("byTag", ""), "UTF-8");
+			if(!filterByTag.equals(filter)) {
+				filterByTag = filter;
+				openApi.getPaths().clear();	
+				for(RouteBuilder r : routes) {
+					process(r);				
+				}
+			}
+		} catch (Exception e) { }
+		
+		return openApi;
 	}
 
 	/**
-	 * Returns the first part of the URL path. Either the leading slash to the
-	 * first period ('.') or the first slash to the second slash.
+	 * Returns the first part of the URL path. Either the leading slash to the first
+	 * period ('.') or the first slash to the second slash.
 	 * 
-	 * @param pattern
-	 *            a URL pattern.
+	 * @param pattern a URL pattern.
 	 * @return
 	 */
-	private String getPathSegment(String pattern)
-	{
+	private String getPathSegment(String pattern) {
 		int slash = pattern.indexOf('/', 1);
 		int dot = pattern.indexOf('.', 1);
 		String path;
 
-		if (slash > 0)
-		{
+		if (slash > 0) {
 			path = pattern.substring(0, slash);
-		}
-		else if (dot > 0)
-		{
+		} else if (dot > 0) {
 			path = pattern.substring(0, dot);
-		}
-		else
-		{
+		} else {
 			path = pattern;
 		}
 
@@ -131,45 +109,65 @@ implements Callback<RouteBuilder>
 	}
 
 	@Override
-	public void process(RouteBuilder routeBuilder)
-	{
-		for (Route route : routeBuilder.build())
-		{
-			if (!VALID_METHODS.contains(route.getMethod().name())) continue;
+	public void process(RouteBuilder routeBuilder) {
+		if(!routes.contains(routeBuilder)) {
+			routes.add(routeBuilder);
+		}
+		for (Route route : routeBuilder.build()) {
+			if (!VALID_METHODS.contains(route.getMethod().name()))
+				continue;
 
-			String path = getPathSegment(route.getPattern());
+			 String routePath = route.getPattern();
+			 String path = "";
+			 if(routePath.startsWith(basePath)){
+				routePath = routePath.substring(basePath.length());
+			 	path = getPathSegment(routePath);
+			 } else {
+				 path = getPathSegment(routePath);
+			 }
+			 path = routePath;
 
 			// Don't report the Swagger routes...
-			if (swaggerRoot.equals(path)) continue;
+			if (swaggerRoot.equals(path))
+				continue;
 
 			// Don't report the / route. It will not be resolved.
-			if ("/".equals(path)) continue;
+			if ("/".equals(path))
+				continue;
 
-			if(isRouteHidden(route)) continue;
+			if (isRouteHidden(route))
+				continue;
+
 			
-			ApiDeclarations apis = apisByPath.get(path);
-
-			if (apis == null) // new path to document
-			{
-				apis = new ApiDeclarations(resources, server, path);
-				apisByPath.put(path, apis);
-				// TODO: pull the description from the route metadata (not
-				// currently available).
-				resources.addApi(path, null);
+			Operation operation;
+			Method m = route.getAction();
+			
+			if (m.isAnnotationPresent(io.swagger.oas.annotations.Operation.class)) {
+				operation = new Operation(m.getAnnotation(io.swagger.oas.annotations.Operation.class));
+			} else {
+				operation = new Operation();
 			}
-
-			ApiOperation operation = apis.addOperation(route);
-			apis.addModels(operation, route);
+			
+			operation.setOperationId(route.getController().getClass().getName() + "::" + route.getAction().getName());
+			if(filterByTag != null && filterByTag.length() > 0 && operation != null && operation.getTags() != null && (operation.getTags().stream().filter(Pattern.compile(filterByTag).asPredicate()).findFirst().orElse(null) == null)) {
+				continue;
+			}
+			
+			PathItem p = openApi.getPaths().get(path);
+			if(p != null) {
+				p.add(route.getMethod().name(), operation);
+			} else {
+				p = new PathItem();
+				p.add(route.getMethod().name(), operation);
+				openApi.getPaths().put(path, p);
+			}
 		}
 	}
 
-	private boolean isRouteHidden(Route route)
-	{
+	private boolean isRouteHidden(Route route) {
 		Method method = route.getAction();
-		if (method.isAnnotationPresent(com.wordnik.swagger.annotations.ApiOperation.class))
-		{
-			com.wordnik.swagger.annotations.ApiOperation annotation = method.getAnnotation(com.wordnik.swagger.annotations.ApiOperation.class);
-			return annotation.hidden();
+		if (method.isAnnotationPresent(io.swagger.oas.annotations.Operation.class)) {
+			return (method.isAnnotationPresent(io.swagger.oas.annotations.Hidden.class));
 		}
 
 		return shouldShowAnnotatedOnly;
