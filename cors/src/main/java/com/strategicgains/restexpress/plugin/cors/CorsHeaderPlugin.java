@@ -19,6 +19,7 @@ import org.restexpress.Response;
 import org.restexpress.RestExpress;
 import org.restexpress.common.util.StringUtils;
 import org.restexpress.domain.metadata.RouteMetadata;
+import org.restexpress.pipeline.Postprocessor;
 import org.restexpress.plugin.AbstractPlugin;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
@@ -157,7 +158,6 @@ extends AbstractPlugin
 		if (isRegistered()) return this;
 
 		super.register(server);
-
 		server.iterateRouteBuilders(new Callback<RouteBuilder>()
 		{
 			@Override
@@ -210,6 +210,9 @@ extends AbstractPlugin
 			addPreflightOptionsRequestSupport(server);
 		}
 
+		CorsHeaderPostprocessor cors = new CorsHeaderPostprocessor(allowOriginHeader, exposeHeadersHeader, allowHeadersHeader, maxAge, methodsByPattern);
+		server.addFinallyProcessor(cors);
+
 		return this;
 	}
 
@@ -226,7 +229,7 @@ extends AbstractPlugin
      */
 	private void addPreflightOptionsRequestSupport(RestExpress server)
     {
-	    CorsOptionsController corsOptionsController = new CorsOptionsController(allowOriginHeader, exposeHeadersHeader, maxAge, methodsByPattern, allowHeadersHeader);
+	    CorsOptionsController corsOptionsController = new CorsOptionsController(allowOriginHeader, exposeHeadersHeader, allowHeadersHeader, maxAge, methodsByPattern);
 	    RouteBuilder rb;
 
 	    for (String pattern : methodsByPattern.keySet())
@@ -253,6 +256,31 @@ extends AbstractPlugin
 	    }
     }
 
+	public class CorsHeaderPostprocessor
+	implements Postprocessor
+	{
+		CorsOptionsController cors;
+
+		public CorsHeaderPostprocessor(String allowOriginHeader,
+		    String exposeHeadersHeader, String allowHeadersHeader, Long maxAge,
+		    Map<String, Set<HttpMethod>> methodsByPattern)
+		{
+			super();
+			cors = new CorsOptionsController(
+			    allowOriginHeader, exposeHeadersHeader, allowHeadersHeader,
+			    maxAge, methodsByPattern);
+		}
+
+		@Override
+		public void process(Request request, Response response)
+		{
+			if (!HttpMethod.OPTIONS.equals(request.getEffectiveHttpMethod()))
+			{
+				cors.options(request, response);
+			}
+		}
+	}
+
 	private class CorsOptionsController
 	{
 		private static final String CORS_ALLOW_HEADERS_HEADER = "Access-Control-Allow-Headers";
@@ -269,7 +297,7 @@ extends AbstractPlugin
 		private String exposeHeadersHeader = null;
 		private boolean usesOriginParameter;
 
-		public CorsOptionsController(String allowOriginsHeader, String exposeHeadersHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern, String allowHeadersHeader)
+		public CorsOptionsController(String allowOriginsHeader, String exposeHeadersHeader, String allowHeadersHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern)
 		{
 			super();
 			this.allowOriginsHeader = allowOriginsHeader;
@@ -285,7 +313,6 @@ extends AbstractPlugin
 			}
 		}
 
-		@SuppressWarnings("unused")
         public void options(Request request, Response response)
 		{
 			String origin = computeAllowedOrigins(request);
@@ -301,8 +328,12 @@ extends AbstractPlugin
 			}
 
 			response.addHeader(CORS_ALLOW_METHODS_HEADER, allowedMethodsByPattern.get(request.getResolvedRoute().getPattern()));
-			response.addHeader("Content-Length","0");
-			response.setContentType(ContentType.TEXT_PLAIN);
+
+			if (HttpMethod.OPTIONS.equals(request.getEffectiveHttpMethod()))
+			{
+				response.addHeader("Content-Length","0");
+				response.setContentType(ContentType.TEXT_PLAIN);
+			}
 
 			if (maxAge != null && !response.hasHeader(CORS_MAX_AGE_HEADER))
 			{

@@ -10,11 +10,14 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restexpress.ContentType;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
@@ -293,6 +296,40 @@ public class CorsPluginTest
 		HttpResponse response = (HttpResponse) http.execute(request);
 		assertEquals(200, response.getStatusLine().getStatusCode());
 		assertEquals(origin, response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(ContentType.TEXT_PLAIN, response.getHeaders(HttpHeaders.Names.CONTENT_TYPE)[0].getValue());
+		assertEquals("0", response.getHeaders(HttpHeaders.Names.CONTENT_LENGTH)[0].getValue());
+		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
+		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
+		Header[] vary = response.getHeaders(HttpHeaders.Names.VARY);
+		assertEquals(1, vary.length);
+		assertEquals("origin", vary[0].getValue());
+		String methods = response.getHeaders("Access-Control-Allow-Methods")[0].getValue();
+		assertTrue(methods.contains("GET"));
+		assertTrue(methods.contains("POST"));
+		assertTrue(methods.contains("OPTIONS"));
+		assertFalse(methods.contains("PUT"));
+		assertFalse(methods.contains("DELETE"));
+		request.releaseConnection();
+	}
+
+	@Test
+	public void shouldReturnOriginOnGet()
+	throws ClientProtocolException, IOException
+	{
+		new CorsHeaderPlugin("{origin}")
+			.register(server);
+		server.bind(SERVER_PORT);
+
+		String origin = "http://foobar.xyz";
+		HttpGet request = new HttpGet(URL2);
+		request.addHeader(HttpHeaders.Names.ORIGIN, origin);
+		HttpResponse response = (HttpResponse) http.execute(request);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		assertEquals(origin, response.getHeaders("Access-Control-Allow-Origin")[0].getValue());
+		assertEquals(ContentType.JSON, response.getHeaders(HttpHeaders.Names.CONTENT_TYPE)[0].getValue());
+		assertEquals("\"GET\"", EntityUtils.toString(response.getEntity()));
+		assertEquals("5", response.getHeaders(HttpHeaders.Names.CONTENT_LENGTH)[0].getValue());
 		assertEquals(0, response.getHeaders("Access-Control-Expose-Headers").length);
 		assertEquals(0, response.getHeaders("Access-Control-Allow-Headers").length);
 		assertEquals(0, response.getHeaders("Access-Control-Max-Age").length);
@@ -418,24 +455,29 @@ public class CorsPluginTest
 	@SuppressWarnings("unused")
 	private class TestController
 	{
-        public void create(Request request, Response response)
+        public String create(Request request, Response response)
         {
+        	return request.getEffectiveHttpMethod().name();
 		}
 
-		public void read(Request request, Response response)
+		public String read(Request request, Response response)
 		{
+        	return request.getEffectiveHttpMethod().name();
 		}
 		
-		public void update(Request request, Response response)
+		public String update(Request request, Response response)
 		{
+        	return request.getEffectiveHttpMethod().name();
 		}
 		
-		public void delete(Request request, Response response)
+		public String delete(Request request, Response response)
 		{
+        	return request.getEffectiveHttpMethod().name();
 		}
 		
-		public void readAll(Request request, Response response)
+		public String readAll(Request request, Response response)
 		{
+        	return request.getEffectiveHttpMethod().name();
 		}
 	}
 }
