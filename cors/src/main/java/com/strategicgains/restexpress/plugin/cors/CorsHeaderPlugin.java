@@ -205,14 +205,14 @@ extends AbstractPlugin
             }
 		});
 
-		if (isPreflightSupported)
+	    CorsOptionsController corsController = new CorsOptionsController(allowOriginHeader, exposeHeadersHeader, allowHeadersHeader, maxAge, methodsByPattern);
+
+	    if (isPreflightSupported)
 		{
-			addPreflightOptionsRequestSupport(server);
+			addPreflightOptionsRequestSupport(server, corsController);
 		}
 
-		CorsHeaderPostprocessor cors = new CorsHeaderPostprocessor(allowOriginHeader, exposeHeadersHeader, allowHeadersHeader, maxAge, methodsByPattern);
-		server.addFinallyProcessor(cors);
-
+		server.addFinallyProcessor(new CorsHeaderPostprocessor(corsController));
 		return this;
 	}
 
@@ -227,9 +227,8 @@ extends AbstractPlugin
      *
      * @param server a RestExpress server instance.
      */
-	private void addPreflightOptionsRequestSupport(RestExpress server)
+	private void addPreflightOptionsRequestSupport(RestExpress server, CorsOptionsController corsOptionsController)
     {
-	    CorsOptionsController corsOptionsController = new CorsOptionsController(allowOriginHeader, exposeHeadersHeader, allowHeadersHeader, maxAge, methodsByPattern);
 	    RouteBuilder rb;
 
 	    for (String pattern : methodsByPattern.keySet())
@@ -261,14 +260,10 @@ extends AbstractPlugin
 	{
 		CorsOptionsController cors;
 
-		public CorsHeaderPostprocessor(String allowOriginHeader,
-		    String exposeHeadersHeader, String allowHeadersHeader, Long maxAge,
-		    Map<String, Set<HttpMethod>> methodsByPattern)
+		public CorsHeaderPostprocessor(CorsOptionsController corsController)
 		{
 			super();
-			cors = new CorsOptionsController(
-			    allowOriginHeader, exposeHeadersHeader, allowHeadersHeader,
-			    maxAge, methodsByPattern);
+			cors = corsController;
 		}
 
 		@Override
