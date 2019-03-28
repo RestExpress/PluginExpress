@@ -4,7 +4,7 @@ public class LinkParameter {
 	private String name;
 	private String expression;
 	
-	public LinkParameter(io.swagger.oas.annotations.links.LinkParameter lp) {
+	public LinkParameter(io.swagger.v3.oas.annotations.links.LinkParameter lp) {
 		setName(OpenApi.nullIfEmpty(lp.name()));
 		setExpression(OpenApi.nullIfEmpty(lp.expression()));
 	}

@@ -20,7 +20,7 @@ public class ServerVariable {
 		setDefault(defaultValue);
 	}
 	
-	public ServerVariable(io.swagger.oas.annotations.servers.ServerVariable sv) {
+	public ServerVariable(io.swagger.v3.oas.annotations.servers.ServerVariable sv) {
 		if(sv.allowableValues() != null && sv.allowableValues().length > 0) {
 			setEnumVar(Arrays.asList(sv.allowableValues()));			
 		}

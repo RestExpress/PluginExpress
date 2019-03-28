@@ -8,7 +8,6 @@ public class Header extends Reference{
 	private String description;
 	private Boolean required;
 	private Boolean deprecated;
-	private Boolean allowEmptyValue;
 
 	private Schema schema;
 	private String example;
@@ -17,18 +16,16 @@ public class Header extends Reference{
 		super(ref);
 	}
 
-	public Header(io.swagger.oas.annotations.headers.Header h) {
+	public Header(io.swagger.v3.oas.annotations.headers.Header h) {
 		setName(OpenApi.nullIfEmpty(h.name()));
 		setDescription(OpenApi.nullIfEmpty(h.description()));
 		setRequired(h.required());
 		setDeprecated(h.deprecated());
-		setAllowEmptyValue(h.allowEmptyValue());
 		
 		setSchema(new Schema(h.schema()));
 		if(!getSchema().isValid()){
 			setSchema(null);
 		}
-		//TODO annotation.example is missing setExample(OpenApi.nullIfEmpty(p.example()));
 	}
 
 	public String getName() {
@@ -61,14 +58,6 @@ public class Header extends Reference{
 
 	public void setDeprecated(Boolean deprecated) {
 		this.deprecated = deprecated;
-	}
-
-	public Boolean getAllowEmptyValue() {
-		return allowEmptyValue;
-	}
-
-	public void setAllowEmptyValue(Boolean allowEmptyValue) {
-		this.allowEmptyValue = allowEmptyValue;
 	}
 
 	public Schema getSchema() {
