@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
-		<version>7</version>
+		<version>9</version>
 	</parent>
 	<modules>
 		<!-- Annotation plugin doesn't build under 1.8 due to extcos lib problem -->
