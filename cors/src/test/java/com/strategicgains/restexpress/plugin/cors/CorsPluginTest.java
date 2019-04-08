@@ -4,11 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpOptions;
@@ -80,7 +77,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnOptionsWithoutFormat()
-	throws Exception
+	throws Throwable
 	{
 		new CorsHeaderPlugin("http://localhost:8888", "http://www.strategicgains.com")
 			.allowHeaders("Location")
@@ -110,7 +107,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnOptionsForSpecifiedMethods()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.allowHeaders("Location")
@@ -138,7 +135,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldMergeDuplicateRoutes()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.allowHeaders("Location")
@@ -167,7 +164,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnOptionsIdentifiersInUrlPattern()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.allowHeaders("Location")
@@ -195,7 +192,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldSupportAliasing()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.register(server);
@@ -220,7 +217,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldSupportAliasingWithFormat()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.register(server);
@@ -245,7 +242,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnDefaultOptions()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.register(server);
@@ -284,7 +281,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnOrigin()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("{origin}")
 			.register(server);
@@ -315,7 +312,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldReturnOriginOnGet()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("{origin}")
 			.register(server);
@@ -347,7 +344,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldNotReturnAllowOriginHeader()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		new CorsHeaderPlugin("{origin}")
 			.register(server);
@@ -372,7 +369,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldNotSupportPreflight()
-	throws Exception
+	throws Throwable
 	{
 		new CorsHeaderPlugin("*")
 			.noPreflightSupport()
@@ -404,7 +401,7 @@ public class CorsPluginTest
 
 	@Test
 	public void shouldMatchDuplicateUrls()
-	throws ClientProtocolException, IOException
+	throws Throwable
 	{
 		TestController controller = new TestController();
 

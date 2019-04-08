@@ -17,7 +17,6 @@ package org.restexpress.plugin.correlationid;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import io.netty.handler.codec.http.HttpMethod;
 
 import java.util.UUID;
 
@@ -35,6 +34,8 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.RestExpress;
 
+import io.netty.handler.codec.http.HttpMethod;
+
 /**
  * @author tfredrich
  * @since Jul 25, 2015
@@ -47,6 +48,7 @@ public class CorrelationIdPluginTest
 
 	@BeforeClass
 	public static void beforeClass()
+	throws Throwable
 	{
 		SERVER.registerPlugin(new CorrelationIdPlugin());
 		SERVER.uri("/test", new TestController())
