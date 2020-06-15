@@ -8,7 +8,7 @@ import org.restexpress.common.exception.ConfigurationException;
  * Supports reading properties for the values set on the CorsHeaderPlugin.
  * The properties file is expected to have values for the following:
  * <ul>
- * <li>cors.origins - a comma-delimited list of domain origins, or an asterisk ("*")</li>
+ * <li>cors.origins - a comma-delimited list of white-listed domain origins an asterisk ("*") or "{origin}" which will echo the incoming origin header.</li>
  * <li>cors.exposedHeaders - a comma-delimited list of header names</li>
  * <li>cors.allowedHeaders - a comma-delimited list of header names</li>
  * <li>cors.maxAge - a numeric value representing the number of seconds to allow a browser to cache the CORS pre-flight request</li>
