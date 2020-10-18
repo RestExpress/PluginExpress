@@ -3,7 +3,7 @@ package com.strategicgains.restexpress.plugin.swagger.wrapper;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.swagger.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.Explode;
 
 /**
  * @see https://swagger.io/specification/#parameterObject
@@ -27,15 +27,15 @@ public class Parameter extends Reference{
 		super(ref);
 	}
 	
-	public Parameter(io.swagger.oas.annotations.Parameter p) {
+	public Parameter(io.swagger.v3.oas.annotations.Parameter p) {
 		setName(OpenApi.nullIfEmpty(p.name()));
-		setIn(OpenApi.nullIfEmpty(p.in()));
+		setIn(OpenApi.nullIfEmpty(p.in().toString()));
 		setDescription(OpenApi.nullIfEmpty(p.description()));
 		setRequired(p.required());
 		setDeprecated(p.deprecated());
 		setAllowEmptyValue(p.allowEmptyValue());
 		
-		setStyle(OpenApi.nullIfEmpty(p.style()));
+		setStyle(OpenApi.nullIfEmpty(p.style().toString()));
 		setExplode(p.explode() == Explode.TRUE);
 		setAllowReserved(p.allowReserved());
 		setSchema(new Schema(p.schema()));
@@ -43,7 +43,7 @@ public class Parameter extends Reference{
 			setSchema(null);
 		}
 		setExample(OpenApi.nullIfEmpty(p.example()));
-		for(io.swagger.oas.annotations.media.ExampleObject e : p.examples()) {
+		for(io.swagger.v3.oas.annotations.media.ExampleObject e : p.examples()) {
 			if(e.name().length() > 0) {
 				getExamples().put(e.name(), new Example(e));				
 			}

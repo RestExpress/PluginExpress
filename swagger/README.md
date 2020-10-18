@@ -1,9 +1,8 @@
 Swagger Plugin
 ==============
 
-Based on [OpenAPI Specification 3.0.0](https://swagger.io/specification/#oasDocument)
+Based on [OpenAPI Specification 3.0.1](https://swagger.io/specification/#oasDocument)
 
-fixed files for swagger-annotations are in io.swagger.oas.annotations (Hidden + Operation)
 
 How to use in RestExpress
 
@@ -86,7 +85,7 @@ private static void configurePlugins(Configuration config, RestExpress server) {
 ```
 	@Operation(
 		tags = {"HR :: Employees"},
-		summary = "Search employee by firstname || lastname",
+		summary = "Search employee by firstname || lastname",
         description = "",
         security = @SecurityRequirement(name = "Authorization"),
         parameters = {

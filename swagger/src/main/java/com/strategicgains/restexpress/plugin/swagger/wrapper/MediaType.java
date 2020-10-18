@@ -12,7 +12,7 @@ public class MediaType {
 	private Map<String, Example> examples;
 	private Map<String, Encoding> encoding;
 	
-	public MediaType(io.swagger.oas.annotations.media.Content c) {
+	public MediaType(io.swagger.v3.oas.annotations.media.Content c) {
 		setSchema(new Schema(c.schema()));
 		if(!getSchema().isValid()){
 			setSchema(null);
@@ -20,11 +20,11 @@ public class MediaType {
 		
 		//TODO:	setExample(); ??
 		
-		for(io.swagger.oas.annotations.media.ExampleObject e : c.examples()) {
+		for(io.swagger.v3.oas.annotations.media.ExampleObject e : c.examples()) {
 			getExamples().put(e.name(), new Example(e));
 		}
 		
-		for(io.swagger.oas.annotations.media.Encoding e : c.encoding()) {
+		for(io.swagger.v3.oas.annotations.media.Encoding e : c.encoding()) {
 			getEncoding().put(e.name(), new Encoding(e));
 		}
 	}

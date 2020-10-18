@@ -16,11 +16,11 @@ public class Server {
 		setDescription(description);
 	}
 
-	public Server(io.swagger.oas.annotations.servers.Server s) {
+	public Server(io.swagger.v3.oas.annotations.servers.Server s) {
 		setUrl(OpenApi.nullIfEmpty(s.url()));
 		setDescription(OpenApi.nullIfEmpty(s.description()));
 		
-		for(io.swagger.oas.annotations.servers.ServerVariable sv : s.variables()) {
+		for(io.swagger.v3.oas.annotations.servers.ServerVariable sv : s.variables()) {
 			String name = OpenApi.nullIfEmpty(sv.name());
 			if(name != null) {
 				getVariables().put(name, new ServerVariable(sv));				

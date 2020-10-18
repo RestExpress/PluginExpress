@@ -13,9 +13,9 @@ public class Encoding {
 	private Boolean explode;
 	private Boolean allowReserved;
 	
-	public Encoding(io.swagger.oas.annotations.media.Encoding e) {
+	public Encoding(io.swagger.v3.oas.annotations.media.Encoding e) {
 		setContentType(OpenApi.nullIfEmpty(e.contentType()));
-		for(io.swagger.oas.annotations.headers.Header h : e.headers()) {
+		for(io.swagger.v3.oas.annotations.headers.Header h : e.headers()) {
 			getHeaders().put(e.name(), new Header(h));
 		}
 		setStyle(OpenApi.nullIfEmpty(e.style()));

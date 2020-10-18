@@ -15,9 +15,9 @@ public class RequestBody extends Reference{
 		super(ref);
 	}
 	
-	public RequestBody(io.swagger.oas.annotations.parameters.RequestBody rb) {
+	public RequestBody(io.swagger.v3.oas.annotations.parameters.RequestBody rb) {
 		setDescription(OpenApi.nullIfEmpty(rb.description()));
-		for(io.swagger.oas.annotations.media.Content c : rb.content()) {
+		for(io.swagger.v3.oas.annotations.media.Content c : rb.content()) {
 			if(OpenApi.nullIfEmpty(c.mediaType()) != null) {
 				getContent().put(c.mediaType(), new MediaType(c));
 			}

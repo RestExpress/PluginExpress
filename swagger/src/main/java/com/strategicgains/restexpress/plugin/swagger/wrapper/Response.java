@@ -3,7 +3,7 @@ package com.strategicgains.restexpress.plugin.swagger.wrapper;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.swagger.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 /**
  * @see https://swagger.io/specification/#responsesObject
@@ -19,21 +19,21 @@ public class Response {
 	public Response(ApiResponse r) {
 		setDescription(OpenApi.nullIfEmpty(r.description()));
 		
-		for(io.swagger.oas.annotations.headers.Header h : r.headers()) {
+		for(io.swagger.v3.oas.annotations.headers.Header h : r.headers()) {
 			String name = OpenApi.nullIfEmpty(h.name());
 			if(name != null) {
 				getHeaders().put(name, new Header(h));
 			}
 		}
 		
-		for(io.swagger.oas.annotations.media.Content c : r.content()) {
+		for(io.swagger.v3.oas.annotations.media.Content c : r.content()) {
 			String name = OpenApi.nullIfEmpty(c.mediaType());
 			if(name != null) {
 				getContent().put(c.mediaType(), new MediaType(c));
 			}
 		}
 		
-		for(io.swagger.oas.annotations.links.Link l : r.links()) {
+		for(io.swagger.v3.oas.annotations.links.Link l : r.links()) {
 			String name = OpenApi.nullIfEmpty(l.name());
 			if(name != null) {
 				getLinks().put(name, new Link(l));
