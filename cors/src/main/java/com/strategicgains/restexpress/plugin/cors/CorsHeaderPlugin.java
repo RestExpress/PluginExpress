@@ -4,6 +4,7 @@
 package com.strategicgains.restexpress.plugin.cors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -24,7 +25,7 @@ import org.restexpress.plugin.AbstractPlugin;
 import org.restexpress.route.RouteBuilder;
 import org.restexpress.util.Callback;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 
 /**
@@ -66,20 +67,21 @@ extends AbstractPlugin
 {
 	private static final String CORS_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
 
-	private String allowOriginHeader;
+	private Set<String> allowedOrigins;
 	private String exposeHeadersHeader;
 	private String allowHeadersHeader;
 	private Long maxAge;
-	private Map<String, Set<HttpMethod>> methodsByPattern = new LinkedHashMap<String, Set<HttpMethod>>();
-	private List<RouteBuilder> routeBuilders = new ArrayList<RouteBuilder>();
+	private Map<String, Set<HttpMethod>> methodsByPattern = new LinkedHashMap<>();
+	private List<RouteBuilder> routeBuilders = new ArrayList<>();
 	private boolean isPreflightSupported = true;
-	private List<String> flags = new ArrayList<String>();
-	private Map<String, Object> parameters = new HashMap<String, Object>();
+	private boolean shouldAllowCredentials = false;
+	private List<String> flags = new ArrayList<>();
+	private Map<String, Object> parameters = new HashMap<>();
 
 	public CorsHeaderPlugin(String... origins)
 	{
 		super();
-		allowOriginHeader = StringUtils.join(" ", (Object[]) origins);
+		this.allowedOrigins = (origins != null ? new HashSet<>(Arrays.asList(origins)) : null);
 	}
 
 	/**
@@ -111,6 +113,12 @@ extends AbstractPlugin
 	public CorsHeaderPlugin allowHeaders(String... allowHeaders)
 	{
 		allowHeadersHeader = StringUtils.join(",", (Object[])allowHeaders);
+		return this;
+	}
+
+	public CorsHeaderPlugin allowCredentials()
+	{
+		shouldAllowCredentials = true;
 		return this;
 	}
 
@@ -164,19 +172,16 @@ extends AbstractPlugin
 			public void process(RouteBuilder builder)
 			{
 				RouteMetadata rmd = builder.asMetadata();
-				Set<HttpMethod> methods = new HashSet<HttpMethod>();
+				Set<HttpMethod> methods = new HashSet<>();
 
 				for (String methodString : rmd.getMethods())
 				{
 					methods.add(HttpMethod.valueOf(methodString));
 				}
 
-				if (isPreflightSupported)
+				if (isPreflightSupported && !methods.contains(HttpMethod.OPTIONS))
 				{
-					if (!methods.contains(HttpMethod.OPTIONS))
-					{
-						methods.add(HttpMethod.OPTIONS);
-					}
+					methods.add(HttpMethod.OPTIONS);
 				}
 
 				String pathPattern = rmd.getUri().getPattern();
@@ -205,7 +210,7 @@ extends AbstractPlugin
             }
 		});
 
-	    CorsOptionsController corsController = new CorsOptionsController(allowOriginHeader, exposeHeadersHeader, allowHeadersHeader, maxAge, methodsByPattern);
+	    CorsOptionsController corsController = new CorsOptionsController(allowedOrigins, exposeHeadersHeader, allowHeadersHeader, maxAge, shouldAllowCredentials, methodsByPattern);
 
 	    if (isPreflightSupported)
 		{
@@ -236,7 +241,7 @@ extends AbstractPlugin
 	    	rb = server.uri(pattern, corsOptionsController)
 		    	.action("options", HttpMethod.OPTIONS)
 		    	.noSerialization()
-		    	// Disable both authentication and authorization which are usually use header such as X-Authorization.
+		    	// Disable both authentication and authorization which usually use a header such as Authorization.
 		    	// When browser does CORS preflight with OPTIONS request, such headers are not included.
 		    	.flag(Flags.Auth.PUBLIC_ROUTE)
 		    	.flag(Flags.Auth.NO_AUTHORIZATION);
@@ -278,28 +283,31 @@ extends AbstractPlugin
 
 	private class CorsOptionsController
 	{
+		private static final String WILDCARD_ORIGIN = "*";
 		private static final String CORS_ALLOW_HEADERS_HEADER = "Access-Control-Allow-Headers";
 		private static final String CORS_ALLOW_METHODS_HEADER = "Access-Control-Allow-Methods";
 		private static final String CORS_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
+		private static final String CORS_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
 		private static final String CORS_MAX_AGE_HEADER = "Access-Control-Max-Age";
-		private static final String ORIGIN_PATTERN = "\\{origin\\}";
 		private static final String ORIGIN_PARAMETER = "{origin}";
 
-		private String allowOriginsHeader;
-		private Map<String, String> allowedMethodsByPattern = new HashMap<String, String>();
+		private Map<String, String> allowedMethodsByPattern = new HashMap<>();
 		private Long maxAge;
+		private Set<String> allowedOrigins;
 		private String allowHeadersHeader;
 		private String exposeHeadersHeader = null;
-		private boolean usesOriginParameter;
+		private boolean allowCredentials = false;
+		private boolean echoesOrigin;
 
-		public CorsOptionsController(String allowOriginsHeader, String exposeHeadersHeader, String allowHeadersHeader, Long maxAge, Map<String, Set<HttpMethod>> methodsByPattern)
+		public CorsOptionsController(Set<String> allowedOrigins, String exposeHeadersHeader, String allowHeadersHeader, Long maxAge, boolean allowCredentials, Map<String, Set<HttpMethod>> methodsByPattern)
 		{
 			super();
-			this.allowOriginsHeader = allowOriginsHeader;
+			this.allowedOrigins = (allowedOrigins != null ? new HashSet<>(allowedOrigins) : null);
 			this.exposeHeadersHeader = exposeHeadersHeader;
-			this.maxAge = (maxAge == null ? null : Long.valueOf(maxAge));
+			this.maxAge = (maxAge == null ? null : maxAge);
 			this.allowHeadersHeader = allowHeadersHeader;
-			this.usesOriginParameter = allowOriginsHeader.contains(ORIGIN_PARAMETER);
+			this.echoesOrigin = (allowedOrigins == null || allowedOrigins.contains(ORIGIN_PARAMETER));
+			this.allowCredentials = allowCredentials;
 
 			for (Entry<String, Set<HttpMethod>> entry : methodsByPattern.entrySet())
 			{
@@ -310,7 +318,7 @@ extends AbstractPlugin
 
         public void options(Request request, Response response)
 		{
-			String origin = computeAllowedOrigins(request);
+			String origin = computeOrigin(request);
 
 			if (origin != null)
 			{
@@ -318,7 +326,7 @@ extends AbstractPlugin
 				
 				if (!isWildcard(origin))
 				{
-					response.addHeader(HttpHeaders.Names.VARY, "origin");
+					response.addHeader(HttpHeaderNames.VARY.toString(), "origin");
 				}
 			}
 
@@ -344,30 +352,32 @@ extends AbstractPlugin
 			{
 				response.addHeader(CORS_EXPOSE_HEADERS_HEADER, exposeHeadersHeader);
 			}
+		
+			if (allowCredentials)
+			{
+				response.addHeader(CORS_ALLOW_CREDENTIALS_HEADER, "true");
+			}
 		}
 
 		private boolean isWildcard(String origin)
 		{
-			return (origin != null ? origin.trim().equals("*") : false);
+			return (origin != null && origin.trim().equals(WILDCARD_ORIGIN));
 		}
 
-		private String computeAllowedOrigins(Request request)
+		private String computeOrigin(Request request)
 		{
-			if (usesOriginParameter)
-			{
-				String origin = request.getHeader(HttpHeaders.Names.ORIGIN);
+			String origin = request.getHeader(HttpHeaderNames.ORIGIN.toString());
 
-				if (origin != null)
-				{
-					return allowOriginsHeader.replaceAll(ORIGIN_PATTERN, origin);
-				}
-
-				return null;
-			}
-			else
+			if (echoesOrigin || allowedOrigins.contains(origin))
 			{
-				return allowOriginsHeader;
+				return origin;
 			}
+			else if (allowedOrigins.contains(WILDCARD_ORIGIN))
+			{
+				return WILDCARD_ORIGIN;
+			}
+
+			return null;
 		}
 	}
 }
