@@ -78,9 +78,14 @@ extends AbstractPlugin
 	private List<String> flags = new ArrayList<>();
 	private Map<String, Object> parameters = new HashMap<>();
 
-	public CorsHeaderPlugin(String... origins)
+	public CorsHeaderPlugin()
 	{
 		super();
+	}
+
+	public CorsHeaderPlugin(String... origins)
+	{
+		this();
 		this.allowedOrigins = (origins != null ? new HashSet<>(Arrays.asList(origins)) : null);
 	}
 
@@ -119,6 +124,12 @@ extends AbstractPlugin
 	public CorsHeaderPlugin allowCredentials()
 	{
 		shouldAllowCredentials = true;
+		return this;
+	}
+
+	public CorsHeaderPlugin echoOrigin()
+	{
+		this.allowedOrigins = null;
 		return this;
 	}
 
