@@ -17,11 +17,11 @@ public class Link extends Reference{
 		super(ref);
 	}
 	
-	public Link(io.swagger.oas.annotations.links.Link l) {
+	public Link(io.swagger.v3.oas.annotations.links.Link l) {
 		setOperationRef(OpenApi.nullIfEmpty(l.operationRef()));
 		setOperationId(OpenApi.nullIfEmpty(l.operationId()));
 		
-		for(io.swagger.oas.annotations.links.LinkParameter lp: l.parameters()) {
+		for(io.swagger.v3.oas.annotations.links.LinkParameter lp: l.parameters()) {
 			String name = OpenApi.nullIfEmpty(lp.name());
 			if(name != null) {
 				getParameters().put(name, new LinkParameter(lp));				

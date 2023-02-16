@@ -13,7 +13,7 @@ public class Example extends Reference{
 		super(ref);
 	}
 	
-	public Example(io.swagger.oas.annotations.media.ExampleObject e) {
+	public Example(io.swagger.v3.oas.annotations.media.ExampleObject e) {
 		setSummary(OpenApi.nullIfEmpty(e.summary()));
 		//TODO: description in annotation missing setDescription(OpenApi.nullIfEmpty(e.description()));
 		setValue(OpenApi.nullIfEmpty(e.value()));

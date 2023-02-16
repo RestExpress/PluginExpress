@@ -44,7 +44,7 @@ public class Schema extends Reference{
 		super(ref);
 	}
 	
-	public Schema(io.swagger.oas.annotations.media.Schema schema) {
+	public Schema(io.swagger.v3.oas.annotations.media.Schema schema) {
 		setRef(OpenApi.nullIfEmpty(schema.ref()));
 		setTitle(OpenApi.nullIfEmpty(schema.title()));
 		setMultipleOf(schema.multipleOf());

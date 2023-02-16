@@ -11,7 +11,7 @@ public class ExternalDocumentation {
 		setUrl(url);
 	}
 	
-	public ExternalDocumentation(io.swagger.oas.annotations.ExternalDocumentation externalDocs) {
+	public ExternalDocumentation(io.swagger.v3.oas.annotations.ExternalDocumentation externalDocs) {
 		setDescription(OpenApi.nullIfEmpty(externalDocs.description()));
 		setUrl(OpenApi.nullIfEmpty(externalDocs.url()));
 	}

@@ -142,8 +142,8 @@ public class SwaggerController implements Callback<RouteBuilder> {
 			Operation operation;
 			Method m = route.getAction();
 			
-			if (m.isAnnotationPresent(io.swagger.oas.annotations.Operation.class)) {
-				operation = new Operation(m.getAnnotation(io.swagger.oas.annotations.Operation.class));
+			if (m.isAnnotationPresent(io.swagger.v3.oas.annotations.Operation.class)) {
+				operation = new Operation(m.getAnnotation(io.swagger.v3.oas.annotations.Operation.class));
 			} else {
 				operation = new Operation();
 			}
@@ -166,8 +166,8 @@ public class SwaggerController implements Callback<RouteBuilder> {
 
 	private boolean isRouteHidden(Route route) {
 		Method method = route.getAction();
-		if (method.isAnnotationPresent(io.swagger.oas.annotations.Operation.class)) {
-			return (method.isAnnotationPresent(io.swagger.oas.annotations.Hidden.class));
+		if (method.isAnnotationPresent(io.swagger.v3.oas.annotations.Operation.class)) {
+			return (method.isAnnotationPresent(io.swagger.v3.oas.annotations.Hidden.class));
 		}
 
 		return shouldShowAnnotatedOnly;

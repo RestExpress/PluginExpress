@@ -27,7 +27,7 @@ public class Operation {
 		
 	}
 	
-	public Operation(io.swagger.oas.annotations.Operation op) {
+	public Operation(io.swagger.v3.oas.annotations.Operation op) {
 		setTags(Arrays.asList(op.tags()));
 		setSummary(OpenApi.nullIfEmpty(op.summary()));
 		setDescription(OpenApi.nullIfEmpty(op.description()));
@@ -37,7 +37,7 @@ public class Operation {
 		}
 		setOperationId(OpenApi.nullIfEmpty(op.operationId()));
 		
-		for(io.swagger.oas.annotations.Parameter p : op.parameters()) {
+		for(io.swagger.v3.oas.annotations.Parameter p : op.parameters()) {
 			getParameters().add(new Parameter(p));
 		}
 		
@@ -46,7 +46,7 @@ public class Operation {
 			setRequestBody(null);
 		}
 		
-		for(io.swagger.oas.annotations.responses.ApiResponse r : op.responses()) {
+		for(io.swagger.v3.oas.annotations.responses.ApiResponse r : op.responses()) {
 			if(OpenApi.nullIfEmpty(r.responseCode()) != null) {
 				getResponses().put(r.responseCode(), new Response(r));
 			}
@@ -56,7 +56,7 @@ public class Operation {
 		
 		setDeprecated(op.deprecated());
 		
-		for(io.swagger.oas.annotations.security.SecurityRequirement sr : op.security()) {
+		for(io.swagger.v3.oas.annotations.security.SecurityRequirement sr : op.security()) {
 			if(OpenApi.nullIfEmpty(sr.name()) != null) {
 				Map<String, String[]> sec = new HashMap<String, String[]>();
 				sec.put(sr.name(), sr.scopes());
@@ -64,7 +64,7 @@ public class Operation {
 			}
 		}
 		
-		for(io.swagger.oas.annotations.servers.Server s : op.servers()) {
+		for(io.swagger.v3.oas.annotations.servers.Server s : op.servers()) {
 			getServers().add(new Server(s));
 		}
 	}
